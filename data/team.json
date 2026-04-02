@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Alex Carter",
+    "role": "Team Captain",
+    "photo": "/images/team/alex.jpg",
+    "shortBio": "Leads strategy development and oversees build milestones.",
+    "responsibilities": ["Match planning", "Team coordination", "Leadership"],
+    "favouriteMoment": "Winning first regional championship with a week of battery left."
+  },
+  {
+    "name": "Jordan Lee",
+    "role": "Lead Programmer",
+    "photo": "/images/team/jordan.jpg",
+    "shortBio": "Architects autonomous routines and fine-tunes robot control code.",
+    "responsibilities": ["Autonomous code", "Sensor calibration", "Drive tuning"],
+    "favouriteMoment": "Seeing the robot perform a perfect autonomous stack for the first time."
+  },
+  {
+    "name": "Sam Taylor",
+    "role": "Mechanical Lead",
+    "photo": "/images/team/sam.jpg",
+    "shortBio": "Designs and builds structural systems for reliability under load.",
+    "responsibilities": ["CAD design", "Fabrication", "Mechanism testing"],
+    "favouriteMoment": "Finalizing the intake mechanism that held through the toughest matches."
+  },
+  {
+    "name": "Morgan Kim",
+    "role": "Strategy & Outreach", 
+    "photo": "/images/team/morgan.jpg",
+    "shortBio": "Coordinates scouting, data analysis, and community engagement.",
+    "responsibilities": ["Match analysis", "Scout network", "Community outreach"],
+    "favouriteMoment": "Presenting team results to school leadership and gaining a new sponsor."
+  }
+]
