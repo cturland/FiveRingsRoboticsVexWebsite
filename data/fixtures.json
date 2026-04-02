@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "eventName": "Regional Qualifiers",
+    "location": "ISL Gym",
+    "startDate": "2026-04-20",
+    "endDate": "2026-04-22",
+    "season": "2026",
+    "link": "https://example.com/fixtures/regional-qualifiers"
+  },
+  {
+    "id": 2,
+    "eventName": "State Championship",
+    "location": "City Arena",
+    "startDate": "2026-05-10",
+    "endDate": "2026-05-12",
+    "season": "2026",
+    "link": "https://example.com/fixtures/state-championship"
+  },
+  {
+    "id": 3,
+    "eventName": "Practice Match Week",
+    "location": "School Gym",
+    "startDate": "2026-04-05",
+    "endDate": "2026-04-07",
+    "season": "2026",
+    "link": "https://example.com/fixtures/practice-match-week"
+  }
+]

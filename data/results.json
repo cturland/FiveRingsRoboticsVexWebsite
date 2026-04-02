@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "eventName": "Regional Qualifiers",
+    "date": "2026-04-22",
+    "placement": "2nd Place",
+    "awards": "Best Drive Team",
+    "link": "https://example.com/results/regional-qualifiers"
+  },
+  {
+    "id": 2,
+    "eventName": "State Championship",
+    "date": "2026-05-12",
+    "placement": "Top 8",
+    "awards": "Judges’ Award",
+    "link": "https://example.com/results/state-championship"
+  },
+  {
+    "id": 3,
+    "eventName": "Super Regional",
+    "date": "2025-11-03",
+    "placement": "3rd Place",
+    "awards": "Excellence Award",
+    "link": "https://example.com/results/super-regional"
+  }
+]

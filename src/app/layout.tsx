@@ -1,16 +1,27 @@
 import type { Metadata } from 'next';
+import { Manrope, Orbitron } from 'next/font/google';
 import './globals.css';
 import Layout from '@/components/Layout';
 
+const manrope = Manrope({
+  subsets: ['latin'],
+  variable: '--font-body',
+});
+
+const orbitron = Orbitron({
+  subsets: ['latin'],
+  variable: '--font-display',
+});
+
 export const metadata: Metadata = {
-  title: 'VEX Robotics Team',
-  description: 'Official school VEX robotics team website',
+  title: 'Five Rings Robotics | Team 21052A',
+  description: 'Official Five Rings Robotics website for Team 21052A.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${manrope.variable} ${orbitron.variable}`}>
         <Layout>{children}</Layout>
       </body>
     </html>
