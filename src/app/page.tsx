@@ -155,8 +155,8 @@ export default async function Home() {
   const latestOpponentAlliance = getAllianceStyles(latestResult.opponentAllianceColor, true);
 
   return (
-    <div className="space-y-16 pb-6 md:space-y-20">
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(11,24,40,0.96),rgba(8,16,29,0.92))] px-6 py-8 shadow-[0_40px_120px_rgba(0,0,0,0.35)] md:px-10 md:py-12">
+    <div className="space-y-12 pb-6 md:space-y-20">
+      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(11,24,40,0.96),rgba(8,16,29,0.92))] px-5 py-7 shadow-[0_40px_120px_rgba(0,0,0,0.35)] md:px-10 md:py-12">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-[-4rem] top-[-3rem] h-48 w-48 rounded-full bg-red-500/12 blur-3xl"></div>
           <div className="absolute bottom-[-5rem] right-[-2rem] h-56 w-56 rounded-full bg-blue-500/8 blur-3xl"></div>
@@ -166,7 +166,7 @@ export default async function Home() {
         <div className="relative grid gap-8 lg:grid-cols-[1.35fr_0.9fr] lg:items-start">
           <div className="max-w-3xl lg:pt-4">
             <span className="eyebrow mb-5">Official Team Site</span>
-            <h1 className="heading-primary max-w-4xl text-5xl font-black text-white md:text-[4.5rem]">
+            <h1 className="heading-primary max-w-4xl text-4xl font-black text-white sm:text-5xl md:text-[4.5rem]">
               Five Rings
               <span className="mt-2 block text-red-500">Robotics</span>
             </h1>
@@ -226,7 +226,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="rounded-[1.8rem] border border-white/10 bg-[rgba(255,255,255,0.03)] px-5 py-6 backdrop-blur-sm md:px-8">
+      <section className="rounded-[1.8rem] border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-5 backdrop-blur-sm md:px-8 md:py-6">
         <div className="grid gap-4 md:grid-cols-4">
           {teamStats.map((stat) => (
             <div key={stat.label} className="rounded-[1.4rem] border border-white/8 bg-[rgba(255,255,255,0.03)] px-5 py-5">

@@ -13,7 +13,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col bg-transparent text-[var(--color-text)]">
       {!isDisplayRoute ? <Navbar /> : null}
       <main className="flex-1 w-full"> 
-        <div className={isDisplayRoute ? 'min-h-screen' : 'container py-8 md:py-10'}>{children}</div>
+        <div className={isDisplayRoute ? 'min-h-screen' : 'container py-5 md:py-10'}>{children}</div>
       </main>
       {!isDisplayRoute ? <Footer /> : null}
     </div>
