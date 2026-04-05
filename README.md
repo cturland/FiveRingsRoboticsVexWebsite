@@ -1,28 +1,13 @@
 # 21052A Robotics Team Website
 
-A simple Next.js site for the Five Rings Robotics VEX robotics team (21052A) to track:
-- home page information and news
-- gallery photos
-- upcoming fixtures
-- past results
-- team members
-- basic blog posts
+A Next.js site for Five Rings Robotics (Team 21052A) with:
+- team information
+- fixtures and results
+- a public Highlights page
+- a protected student upload flow
+- a simple admin approval workflow for new photo submissions
 
-This repo is designed for students (beginner-friendly), with easy JSON data files and a minimal UI.
-
-## 1. What this site is for
-
-This site provides a team portal for:
-- showing team name and mission
-- listing next competitions, build sessions, and events
-- displaying recent match results
-- sharing team member profiles and values
-- gallery images from build and competition activities
-- team news posts
-
-The site is built in Next.js, Tailwind CSS, and uses local JSON files as data sources.
-
-## 2. Run locally
+## Run locally
 
 1. Install dependencies:
 
@@ -30,152 +15,105 @@ The site is built in Next.js, Tailwind CSS, and uses local JSON files as data so
 npm install
 ```
 
-2. Run development server:
+2. Run the development server:
 
 ```bash
 npm run dev
 ```
 
-3. Open in browser:
+3. Open:
 
 `http://localhost:3000`
 
-4. Run linter anytime:
+4. Run lint anytime:
 
 ```bash
 npm run lint
 ```
 
-## 3. Add a new team member
+## Environment variables
 
-Team data lives at `data/team.json`.
+Set these in `.env.local`:
 
-Each member object should include:
-- `name`
-- `role`
-- `photo` (path under `public/images/team` ideally)
-- `shortBio`
-- `responsibilities` (array of strings)
-- `favouriteMoment`
-
-Example:
-
-```json
-{
-  "name": "Ava Martinez",
-  "role": "Driver",
-  "photo": "/images/team/ava.jpg",
-  "shortBio": "Dedicated robotics driver and controls student.",
-  "responsibilities": ["Practice robot driving", "Tune controls"],
-  "favouriteMoment": "Winning our first regional match"
-}
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+NEXT_PUBLIC_SUPABASE_GALLERY_BUCKET=gallery-uploads
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+ROBOTEVENTS_API_TOKEN=your_api_token_here
+ROBOTEVENTS_DEBUG=false
 ```
 
-After editing, refresh `http://localhost:3000/team`.
+Set `ROBOTEVENTS_DEBUG=true` in `.env.local` if you want verbose RobotEvents request logging while debugging locally.
 
-## 4. Add a blog post
+## Student upload flow
 
-Blog posts are in `content/posts/` as markdown (`.md`).
+Student upload access is controlled by:
 
-Template file format:
+- [`data/upload-allowed-users.json`](data/upload-allowed-users.json)
 
-```md
----
-title: "Post title"
-date: "2026-04-01"
-summary: "Short summary text"
-slug: "post-slug"
----
+Only approved school email addresses can sign in and submit uploads.
 
-Post content goes here in markdown.
+Uploads go through this flow:
+
+1. student signs in with Supabase magic link
+2. approved uploader submits image, title, category, and date
+3. image is stored in Supabase Storage
+4. a `gallery_submissions` row is created with `status = 'pending'`
+5. admin approves it
+6. approved items appear on the public Highlights page and homepage preview
+
+## Admin approval flow
+
+Admin access is controlled by the `gallery_admins` table in Supabase.
+
+Add an admin with:
+
+```sql
+insert into public.gallery_admins (email)
+values ('your-email@isl.ch');
 ```
 
-Save file and open `http://localhost:3000/blog`.
+Then sign in and open:
 
-## 5. Add gallery images
+`/admin/gallery`
 
-Gallery items come from `data/gallery.json` and files in `public/images/gallery/`.
+## Supabase migrations
 
-Add a JSON item:
+This repo includes migrations for:
 
-```json
-{
-  "id": 9,
-  "image": "/images/gallery/new-photo.jpg",
-  "title": "Practice tower climb",
-  "category": "Build Season",
-  "date": "2026-04-10"
-}
-```
+- gallery uploads bucket
+- gallery submissions table
+- approved public gallery read policy
+- gallery admins table and approval permissions
 
-Put the actual image at `public/images/gallery/new-photo.jpg`.
+They live in:
 
-Refresh `http://localhost:3000/gallery`.
+- [`supabase/migrations`](supabase/migrations)
 
-## 6. Update fixtures and results manually
+## Editing team data
 
-Fixtures: `data/fixtures.json` contains upcoming events.
+Team roster data lives in:
 
-Example entry:
+- [`data/team.json`](data/team.json)
 
-```json
-{
-  "id": 4,
-  "eventName": "District Championship",
-  "location": "City Arena",
-  "startDate": "2026-06-01",
-  "endDate": "2026-06-03",
-  "season": "2026",
-  "link": "https://example.com/fixtures/district"
-}
-```
+Fixtures and results fallback data live in:
 
-Results: `data/results.json` contains previous event results.
+- [`data/fixtures.json`](data/fixtures.json)
+- [`data/results.json`](data/results.json)
 
-Example entry:
+## Project structure
 
-```json
-{
-  "id": 4,
-  "eventName": "District Championship",
-  "date": "2026-06-03",
-  "placement": "1st Place",
-  "awards": "Excellence Award",
-  "link": "https://example.com/results/district"
-}
-```
+- [`src/app/page.tsx`](src/app/page.tsx): homepage
+- [`src/app/gallery/page.tsx`](src/app/gallery/page.tsx): public Highlights page
+- [`src/app/upload/page.tsx`](src/app/upload/page.tsx): protected student upload page
+- [`src/app/admin/gallery/page.tsx`](src/app/admin/gallery/page.tsx): admin approval page
+- [`src/lib/gallery.ts`](src/lib/gallery.ts): approved Highlights reader
+- [`src/lib/gallerySubmissions.ts`](src/lib/gallerySubmissions.ts): pending submission insert helper
+- [`src/lib/galleryAdmin.ts`](src/lib/galleryAdmin.ts): admin moderation data helper
 
-Refresh appropriate pages after editing.
+## Notes
 
-## 7. RobotEvents API integration (future)
-
-This project currently uses local JSON files for fixtures and results. The planned endpoint scaffolding is:
-- `src/app/api/robotevents/route.ts` (server API route placeholder)
-- `src/lib/robotevents.ts` (data mapping + fetching utility)
-
-Once API access is available:
-1. Set environment variables in `.env`:
-   - `ROBOTEVENTS_API_KEY=your-token`
-   - `ROBOTEVENTS_BASE_URL=https://www.robotevents.com/api`
-2. Implement real fetch logic in `src/lib/robotevents.ts`
-3. Consume those functions in `src/app/api/robotevents/route.ts` or directly in pages.
-4. Optionally replace local files with API responses, or use local files as fallback if API is unavailable.
-
-## 8. Project structure quick reference
-
-- `src/app/page.tsx` – home page
-- `src/app/gallery/page.tsx` – gallery
-- `src/app/fixtures/page.tsx` – fixtures
-- `src/app/results/page.tsx` – results
-- `src/app/team/page.tsx` – team roster
-- `data/*.json` – local data sources (team, fixtures, results, gallery)
-- `content/posts` – blog markdown files
-- `src/components` – reusable UI components
-
----
-
-### Notes for non-experts
-
-- No backend server is needed beyond Next.js dev server.
-- Editing a JSON file and saving is enough; the page loads updated data immediately.
-- If random style issues appear, run `npm run lint` then restart dev server.
+- The public Highlights page no longer reads from `data/gallery.json`; it reads approved Supabase submissions.
+- The old blog feature has been removed.
+- If uploads fail, check your Supabase bucket, RLS policies, and table migrations first.

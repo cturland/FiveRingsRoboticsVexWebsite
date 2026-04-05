@@ -5,6 +5,8 @@ type ResultCardProps = {
   season: string;
   date: string;
   placement: string;
+  ourAllianceColor: string;
+  opponentAllianceColor: string;
   awards: string;
   opponentScore: string;
   ourTeams: string;
@@ -35,11 +37,39 @@ function splitTeams(teams: string) {
     .filter(Boolean);
 }
 
+function getAllianceStyles(color: string, isOpponent = false) {
+  const normalized = color.toLowerCase();
+
+  if (normalized === 'blue') {
+    return {
+      panelClass: 'border-blue-400/20 bg-blue-500/10',
+      labelClass: 'text-blue-300',
+      label: isOpponent ? 'Blue Alliance' : 'Our Alliance',
+    };
+  }
+
+  if (normalized === 'red') {
+    return {
+      panelClass: 'border-red-500/20 bg-red-500/10',
+      labelClass: 'text-red-300',
+      label: isOpponent ? 'Red Alliance' : 'Our Alliance',
+    };
+  }
+
+  return {
+    panelClass: 'border-white/10 bg-white/5',
+    labelClass: 'text-slate-300',
+    label: isOpponent ? 'Opponent' : 'Our Alliance',
+  };
+}
+
 export default function ResultCard({
   eventName,
   season,
   date,
   placement,
+  ourAllianceColor,
+  opponentAllianceColor,
   awards,
   opponentScore,
   ourTeams,
@@ -51,6 +81,8 @@ export default function ResultCard({
     : placement === 'Loss'
       ? 'bg-red-500'
       : 'bg-yellow-500';
+  const ourAlliance = getAllianceStyles(ourAllianceColor);
+  const opponentAlliance = getAllianceStyles(opponentAllianceColor, true);
 
   return (
     <Card className="rounded-[1.6rem]">
@@ -72,8 +104,8 @@ export default function ResultCard({
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <div className="rounded-[1.25rem] border border-red-500/20 bg-red-500/10 p-4">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-red-300">Our Alliance</p>
+          <div className={`rounded-[1.25rem] p-4 ${ourAlliance.panelClass}`}>
+            <p className={`text-xs font-black uppercase tracking-[0.22em] ${ourAlliance.labelClass}`}>{ourAlliance.label}</p>
             <p className="mt-2 text-3xl font-black text-white">{awards || '0'}</p>
             <div className="mt-3 space-y-1 text-sm font-semibold text-slate-100">
               {splitTeams(ourTeams).map((team) => (
@@ -81,8 +113,8 @@ export default function ResultCard({
               ))}
             </div>
           </div>
-          <div className="rounded-[1.25rem] border border-blue-400/20 bg-blue-500/10 p-4">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-300">Opponent</p>
+          <div className={`rounded-[1.25rem] p-4 ${opponentAlliance.panelClass}`}>
+            <p className={`text-xs font-black uppercase tracking-[0.22em] ${opponentAlliance.labelClass}`}>{opponentAlliance.label}</p>
             <p className="mt-2 text-3xl font-black text-white">{opponentScore || '0'}</p>
             <div className="mt-3 space-y-1 text-sm font-semibold text-slate-100">
               {splitTeams(opponentTeams).map((team) => (

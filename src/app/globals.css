@@ -60,7 +60,7 @@ a:focus-visible {
 }
 
 .btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-extrabold uppercase tracking-[0.18em] transition-all duration-200 ease-out;
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-extrabold uppercase tracking-[0.16em] transition-all duration-200 ease-out;
   box-shadow: var(--shadow-soft);
 }
 
@@ -70,6 +70,7 @@ a:focus-visible {
 
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-accent) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   color: white;
 }
 
@@ -78,10 +79,11 @@ a:focus-visible {
 }
 
 .btn-secondary {
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.03);
-  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(248, 250, 252, 0.92);
   backdrop-filter: blur(14px);
+  box-shadow: none;
 }
 
 .btn-secondary:hover {
@@ -112,12 +114,12 @@ a:focus-visible {
 .heading-primary,
 .heading-display {
   font-family: var(--font-display), var(--font-body), sans-serif;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 .heading-primary {
-  line-height: 0.96;
+  line-height: 0.94;
 }
 
 .heading-secondary {

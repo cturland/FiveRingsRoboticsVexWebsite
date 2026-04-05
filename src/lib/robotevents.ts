@@ -1,3 +1,5 @@
+import { cache } from 'react';
+
 export type RobotEventsFixture = {
   id: number;
   eventName: string;
@@ -16,6 +18,8 @@ export type RobotEventsResult = {
   season: string;
   date: string;
   placement: string;
+  ourAllianceColor: string;
+  opponentAllianceColor: string;
   awards: string;
   opponentScore: string;
   ourTeams: string;
@@ -51,6 +55,7 @@ export type RobotEventsSeasonStats = {
 const ROBOTEVENTS_BASE_URL = "https://www.robotevents.com/api/v2";
 const TEAM_NUMBER = "21052A";
 const ROBOTEVENTS_API_TOKEN = process.env.ROBOTEVENTS_API_TOKEN;
+const ROBOTEVENTS_DEBUG = process.env.ROBOTEVENTS_DEBUG === 'true';
 
 type RobotEventsTeamDetails = {
   id: number;
@@ -65,6 +70,12 @@ function buildRobotEventsLink(eventCode?: string, anchor?: string) {
 
   const suffix = anchor ? `#${anchor}` : '';
   return `https://www.robotevents.com/robot-competitions/vex-robotics-competition/${eventCode}.html${suffix}`;
+}
+
+function logRobotEventsDebug(message: string, ...args: unknown[]) {
+  if (ROBOTEVENTS_DEBUG) {
+    console.log(message, ...args);
+  }
 }
 
 function getMatchTimestamp(match: any) {
@@ -112,10 +123,10 @@ function isCountableForStats(match: any, teamId: number) {
 }
 
 // Helper function to fetch from RobotEvents API
-async function fetchFromRobotEvents(endpoint: string) {
+const fetchFromRobotEvents = cache(async (endpoint: string) => {
   try {
     const url = `${ROBOTEVENTS_BASE_URL}${endpoint}`;
-    console.log(`[RobotEvents] Fetching: ${url}`);
+    logRobotEventsDebug(`[RobotEvents] Fetching: ${url}`);
     
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -123,7 +134,7 @@ async function fetchFromRobotEvents(endpoint: string) {
     
     if (ROBOTEVENTS_API_TOKEN) {
       headers["Authorization"] = `Bearer ${ROBOTEVENTS_API_TOKEN}`;
-      console.log('[RobotEvents] Using API token for authentication');
+      logRobotEventsDebug('[RobotEvents] Using API token for authentication');
     } else {
       console.warn('[RobotEvents] No API token found in environment variables');
     }
@@ -134,22 +145,22 @@ async function fetchFromRobotEvents(endpoint: string) {
       next: { revalidate: 300 }, // Cache for 5 minutes
     });
 
-    console.log(`[RobotEvents] Response status: ${res.status}`);
+    logRobotEventsDebug(`[RobotEvents] Response status: ${res.status}`);
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     }
 
     const data = await res.json();
-    console.log(`[RobotEvents] Data received:`, data);
+    logRobotEventsDebug(`[RobotEvents] Data received:`, data);
     return data;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`[RobotEvents] Error fetching from ${endpoint}: ${errorMessage}`);
     throw error;
   }
-}
+});
 
-async function fetchAllPagesFromRobotEvents(endpoint: string) {
+const fetchAllPagesFromRobotEvents = cache(async (endpoint: string) => {
   const allRows: any[] = [];
   let page = 1;
   let lastPage = 1;
@@ -164,7 +175,7 @@ async function fetchAllPagesFromRobotEvents(endpoint: string) {
   } while (page <= lastPage);
 
   return allRows;
-}
+});
 
 const teamDetailsCache = new Map<number, Promise<RobotEventsTeamDetails | null>>();
 
@@ -214,25 +225,24 @@ async function formatAllianceTeams(alliance: any): Promise<string> {
 }
 
 // Fetch team ID from team number
-export async function getTeamIdByNumber(teamNumber: string = TEAM_NUMBER): Promise<number | null> {
+export const getTeamIdByNumber = cache(async (teamNumber: string = TEAM_NUMBER): Promise<number | null> => {
   try {
     const data = await fetchFromRobotEvents(`/teams?number=${teamNumber}`);
     if (!data?.data || data.data.length === 0) {
       throw new Error(`Team ${teamNumber} not found in RobotEvents database`);
     }
-    console.log(`[RobotEvents] Found team ID: ${data.data[0].id} for team ${teamNumber}`);
+    logRobotEventsDebug(`[RobotEvents] Found team ID: ${data.data[0].id} for team ${teamNumber}`);
     return data.data[0].id;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`[RobotEvents] Failed to get team ID: ${errorMessage}`);
     throw error;
   }
-}
+});
 
 // Get upcoming events for the team
-export async function fetchRoboteventsFixtures(): Promise<RobotEventsFixture[]> {
+export const fetchRoboteventsFixtures = cache(async (): Promise<RobotEventsFixture[]> => {
   try {
-    console.log('[RobotEvents] Fetching fixtures...');
     const teamId = await getTeamIdByNumber();
     if (!teamId) {
       throw new Error('Could not get team ID for 21052A');
@@ -261,19 +271,18 @@ export async function fetchRoboteventsFixtures(): Promise<RobotEventsFixture[]> 
         link: buildRobotEventsLink(event.sku),
       }));
     
-    console.log(`[RobotEvents] Fetched ${fixtures.length} upcoming fixtures`);
+    logRobotEventsDebug(`[RobotEvents] Fetched ${fixtures.length} upcoming fixtures`);
     return fixtures;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`[RobotEvents] Failed to fetch fixtures: ${errorMessage}`);
     throw error;
   }
-}
+});
 
 // Get past match results for the team
-export async function fetchRoboteventsResults(): Promise<RobotEventsResult[]> {
+export const fetchRoboteventsResults = cache(async (): Promise<RobotEventsResult[]> => {
   try {
-    console.log('[RobotEvents] Fetching results...');
     const teamId = await getTeamIdByNumber();
     if (!teamId) {
       throw new Error('Could not get team ID for 21052A');
@@ -282,14 +291,13 @@ export async function fetchRoboteventsResults(): Promise<RobotEventsResult[]> {
     const matchesEndpoint = `/teams/${teamId}/matches`;
     const eventsEndpoint = `/teams/${teamId}/events`;
     const fullUrl = `https://www.robotevents.com/api/v2${matchesEndpoint}`;
-    console.log('[RobotEvents] Fetching matches from:', fullUrl);
-    console.log('[RobotEvents] You can test this URL in your browser: ', fullUrl);
+    logRobotEventsDebug('[RobotEvents] Fetching matches from:', fullUrl);
     
     const [matches, events] = await Promise.all([
       fetchAllPagesFromRobotEvents(matchesEndpoint),
       fetchAllPagesFromRobotEvents(eventsEndpoint),
     ]);
-    console.log('[RobotEvents] Raw matches response count:', matches.length);
+    logRobotEventsDebug('[RobotEvents] Raw matches response count:', matches.length);
     
     if (!Array.isArray(matches) || matches.length === 0) {
       console.warn('[RobotEvents] No match results found for team');
@@ -318,7 +326,7 @@ export async function fetchRoboteventsResults(): Promise<RobotEventsResult[]> {
     const playedMatches = matches
       .filter((match: any) => {
         const includeMatch = hasUsableMatchData(match);
-        console.log('[RobotEvents] Processing match:', { id: match.id, scored: match.scored, started: match.started, updatedAt: match.updated_at, name: match.name, includeMatch });
+        logRobotEventsDebug('[RobotEvents] Processing match:', { id: match.id, scored: match.scored, started: match.started, updatedAt: match.updated_at, name: match.name, includeMatch });
         return includeMatch;
       })
       .sort((a: any, b: any) => {
@@ -334,7 +342,7 @@ export async function fetchRoboteventsResults(): Promise<RobotEventsResult[]> {
         const opponentTeams = await formatAllianceTeams(opponentAlliance);
         const season = seasonByEventId.get(match.event?.id) || seasonByEventCode.get(match.event?.code) || 'Unknown Season';
         
-        console.log('[RobotEvents] Match details:', {
+        logRobotEventsDebug('[RobotEvents] Match details:', {
           id: match.id,
           event: match.event?.name,
           season,
@@ -353,6 +361,8 @@ export async function fetchRoboteventsResults(): Promise<RobotEventsResult[]> {
           season,
           date: getMatchTimestamp(match),
           placement: result,
+          ourAllianceColor: (ourAlliance?.color || 'unknown').toLowerCase(),
+          opponentAllianceColor: (opponentAlliance?.color || 'unknown').toLowerCase(),
           awards: ourScore.toString(),
           opponentScore: opponentScore.toString(),
           ourTeams,
@@ -361,18 +371,17 @@ export async function fetchRoboteventsResults(): Promise<RobotEventsResult[]> {
         };
       }));
     
-    console.log(`[RobotEvents] Fetched ${results.length} match results`);
+    logRobotEventsDebug(`[RobotEvents] Fetched ${results.length} match results`);
     return results;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`[RobotEvents] Failed to fetch results: ${errorMessage}`);
     throw error;
   }
-}
+});
 
-export async function fetchRoboteventsSummary(): Promise<RobotEventsSummary> {
+export const fetchRoboteventsSummary = cache(async (): Promise<RobotEventsSummary> => {
   try {
-    console.log('[RobotEvents] Fetching summary...');
     const teamId = await getTeamIdByNumber();
     if (!teamId) {
       throw new Error('Could not get team ID for 21052A');
@@ -431,11 +440,10 @@ export async function fetchRoboteventsSummary(): Promise<RobotEventsSummary> {
     console.error(`[RobotEvents] Failed to fetch summary: ${errorMessage}`);
     throw error;
   }
-}
+});
 
-export async function fetchRoboteventsSeasonStats(): Promise<RobotEventsSeasonStats[]> {
+export const fetchRoboteventsSeasonStats = cache(async (): Promise<RobotEventsSeasonStats[]> => {
   try {
-    console.log('[RobotEvents] Fetching season stats...');
     const teamId = await getTeamIdByNumber();
     if (!teamId) {
       throw new Error('Could not get team ID for 21052A');
@@ -558,4 +566,4 @@ export async function fetchRoboteventsSeasonStats(): Promise<RobotEventsSeasonSt
     console.error(`[RobotEvents] Failed to fetch season stats: ${errorMessage}`);
     throw error;
   }
-}
+});

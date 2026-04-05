@@ -48,6 +48,32 @@ function splitTeams(teams: string) {
     .filter(Boolean);
 }
 
+function getAllianceStyles(color: string, isOpponent = false) {
+  const normalized = color.toLowerCase();
+
+  if (normalized === 'blue') {
+    return {
+      panelClass: 'border-blue-400/20 bg-blue-500/10',
+      labelClass: 'text-blue-300',
+      label: isOpponent ? 'Blue Alliance' : 'Our Alliance',
+    };
+  }
+
+  if (normalized === 'red') {
+    return {
+      panelClass: 'border-red-500/20 bg-red-500/10',
+      labelClass: 'text-red-300',
+      label: isOpponent ? 'Red Alliance' : 'Our Alliance',
+    };
+  }
+
+  return {
+    panelClass: 'border-white/10 bg-white/5',
+    labelClass: 'text-slate-300',
+    label: isOpponent ? 'Opponent' : 'Our Alliance',
+  };
+}
+
 type TournamentGroup = {
   key: string;
   eventName: string;
@@ -225,45 +251,55 @@ export default function ResultsHistory({ results, seasonStats, error }: ResultsH
                         : result.placement === 'Loss'
                           ? 'bg-red-500'
                           : 'bg-yellow-500';
+                      const ourAlliance = getAllianceStyles(result.ourAllianceColor);
+                      const opponentAlliance = getAllianceStyles(result.opponentAllianceColor, true);
 
                       return (
                         <div key={result.id ?? `${result.eventCode}-${result.date}`} className="rounded-[1.2rem] border border-white/10 bg-[rgba(8,16,29,0.45)] px-4 py-4">
-                          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                            <div className="min-w-0">
-                              <div className="flex flex-wrap items-center gap-3">
-                                <p className="text-base font-black text-white">{result.date ? formatMatchDate(result.date) : 'Time unavailable'}</p>
-                                <span className={`${badgeClass} rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-white`}>
-                                  {result.placement}
-                                </span>
+                          <div className="rounded-[0.95rem] border border-white/8 bg-black/15 px-4 py-3">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                              <p className="text-sm font-black uppercase tracking-[0.16em] text-slate-200">
+                                {result.date ? formatMatchDate(result.date) : 'Time unavailable'}
+                              </p>
+                              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                                {result.eventCode || group.eventCode}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                            <div className={`rounded-[1rem] px-4 py-4 ${ourAlliance.panelClass}`}>
+                              <div className="flex items-center justify-between gap-3">
+                                <p className={`text-xs font-black uppercase tracking-[0.18em] ${ourAlliance.labelClass}`}>{ourAlliance.label}</p>
+                                <p className="text-[2rem] font-black leading-none text-white">{result.awards || '0'}</p>
                               </div>
-                              <p className="mt-1 text-sm font-semibold text-[var(--color-muted)]">{result.eventCode || group.eventCode}</p>
+                              <div className="mt-3 space-y-1 text-sm font-semibold text-slate-100">
+                                {splitTeams(result.ourTeams).map((team) => (
+                                  <p key={team}>{team}</p>
+                                ))}
+                              </div>
                             </div>
 
-                            <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[28rem]">
-                              <div className="rounded-[1rem] border border-red-500/20 bg-red-500/10 px-4 py-3">
-                                <div className="flex items-center justify-between gap-3">
-                                  <p className="text-xs font-black uppercase tracking-[0.18em] text-red-300">Our Alliance</p>
-                                  <p className="text-2xl font-black text-white">{result.awards || '0'}</p>
-                                </div>
-                                <div className="mt-2 space-y-1 text-sm font-semibold text-slate-100">
-                                  {splitTeams(result.ourTeams).map((team) => (
-                                    <p key={team}>{team}</p>
-                                  ))}
-                                </div>
+                            <div className={`rounded-[1rem] px-4 py-4 ${opponentAlliance.panelClass}`}>
+                              <div className="flex items-center justify-between gap-3">
+                                <p className={`text-xs font-black uppercase tracking-[0.18em] ${opponentAlliance.labelClass}`}>{opponentAlliance.label}</p>
+                                <p className="text-[2rem] font-black leading-none text-white">{result.opponentScore || '0'}</p>
                               </div>
-
-                              <div className="rounded-[1rem] border border-blue-400/20 bg-blue-500/10 px-4 py-3">
-                                <div className="flex items-center justify-between gap-3">
-                                  <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-300">Opponent</p>
-                                  <p className="text-2xl font-black text-white">{result.opponentScore || '0'}</p>
-                                </div>
-                                <div className="mt-2 space-y-1 text-sm font-semibold text-slate-100">
-                                  {splitTeams(result.opponentTeams).map((team) => (
-                                    <p key={team}>{team}</p>
-                                  ))}
-                                </div>
+                              <div className="mt-3 space-y-1 text-sm font-semibold text-slate-100">
+                                {splitTeams(result.opponentTeams).map((team) => (
+                                  <p key={team}>{team}</p>
+                                ))}
                               </div>
                             </div>
+                          </div>
+
+                          <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+                            <span className={`${badgeClass} rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-white`}>
+                              {result.placement}
+                            </span>
+                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                              Match Result
+                            </p>
                           </div>
                         </div>
                       );

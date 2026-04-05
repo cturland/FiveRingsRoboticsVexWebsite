@@ -1,11 +1,11 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Navbar() {
   const links = [
     { href: '/', label: 'Home' },
     { href: '/team', label: 'Team' },
-    { href: '/blog', label: 'Updates' },
-    { href: '/gallery', label: 'Gallery' },
+    { href: '/gallery', label: 'Highlights' },
     { href: '/fixtures', label: 'Competition' },
   ];
 
@@ -15,7 +15,7 @@ export default function Navbar() {
         <div className="flex flex-col gap-4 py-4 lg:flex-row lg:items-center lg:justify-between">
           <Link href="/" className="group flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-              <img src="/images/FRRLogoBasic.png" alt="FRR Logo" className="h-10 w-auto" />
+              <Image src="/images/FRRLogoBasic.png" alt="FRR Logo" width={128} height={128} className="h-10 w-auto" />
             </div>
             <div>
               <p className="heading-display text-lg font-black text-white transition-colors group-hover:text-red-300">

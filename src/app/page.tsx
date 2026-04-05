@@ -1,28 +1,6 @@
+import Image from 'next/image';
 import { getTeamFixtures, getTeamResults, getTeamSummary } from '@/app/actions';
-
-const latestPosts = [
-  {
-    title: 'Season kickoff recap',
-    date: 'March 20, 2026',
-    summary: 'We unveiled the robot, refined our game plan, and set the tone for the rest of the season.',
-  },
-  {
-    title: 'Build session highlight',
-    date: 'March 28, 2026',
-    summary: 'Driver reps, scoring consistency, and mechanism tuning were the focus of this week’s work.',
-  },
-  {
-    title: 'Worlds prep update',
-    date: 'April 1, 2026',
-    summary: 'The team is locking in performance details and preparing for the next major event on the calendar.',
-  },
-];
-
-const galleryPreview = [
-  { title: 'Competition Day Focus', category: 'Event Floor' },
-  { title: 'Robot Build Sessions', category: 'Engineering' },
-  { title: 'Team Behind The Robot', category: 'Culture' },
-];
+import { getGalleryItems } from '@/lib/gallery';
 
 function formatResultDate(value: string) {
   if (!value) {
@@ -47,12 +25,39 @@ function splitAllianceTeams(teams: string) {
     .filter(Boolean);
 }
 
+function getAllianceStyles(color: string, isOpponent = false) {
+  const normalized = color.toLowerCase();
+
+  if (normalized === 'blue') {
+    return {
+      panelClass: 'border-blue-400/20 bg-blue-500/10',
+      labelClass: 'text-blue-300',
+      label: isOpponent ? 'Blue Alliance' : 'Our Alliance',
+    };
+  }
+
+  if (normalized === 'red') {
+    return {
+      panelClass: 'border-red-500/20 bg-red-500/10',
+      labelClass: 'text-red-300',
+      label: isOpponent ? 'Red Alliance' : 'Our Alliance',
+    };
+  }
+
+  return {
+    panelClass: 'border-white/10 bg-white/5',
+    labelClass: 'text-slate-300',
+    label: isOpponent ? 'Opponent' : 'Our Alliance',
+  };
+}
+
 export default async function Home() {
   const [fixturesResult, resultsResult, summaryResult] = await Promise.all([
     getTeamFixtures(),
     getTeamResults(),
     getTeamSummary(),
   ]);
+  const allGalleryItems = await getGalleryItems();
 
   const fixtures = fixturesResult.success ? fixturesResult.data : [];
   const results = resultsResult.success ? resultsResult.data : [];
@@ -99,6 +104,8 @@ export default async function Home() {
         rank: results[0].placement,
         score: results[0].awards,
         opponentScore: results[0].opponentScore,
+        ourAllianceColor: results[0].ourAllianceColor,
+        opponentAllianceColor: results[0].opponentAllianceColor,
         ourTeams: results[0].ourTeams,
         opponentTeams: results[0].opponentTeams,
         isError: false,
@@ -109,11 +116,18 @@ export default async function Home() {
         rank: 'API Error',
         score: '',
         opponentScore: '',
+        ourAllianceColor: 'unknown',
+        opponentAllianceColor: 'unknown',
         ourTeams: '',
         opponentTeams: '',
         notes: resultsResult.error || 'API connection failed',
         isError: true,
       };
+
+  const galleryItems = allGalleryItems
+    .slice()
+    .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
+    .slice(0, 3);
 
   const teamStats = [
     {
@@ -137,57 +151,59 @@ export default async function Home() {
       detail: `${summary.teamNumber} | ${summary.teamName}`,
     },
   ];
-
-  const performancePoints = [
-    'Live RobotEvents match and event data',
-    'Competition-ready updates and fixtures',
-    'Student-led engineering and strategy focus',
-  ];
+  const latestOurAlliance = getAllianceStyles(latestResult.ourAllianceColor);
+  const latestOpponentAlliance = getAllianceStyles(latestResult.opponentAllianceColor, true);
 
   return (
-    <div className="space-y-20 pb-6">
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(11,24,40,0.96),rgba(8,16,29,0.92))] px-6 py-10 shadow-[0_40px_120px_rgba(0,0,0,0.35)] md:px-10 md:py-14">
+    <div className="space-y-16 pb-6 md:space-y-20">
+      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(11,24,40,0.96),rgba(8,16,29,0.92))] px-6 py-8 shadow-[0_40px_120px_rgba(0,0,0,0.35)] md:px-10 md:py-12">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-[-5rem] top-[-4rem] h-56 w-56 rounded-full bg-red-500/15 blur-3xl"></div>
-          <div className="absolute bottom-[-6rem] right-[-2rem] h-64 w-64 rounded-full bg-blue-500/10 blur-3xl"></div>
-          <div className="panel-grid absolute inset-0 opacity-60"></div>
+          <div className="absolute left-[-4rem] top-[-3rem] h-48 w-48 rounded-full bg-red-500/12 blur-3xl"></div>
+          <div className="absolute bottom-[-5rem] right-[-2rem] h-56 w-56 rounded-full bg-blue-500/8 blur-3xl"></div>
+          <div className="panel-grid absolute inset-0 opacity-35"></div>
         </div>
 
-        <div className="relative grid gap-10 lg:grid-cols-[1.35fr_0.9fr] lg:items-center">
-          <div className="max-w-3xl">
-            <span className="eyebrow mb-6">Official Team Site</span>
-            <h1 className="heading-primary max-w-4xl text-5xl font-black text-white md:text-7xl">
+        <div className="relative grid gap-8 lg:grid-cols-[1.35fr_0.9fr] lg:items-start">
+          <div className="max-w-3xl lg:pt-4">
+            <span className="eyebrow mb-5">Official Team Site</span>
+            <h1 className="heading-primary max-w-4xl text-5xl font-black text-white md:text-[4.5rem]">
               Five Rings
               <span className="mt-2 block text-red-500">Robotics</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[var(--color-muted)] md:text-xl">
-              A polished robotics program built around technical excellence, sharp teamwork, and competitive VEX performance.
+            <p className="mt-5 max-w-xl text-base leading-7 text-[var(--color-muted)] md:text-lg">
+              Representing the International School of Lausanne with a student-led focus on engineering quality,
+              match discipline, and season-long improvement.
             </p>
 
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
               <a href="/team" className="btn btn-primary px-7 py-3.5">Meet The Team</a>
-              <a href="/fixtures" className="btn btn-secondary px-7 py-3.5">Open Competition Hub</a>
+              <a href="/fixtures" className="btn btn-secondary px-6 py-3.5">Competition Hub</a>
             </div>
 
-            <div className="mt-10 grid gap-3 sm:grid-cols-3">
-              {performancePoints.map((point) => (
-                <div key={point} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-slate-100 backdrop-blur-sm">
-                  {point}
-                </div>
-              ))}
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="flex min-h-[5.75rem] items-center justify-center rounded-[1.35rem] border border-white/40 bg-white px-3 py-3 shadow-[0_18px_40px_rgba(3,8,20,0.18)]">
+                <Image src="/images/vex_robotics_logo.png" alt="VEX Robotics logo" width={420} height={120} className="max-h-[5.25rem] w-auto object-contain" />
+              </div>
+              <div className="flex min-h-[5.75rem] items-center justify-center rounded-[1.35rem] border border-white/40 bg-white px-5 py-4 shadow-[0_18px_40px_rgba(3,8,20,0.18)]">
+                <Image src="/images/International_School_of_Lausanne_Logo.png" alt="International School of Lausanne logo" width={420} height={120} className="max-h-11 w-auto object-contain" />
+              </div>
+              <div className="flex min-h-[5.75rem] items-center justify-center rounded-[1.35rem] border border-white/40 bg-white px-2 py-2 shadow-[0_18px_40px_rgba(3,8,20,0.18)]">
+                <Image src="/images/REC-Foundation-Primary-Logo-Featured.png" alt="REC Foundation logo" width={420} height={140} className="max-h-[5.85rem] w-auto object-contain" />
+              </div>
             </div>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-4 lg:pt-2">
             <div className="rounded-[1.75rem] border border-red-500/25 bg-[rgba(227,51,61,0.09)] p-6 backdrop-blur-sm">
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Team Identity</p>
-              <div className="mt-4 flex items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-white/10 bg-[rgba(255,255,255,0.04)]">
-                  <img src="/images/FRRLogo.png" alt="Five Rings Robotics logo" className="h-14 w-auto" />
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Program Profile</p>
+              <div className="mt-4 flex items-center gap-5">
+                <div className="flex h-[5.75rem] w-[5.75rem] shrink-0 items-center justify-center rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.06)] p-3 shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
+                  <Image src="/images/FRRLogoBasic.png" alt="Five Rings Robotics logo" width={160} height={160} className="max-h-[4.4rem] w-auto object-contain" />
                 </div>
-                <div>
-                  <p className="heading-display text-2xl font-black text-white">{summary.teamNumber}</p>
-                  <p className="text-sm text-[var(--color-muted)]">{summary.teamName}</p>
+                <div className="min-w-0">
+                  <p className="heading-display text-[2rem] font-black leading-none text-white">{summary.teamNumber}</p>
+                  <p className="mt-2 text-base font-semibold text-white/90">{summary.teamName}</p>
+                  <p className="mt-2 text-sm uppercase tracking-[0.18em] text-red-200/80">International School of Lausanne</p>
                 </div>
               </div>
             </div>
@@ -211,47 +227,78 @@ export default async function Home() {
       </section>
 
       <section className="rounded-[1.8rem] border border-white/10 bg-[rgba(255,255,255,0.03)] px-5 py-6 backdrop-blur-sm md:px-8">
-        <div className="grid gap-5 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-4">
           {teamStats.map((stat) => (
             <div key={stat.label} className="rounded-[1.4rem] border border-white/8 bg-[rgba(255,255,255,0.03)] px-5 py-5">
               <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">{stat.label}</p>
-              <p className="mt-3 text-4xl font-black text-white">{stat.value}</p>
-              <p className="mt-2 text-sm text-[var(--color-muted)]">{stat.detail}</p>
+              <p className="mt-2.5 text-[2.35rem] font-black text-white">{stat.value}</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">{stat.detail}</p>
             </div>
           ))}
         </div>
       </section>
 
       <section className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="card panel-grid rounded-[1.9rem] p-8 md:p-10">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-2xl">
-              <span className="eyebrow mb-5">About The Program</span>
-              <h2 className="heading-display text-3xl font-black text-white md:text-4xl">
-                School-professional, competitive, and engineering-driven
-              </h2>
-              <p className="mt-5 text-lg leading-relaxed text-[var(--color-muted)]">
-                Five Rings Robotics represents the International School of Lausanne in VEX competition with a focus on technical discipline,
-                strategic play, and consistent student-led development. The website is now designed to surface live team information with a more
-                polished, modern presentation.
-              </p>
-            </div>
-
-            <div className="grid gap-3 rounded-[1.5rem] border border-white/10 bg-white/5 p-5 text-sm text-[var(--color-muted)] lg:w-[21rem]">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <span>Team</span>
-                <span className="font-bold text-white">{summary.teamNumber}</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <span>School</span>
-                <span className="font-bold text-white">ISL</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Program</span>
-                <span className="font-bold text-white">VEX Robotics</span>
-              </div>
-            </div>
+        <div className="card rounded-[1.9rem] p-8 md:p-10">
+          <div>
+            <span className="eyebrow mb-5">Latest Match</span>
+            <h2 className="heading-display text-3xl font-black text-white">Competition Snapshot</h2>
           </div>
+
+          {latestResult.isError ? (
+            <div className="mt-6 rounded-[1.4rem] border border-red-500/30 bg-red-950/30 p-5">
+              <p className="text-sm font-semibold text-red-200">{latestResult.notes}</p>
+            </div>
+          ) : (
+            <>
+              <div className="mt-6">
+                <h3 className="max-w-2xl text-2xl font-bold text-white">{latestResult.event}</h3>
+              </div>
+
+              <div className="mt-6 rounded-[0.95rem] border border-white/8 bg-black/15 px-4 py-3">
+                <p className="text-sm font-black uppercase tracking-[0.16em] text-slate-200">
+                  {formatResultDate(latestResult.date)}
+                </p>
+              </div>
+
+              <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                <div className={`rounded-[1rem] px-4 py-4 ${latestOurAlliance.panelClass}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className={`text-xs font-black uppercase tracking-[0.18em] ${latestOurAlliance.labelClass}`}>{latestOurAlliance.label}</p>
+                    <p className="text-[2rem] font-black leading-none text-white">{latestResult.score}</p>
+                  </div>
+                  <div className="mt-3 space-y-2 text-sm font-semibold text-slate-100">
+                    {splitAllianceTeams(latestResult.ourTeams).map((team) => (
+                      <p key={team}>{team}</p>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={`rounded-[1rem] px-4 py-4 ${latestOpponentAlliance.panelClass}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className={`text-xs font-black uppercase tracking-[0.18em] ${latestOpponentAlliance.labelClass}`}>{latestOpponentAlliance.label}</p>
+                    <p className="text-[2rem] font-black leading-none text-white">{latestResult.opponentScore}</p>
+                  </div>
+                  <div className="mt-3 space-y-2 text-sm font-semibold text-slate-100">
+                    {splitAllianceTeams(latestResult.opponentTeams).map((team) => (
+                      <p key={team}>{team}</p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+                <span className={`${latestResult.rank === 'Win' ? 'bg-green-500' : latestResult.rank === 'Loss' ? 'bg-red-500' : 'bg-yellow-500'} rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-white`}>
+                  {latestResult.rank}
+                </span>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                  Match Result
+                </p>
+              </div>
+
+              <a href="/fixtures" className="btn btn-secondary mt-6">Open Competition Hub</a>
+            </>
+          )}
         </div>
 
         <div className={`${nextEvent.isError ? 'border-red-500/35 bg-[rgba(103,16,22,0.42)]' : 'border-white/10 bg-[linear-gradient(180deg,rgba(12,23,39,0.96),rgba(16,30,50,0.96))]'} card rounded-[1.9rem] p-8`}>
@@ -271,7 +318,7 @@ export default async function Home() {
             <div className="mt-6 space-y-5">
               <div>
                 <h4 className="text-xl font-bold leading-tight text-white">{nextEvent.name}</h4>
-                <p className="mt-3 text-sm font-semibold uppercase tracking-[0.22em] text-red-300">{nextEvent.date}</p>
+                <p className="mt-3 text-sm font-semibold uppercase tracking-[0.2em] text-red-300">{nextEvent.date}</p>
                 <p className="mt-1 text-[var(--color-muted)]">{nextEvent.location}</p>
               </div>
 
@@ -285,104 +332,55 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="card rounded-[1.9rem] p-8 md:p-10">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <span className="eyebrow mb-5">Latest Match</span>
-              <h2 className="heading-display text-3xl font-black text-white">Competition Snapshot</h2>
-            </div>
-            {!latestResult.isError ? (
-              <span className={`${latestResult.rank === 'Win' ? 'bg-green-500' : latestResult.rank === 'Loss' ? 'bg-red-500' : 'bg-yellow-500'} rounded-full px-4 py-2 text-sm font-black uppercase tracking-[0.16em] text-white`}>
-                {latestResult.rank}
-              </span>
-            ) : null}
-          </div>
-
-          {latestResult.isError ? (
-            <div className="mt-6 rounded-[1.4rem] border border-red-500/30 bg-red-950/30 p-5">
-              <p className="text-sm font-semibold text-red-200">{latestResult.notes}</p>
-            </div>
-          ) : (
-            <>
-              <div className="mt-6">
-                <h3 className="max-w-2xl text-2xl font-bold text-white">{latestResult.event}</h3>
-                <p className="mt-3 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                  {formatResultDate(latestResult.date)}
-                </p>
-              </div>
-
-              <div className="mt-8 grid gap-4 md:grid-cols-2">
-                <div className="rounded-[1.5rem] border border-red-500/18 bg-red-500/8 p-5">
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Our Alliance</p>
-                  <p className="mt-3 text-4xl font-black text-white">{latestResult.score}</p>
-                  <div className="mt-4 space-y-2 text-sm font-semibold text-slate-100">
-                    {splitAllianceTeams(latestResult.ourTeams).map((team) => (
-                      <p key={team}>{team}</p>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="rounded-[1.5rem] border border-blue-400/18 bg-blue-500/8 p-5">
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-blue-300">Opponent</p>
-                  <p className="mt-3 text-4xl font-black text-white">{latestResult.opponentScore}</p>
-                  <div className="mt-4 space-y-2 text-sm font-semibold text-slate-100">
-                    {splitAllianceTeams(latestResult.opponentTeams).map((team) => (
-                      <p key={team}>{team}</p>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <a href="/fixtures" className="btn btn-secondary mt-8">Open Competition Hub</a>
-            </>
-          )}
-        </div>
-
-        <div className="card rounded-[1.9rem] p-8 md:p-10">
-          <span className="eyebrow mb-5">Team Updates</span>
-          <h2 className="heading-display text-3xl font-black text-white">What We’re Working On</h2>
-          <div className="mt-7 space-y-4">
-            {latestPosts.map((post) => (
-              <article key={post.title} className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">{post.date}</p>
-                <h3 className="mt-2 text-lg font-bold text-white">{post.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--color-muted)]">{post.summary}</p>
-              </article>
-            ))}
-          </div>
-          <a href="/blog" className="btn btn-secondary mt-8">Read Team Updates</a>
-        </div>
-      </section>
-
       <section className="rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(10,18,31,0.92),rgba(11,23,38,0.96))] px-6 py-8 md:px-8 md:py-10">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="eyebrow mb-4">Photo Preview</span>
+            <span className="eyebrow mb-4">Highlights Preview</span>
             <h2 className="heading-display text-3xl font-black text-white">A sharper look at the season</h2>
             <p className="mt-3 max-w-2xl text-[var(--color-muted)]">
-              A preview gallery area designed to spotlight competition moments, robot work, and team culture.
+              Recent highlights from the live team feed, pulled directly from approved uploads.
             </p>
           </div>
-          <a href="/gallery" className="btn btn-primary">Open Gallery</a>
+          <a href="/gallery" className="btn btn-primary">Open Highlights</a>
         </div>
 
         <div className="grid gap-5 md:grid-cols-3">
-          {galleryPreview.map((item, index) => (
-            <article key={item.title} className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[rgba(255,255,255,0.03)]">
-              <div className={`flex aspect-[4/3] items-end bg-gradient-to-br ${index === 0 ? 'from-red-500/30 via-red-500/8 to-transparent' : index === 1 ? 'from-blue-500/25 via-slate-500/8 to-transparent' : 'from-white/10 via-red-500/10 to-transparent'} p-5`}>
-                <div className="rounded-full border border-white/15 bg-black/20 px-3 py-1 text-xs font-black uppercase tracking-[0.24em] text-white/80">
-                  {item.category}
+          {galleryItems.length > 0 ? (
+            galleryItems.map((item) => (
+              <article key={item.id ?? item.title} className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[rgba(255,255,255,0.03)]">
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <Image
+                    src={item.image || '/images/gallery/robot.jpg'}
+                    alt={item.title || 'Highlights preview'}
+                    fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 p-5">
+                    <div className="w-fit rounded-full border border-white/15 bg-black/45 px-3 py-1 text-xs font-black uppercase tracking-[0.24em] text-white">
+                      {item.category || 'Highlight'}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="p-5">
-                <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                <p className="mt-2 text-sm text-[var(--color-muted)]">
-                  Designed as a consistent card format so gallery previews feel aligned with the rest of the homepage.
-                </p>
-              </div>
+                <div className="p-5">
+                  <h3 className="text-xl font-bold text-white">{item.title || 'Untitled image'}</h3>
+                  <p className="mt-2 text-sm text-[var(--color-muted)]">
+                    {item.date
+                      ? new Intl.DateTimeFormat('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        }).format(new Date(item.date))
+                      : 'Date unavailable'}
+                  </p>
+                </div>
+              </article>
+            ))
+          ) : (
+            <article className="rounded-[1.6rem] border border-white/10 bg-[rgba(255,255,255,0.03)] p-6 text-[var(--color-muted)] md:col-span-3">
+              No approved gallery items yet. Once submissions are approved, they will appear here automatically.
             </article>
-          ))}
+          )}
         </div>
       </section>
     </div>

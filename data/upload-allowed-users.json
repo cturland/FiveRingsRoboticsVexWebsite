@@ -1,0 +1,18 @@
+{
+  "allowedDomains": [
+    "isl.ch",
+    "islstudent.ch"
+  ],
+  "allowedEmails": [
+    "cturland@isl.ch",
+    "kmichna@islstudent.ch",
+    "lrogers@islstudent.ch",
+    "hjim@islstudent.ch",
+    "tvohra@islstudent.ch",
+    "msedanoredondo@islstudent.ch",
+    "afangajei@islstudent.ch",
+    "smundada@islstudent.ch",
+    "rbanerjee@islstudent.ch",
+    "hzhang@islstudent.ch"
+  ]
+}

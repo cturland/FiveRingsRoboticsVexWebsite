@@ -24,9 +24,8 @@ export default function Footer() {
             <div className="grid gap-2 text-sm text-[var(--color-muted)]">
               <Link href="/">Home</Link>
               <Link href="/team">Team</Link>
-              <Link href="/gallery">Gallery</Link>
+              <Link href="/gallery">Highlights</Link>
               <Link href="/fixtures">Competition</Link>
-              <Link href="/blog">Blog</Link>
             </div>
           </div>
 
@@ -35,7 +34,6 @@ export default function Footer() {
             <div className="grid gap-2 text-sm text-[var(--color-muted)]">
               <p>International School of Lausanne</p>
               <p>Le Mont-sur-Lausanne, Switzerland</p>
-              <p>team@fiveringsrobotics.edu</p>
             </div>
           </div>
         </div>
