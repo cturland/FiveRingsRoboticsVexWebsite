@@ -180,15 +180,13 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
               </a>
             </div>
 
-            <div className="rounded-[1.2rem] border border-white/10 bg-black/20 px-4 py-3 text-sm leading-6 text-[var(--color-muted)]">
-              Need to review submissions?
-              {' '}
-              <a href="/admin/gallery" className="font-bold text-white underline decoration-red-400/70 underline-offset-4">
-                Open the gallery approval page
+            <div className="rounded-[1.2rem] border border-white/10 bg-black/20 px-4 py-4">
+              <a href="/admin" className="btn btn-secondary w-full sm:w-auto">
+                Open Admin Hub
               </a>
-              .
-              {' '}
-              Non-admin accounts will see the protected access message there.
+              <p className="mt-3 text-sm leading-6 text-[var(--color-muted)]">
+                Review submissions, manage team profiles, and access the rest of the admin area. Non-admin accounts will still see the protected access message there.
+              </p>
             </div>
 
             <SubmitButton />
