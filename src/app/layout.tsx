@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Manrope, Orbitron } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import Layout from '@/components/Layout';
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${manrope.variable} ${orbitron.variable}`}>
         <Layout>{children}</Layout>
+        <Analytics />
       </body>
     </html>
   );
