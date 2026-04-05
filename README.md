@@ -87,6 +87,7 @@ This repo includes migrations for:
 - gallery submissions table
 - approved public gallery read policy
 - gallery admins table and approval permissions
+- team profiles table and team profile photo bucket
 
 They live in:
 
@@ -106,10 +107,14 @@ Fixtures and results fallback data live in:
 - [`src/app/page.tsx`](src/app/page.tsx): homepage
 - [`src/app/gallery/page.tsx`](src/app/gallery/page.tsx): public Highlights page
 - [`src/app/upload/page.tsx`](src/app/upload/page.tsx): protected student upload page
+- [`src/app/profile/page.tsx`](src/app/profile/page.tsx): protected member profile page
+- [`src/app/admin/page.tsx`](src/app/admin/page.tsx): admin hub
 - [`src/app/admin/gallery/page.tsx`](src/app/admin/gallery/page.tsx): admin approval page
+- [`src/app/admin/team/page.tsx`](src/app/admin/team/page.tsx): admin team profile management
 - [`src/lib/gallery.ts`](src/lib/gallery.ts): approved Highlights reader
 - [`src/lib/gallerySubmissions.ts`](src/lib/gallerySubmissions.ts): pending submission insert helper
 - [`src/lib/galleryAdmin.ts`](src/lib/galleryAdmin.ts): admin moderation data helper
+- [`src/lib/teamProfiles.ts`](src/lib/teamProfiles.ts): team profile readers
 
 ## Notes
 

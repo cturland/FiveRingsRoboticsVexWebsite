@@ -9,6 +9,8 @@ export const config = {
   matcher: [
     '/login',
     '/upload',
+    '/profile',
+    '/admin/:path*',
     '/auth/callback',
   ],
 };
