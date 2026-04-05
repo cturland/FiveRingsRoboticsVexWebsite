@@ -6,7 +6,6 @@ import Card from "./Card";
 import type { TeamProfileRole } from '@/lib/teamProfileConstants';
 
 type TeamMember = {
-  email?: string;
   name: string;
   roles: TeamProfileRole[];
   photo: string;
@@ -61,9 +60,6 @@ export default function TeamMemberCard({ member }: { member: TeamMember }) {
           )}
         </div>
       </div>
-      {member.email ? (
-        <p className="mt-4 text-sm text-[var(--color-muted)]">{member.email}</p>
-      ) : null}
     </Card>
   );
 }

@@ -47,7 +47,6 @@ export default async function TeamPage() {
               <TeamMemberCard
                 key={member.id}
                 member={{
-                  email: member.email,
                   name: member.name,
                   roles: member.roles,
                   photo: member.photoUrl || '',
@@ -81,7 +80,6 @@ export default async function TeamPage() {
               <TeamMemberCard
                 key={member.id}
                 member={{
-                  email: member.email,
                   name: member.name,
                   roles: member.roles,
                   photo: member.photoUrl || '',
