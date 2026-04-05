@@ -1,6 +1,7 @@
 const publicUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const publicAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const publicGalleryBucket = process.env.NEXT_PUBLIC_SUPABASE_GALLERY_BUCKET || 'gallery-uploads';
+const publicTeamProfileBucket = process.env.NEXT_PUBLIC_SUPABASE_TEAM_PROFILE_BUCKET || 'team-profile-photos';
 
 export function isSupabaseConfigured() {
   return Boolean(publicUrl && publicAnonKey);
@@ -28,4 +29,8 @@ export function getSiteUrl() {
 
 export function getSupabaseGalleryBucket() {
   return publicGalleryBucket;
+}
+
+export function getSupabaseTeamProfileBucket() {
+  return publicTeamProfileBucket;
 }

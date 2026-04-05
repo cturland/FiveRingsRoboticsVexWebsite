@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
+import AdminShell from '@/components/AdminShell';
 import Card from '@/components/Card';
 import { getAdminAccess } from '@/lib/adminAccess';
 import { getPendingGallerySubmissions } from '@/lib/galleryAdmin';
@@ -84,20 +85,12 @@ export default async function AdminGalleryPage() {
   const submissions = await getPendingGallerySubmissions();
 
   return (
-    <section className="mx-auto max-w-6xl py-8">
-      <div className="mb-6">
-        <p className="eyebrow">Gallery Admin</p>
-        <h1 className="heading-display mt-4 text-4xl font-black text-white">Pending Gallery Submissions</h1>
-        <p className="mt-4 max-w-3xl text-lg text-[var(--color-muted)]">
-          Review student uploads and approve the ones that should appear on the public gallery and homepage preview.
-        </p>
-      </div>
-
-      <div className="mb-6 rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Signed In As</p>
-        <p className="mt-3 text-base font-bold text-white">{user.email}</p>
-      </div>
-
+    <AdminShell
+      activeSection="gallery"
+      title="Pending Gallery Submissions"
+      description="Review student uploads and approve the ones that should appear on Highlights, the homepage preview, and the worlds display."
+      userEmail={user.email}
+    >
       {submissions.length === 0 ? (
         <Card>
           <p className="text-lg font-semibold text-white">No pending submissions right now.</p>
@@ -155,6 +148,6 @@ export default async function AdminGalleryPage() {
           ))}
         </div>
       )}
-    </section>
+    </AdminShell>
   );
 }

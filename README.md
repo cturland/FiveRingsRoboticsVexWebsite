@@ -39,6 +39,7 @@ Set these in `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 NEXT_PUBLIC_SUPABASE_GALLERY_BUCKET=gallery-uploads
+NEXT_PUBLIC_SUPABASE_TEAM_PROFILE_BUCKET=team-profile-photos
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ROBOTEVENTS_API_TOKEN=your_api_token_here
 ROBOTEVENTS_DEBUG=false
@@ -93,9 +94,7 @@ They live in:
 
 ## Editing team data
 
-Team roster data lives in:
-
-- [`data/team.json`](data/team.json)
+Team profiles now live in Supabase through the protected member profile flow at `/profile`.
 
 Fixtures and results fallback data live in:
 

@@ -1,24 +1,19 @@
-import teamMembers from "../../../data/team.json";
+import Card from "../../components/Card";
 import SectionHeading from "../../components/SectionHeading";
 import TeamMemberCard from "../../components/TeamMemberCard";
-import Card from "../../components/Card";
+import { getPublicTeamProfiles } from "../../lib/teamProfiles";
 
-type Member = {
-  name: string;
-  role: string;
-  photo: string;
-  shortBio: string;
-  responsibilities: string[];
-  favouriteMoment: string;
-};
+export default async function TeamPage() {
+  const profiles = await getPublicTeamProfiles();
+  const currentMembers = profiles.filter((member) => member.isCurrentMember);
+  const alumniMembers = profiles.filter((member) => !member.isCurrentMember);
 
-export default function TeamPage() {
   return (
     <section className="space-y-8">
       <section className="rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] p-8">
         <SectionHeading
           title="Meet the Team"
-          subtitle="Our team is a group of dedicated students who design, build, and compete in VEX robotics with a focus on innovation, teamwork, and continuous improvement."
+          subtitle="Meet the students behind Five Rings Robotics, with current members featured first and alumni celebrated in the Hall of Fame."
         />
       </section>
 
@@ -38,19 +33,73 @@ export default function TeamPage() {
         </div>
       </section>
 
-      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {Array.isArray(teamMembers) && teamMembers.length > 0 ? (
-          (teamMembers as Member[]).map((member) => (
-            <TeamMemberCard key={member.name || member.role || Math.random()} member={member} />
-          ))
-        ) : (
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-[var(--color-muted)]">
-            No team members configured yet. Add members to `data/team.json`.
+      <section className="space-y-5">
+        <div className="rounded-xl bg-[linear-gradient(180deg,rgba(18,34,56,0.96),rgba(11,20,33,0.96))] border border-red-500/20 p-8">
+          <SectionHeading
+            title="Current Members"
+            subtitle="These are the students actively building, programming, driving, and scouting for the team right now."
+          />
+        </div>
+
+        {currentMembers.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {currentMembers.map((member) => (
+              <TeamMemberCard
+                key={member.id}
+                member={{
+                  email: member.email,
+                  name: member.name,
+                  roles: member.roles,
+                  photo: member.photoUrl || '',
+                  shortBio: member.bio,
+                  isCurrentMember: true,
+                }}
+              />
+            ))}
           </div>
+        ) : (
+          <Card>
+            <p className="text-lg font-semibold text-white">No current member profiles yet.</p>
+            <p className="mt-3 text-[var(--color-muted)]">
+              Once signed-in team members create their profiles, they will appear here automatically.
+            </p>
+          </Card>
         )}
-      </div>
+      </section>
+
+      <section className="space-y-5">
+        <div className="rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] p-8">
+          <SectionHeading
+            title="Five Rings Hall of Fame"
+            subtitle="A place to recognize former members who helped shape the team."
+          />
+        </div>
+
+        {alumniMembers.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {alumniMembers.map((member) => (
+              <TeamMemberCard
+                key={member.id}
+                member={{
+                  email: member.email,
+                  name: member.name,
+                  roles: member.roles,
+                  photo: member.photoUrl || '',
+                  shortBio: member.bio,
+                  isCurrentMember: false,
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <p className="text-lg font-semibold text-white">No Hall of Fame profiles yet.</p>
+            <p className="mt-3 text-[var(--color-muted)]">
+              Former members will appear here once their profile is marked as an ex-member.
+            </p>
+          </Card>
+        )}
+      </section>
     </section>
   );
 }
-
-

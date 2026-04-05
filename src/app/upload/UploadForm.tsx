@@ -171,6 +171,15 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
               Successful uploads are sent to Supabase Storage and then saved as pending gallery submissions for review.
             </div>
 
+            <div className="grid gap-3 sm:grid-cols-2">
+              <a href="/profile" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
+                Edit your team profile
+              </a>
+              <a href="/gallery" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
+                View public Highlights
+              </a>
+            </div>
+
             <div className="rounded-[1.2rem] border border-white/10 bg-black/20 px-4 py-3 text-sm leading-6 text-[var(--color-muted)]">
               Need to review submissions?
               {' '}
