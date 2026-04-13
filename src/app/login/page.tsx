@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Card from '@/components/Card';
-import { getAllowedDomains, getAllowedEmails } from '@/lib/uploadAccess';
+import { getAllowedDomains } from '@/lib/uploadAccess';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import LoginForm from './LoginForm';
@@ -43,9 +43,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Current Rules</p>
           <p className="mt-3 text-sm text-[var(--color-muted)]">
             Allowed domain: {getAllowedDomains().map((domain) => `@${domain}`).join(', ') || 'none configured'}
-          </p>
-          <p className="mt-2 text-sm text-[var(--color-muted)]">
-            Approved uploaders: {getAllowedEmails().join(', ') || 'none configured'}
           </p>
         </div>
 

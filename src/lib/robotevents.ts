@@ -17,7 +17,9 @@ export type RobotEventsResult = {
   eventCode: string;
   season: string;
   date: string;
+  matchLabel: string;
   placement: string;
+  countsForRecord: boolean;
   ourAllianceColor: string;
   opponentAllianceColor: string;
   awards: string;
@@ -82,6 +84,29 @@ function getMatchTimestamp(match: any) {
   return match.started || match.date || match.scheduled || match.updated_at || '';
 }
 
+function getMatchLabel(match: any) {
+  const candidates = [
+    match?.name,
+    match?.round?.name,
+    match?.round,
+    match?.instance,
+    match?.type,
+    match?.match_type,
+  ];
+
+  for (const value of candidates) {
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return 'Match';
+}
+
+function isPracticeMatch(match: any) {
+  return /^practice\b/i.test(getMatchLabel(match));
+}
+
 function hasUsableMatchData(match: any) {
   const hasTimestamp = Boolean(getMatchTimestamp(match));
   const hasAllianceScores = Array.isArray(match.alliances) && match.alliances.some((alliance: any) => typeof alliance?.score === 'number');
@@ -106,6 +131,10 @@ function getMatchScores(match: any, teamId: number) {
 
 function isCountableForStats(match: any, teamId: number) {
   if (!hasUsableMatchData(match)) {
+    return false;
+  }
+
+  if (isPracticeMatch(match)) {
     return false;
   }
 
@@ -341,11 +370,15 @@ export const fetchRoboteventsResults = cache(async (): Promise<RobotEventsResult
         const ourTeams = await formatAllianceTeams(ourAlliance);
         const opponentTeams = await formatAllianceTeams(opponentAlliance);
         const season = seasonByEventId.get(match.event?.id) || seasonByEventCode.get(match.event?.code) || 'Unknown Season';
+        const matchLabel = getMatchLabel(match);
+        const countsForRecord = isCountableForStats(match, teamId);
         
         logRobotEventsDebug('[RobotEvents] Match details:', {
           id: match.id,
           event: match.event?.name,
           season,
+          matchLabel,
+          countsForRecord,
           ourScore,
           opponentScore,
           result,
@@ -360,7 +393,9 @@ export const fetchRoboteventsResults = cache(async (): Promise<RobotEventsResult
           eventCode: match.event?.code || '',
           season,
           date: getMatchTimestamp(match),
+          matchLabel,
           placement: result,
+          countsForRecord,
           ourAllianceColor: (ourAlliance?.color || 'unknown').toLowerCase(),
           opponentAllianceColor: (opponentAlliance?.color || 'unknown').toLowerCase(),
           awards: ourScore.toString(),

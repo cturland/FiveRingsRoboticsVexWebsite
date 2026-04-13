@@ -2,11 +2,42 @@ import Card from "../../components/Card";
 import SectionHeading from "../../components/SectionHeading";
 import TeamMemberCard from "../../components/TeamMemberCard";
 import { getPublicTeamProfiles } from "../../lib/teamProfiles";
+import type { TeamProfileRecord } from "../../lib/teamProfiles";
+import type { TeamProfileRole } from "../../lib/teamProfileConstants";
+
+const TEAM_ROLE_PRIORITY: Record<TeamProfileRole, number> = {
+  'Lead Engineer': 0,
+  Driver: 1,
+  'Lead Programmer': 2,
+  'Support Engineer': 3,
+  'Support Programmer': 4,
+  'Backup Driver': 5,
+  'Lead Scout/Strategist': 6,
+};
+
+function sortRolesByPriority(roles: TeamProfileRole[]) {
+  return [...roles].sort((a, b) => TEAM_ROLE_PRIORITY[a] - TEAM_ROLE_PRIORITY[b] || a.localeCompare(b));
+}
+
+function sortMembersByRolePriority(members: TeamProfileRecord[]) {
+  return [...members].sort((a, b) => {
+    const aRoles = sortRolesByPriority(a.roles);
+    const bRoles = sortRolesByPriority(b.roles);
+    const aPriority = aRoles[0] ? TEAM_ROLE_PRIORITY[aRoles[0]] : Number.MAX_SAFE_INTEGER;
+    const bPriority = bRoles[0] ? TEAM_ROLE_PRIORITY[bRoles[0]] : Number.MAX_SAFE_INTEGER;
+
+    if (aPriority !== bPriority) {
+      return aPriority - bPriority;
+    }
+
+    return a.name.localeCompare(b.name);
+  });
+}
 
 export default async function TeamPage() {
   const profiles = await getPublicTeamProfiles();
-  const currentMembers = profiles.filter((member) => member.isCurrentMember);
-  const alumniMembers = profiles.filter((member) => !member.isCurrentMember);
+  const currentMembers = sortMembersByRolePriority(profiles.filter((member) => member.isCurrentMember));
+  const alumniMembers = sortMembersByRolePriority(profiles.filter((member) => !member.isCurrentMember));
 
   return (
     <section className="space-y-8">
@@ -48,7 +79,7 @@ export default async function TeamPage() {
                 key={member.id}
                 member={{
                   name: member.name,
-                  roles: member.roles,
+                  roles: sortRolesByPriority(member.roles),
                   photo: member.photoUrl || '',
                   shortBio: member.bio,
                   isCurrentMember: true,
@@ -81,7 +112,7 @@ export default async function TeamPage() {
                 key={member.id}
                 member={{
                   name: member.name,
-                  roles: member.roles,
+                  roles: sortRolesByPriority(member.roles),
                   photo: member.photoUrl || '',
                   shortBio: member.bio,
                   isCurrentMember: false,

@@ -137,12 +137,14 @@ export default function ResultsHistory({ results, seasonStats, error }: ResultsH
         group.latestDate = result.date;
       }
 
-      if (result.placement === 'Win') {
-        group.wins += 1;
-      } else if (result.placement === 'Loss') {
-        group.losses += 1;
-      } else {
-        group.ties += 1;
+      if (result.countsForRecord) {
+        if (result.placement === 'Win') {
+          group.wins += 1;
+        } else if (result.placement === 'Loss') {
+          group.losses += 1;
+        } else {
+          group.ties += 1;
+        }
       }
     }
 
@@ -158,7 +160,7 @@ export default function ResultsHistory({ results, seasonStats, error }: ResultsH
     {
       label: 'Win Rate',
       value: `${selectedSeasonStats.winPercentage}%`,
-      detail: `${selectedSeasonStats.wins}-${selectedSeasonStats.losses}-${selectedSeasonStats.ties} record`,
+      detail: `${selectedSeasonStats.wins}-${selectedSeasonStats.losses}-${selectedSeasonStats.ties} official record`,
     },
     {
       label: 'Matches',
@@ -237,7 +239,7 @@ export default function ResultsHistory({ results, seasonStats, error }: ResultsH
                         {group.matches.length} match{group.matches.length === 1 ? '' : 'es'}
                       </div>
                       <div className="rounded-full border border-white/10 bg-[rgba(255,255,255,0.03)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                        {group.wins}-{group.losses}-{group.ties}
+                        {group.wins}-{group.losses}-{group.ties} official
                       </div>
                     </div>
                   </div>
@@ -258,12 +260,24 @@ export default function ResultsHistory({ results, seasonStats, error }: ResultsH
                         <div key={result.id ?? `${result.eventCode}-${result.date}`} className="rounded-[1.2rem] border border-white/10 bg-[rgba(8,16,29,0.45)] px-4 py-4">
                           <div className="rounded-[0.95rem] border border-white/8 bg-black/15 px-4 py-3">
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <p className="text-sm font-black uppercase tracking-[0.16em] text-slate-200">
-                                {result.date ? formatMatchDate(result.date) : 'Time unavailable'}
-                              </p>
-                              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
-                                {result.eventCode || group.eventCode}
-                              </p>
+                              <div>
+                                <p className="text-sm font-black uppercase tracking-[0.16em] text-slate-100">
+                                  {result.matchLabel}
+                                </p>
+                                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                                  {result.date ? formatMatchDate(result.date) : 'Time unavailable'}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 self-start sm:self-auto">
+                                {!result.countsForRecord ? (
+                                  <span className="rounded-full border border-yellow-400/25 bg-yellow-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-yellow-200">
+                                    Excluded
+                                  </span>
+                                ) : null}
+                                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                                  {result.eventCode || group.eventCode}
+                                </p>
+                              </div>
                             </div>
                           </div>
 

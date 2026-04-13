@@ -17,6 +17,15 @@ const orbitron = Orbitron({
 export const metadata: Metadata = {
   title: 'Five Rings Robotics | Team 21052A',
   description: 'Official Five Rings Robotics website for Team 21052A.',
+  manifest: '/site.webmanifest',
+  icons: {
+    icon: [
+      { url: '/images/favicon/favicon.ico', sizes: 'any' },
+      { url: '/images/favicon/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/images/favicon/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [{ url: '/images/favicon/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
