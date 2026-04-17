@@ -1,7 +1,7 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { FormEvent, useEffect, useState } from 'react';
+import { getEmailDomain } from '@/lib/uploadAccess';
 
 type LoginFormProps = {
   redirectTo: string;
@@ -16,7 +16,6 @@ export default function LoginForm({ redirectTo, allowedDomains, configured }: Lo
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
-  const supabase = useMemo(() => (configured ? createSupabaseBrowserClient() : null), [configured]);
 
   useEffect(() => {
     if (cooldownSeconds <= 0) {
@@ -38,7 +37,7 @@ export default function LoginForm({ redirectTo, allowedDomains, configured }: Lo
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-    const domain = normalizedEmail.includes('@') ? normalizedEmail.split('@').at(-1) ?? '' : '';
+    const domain = getEmailDomain(normalizedEmail);
 
     if (!normalizedEmail) {
       setStatus('error');
@@ -52,7 +51,7 @@ export default function LoginForm({ redirectTo, allowedDomains, configured }: Lo
       return;
     }
 
-    if (!supabase) {
+    if (!configured) {
       setStatus('error');
       setMessage('Supabase is not configured yet. Add the environment variables first.');
       return;
@@ -60,6 +59,9 @@ export default function LoginForm({ redirectTo, allowedDomains, configured }: Lo
 
     setStatus('submitting');
     setMessage('');
+
+    const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
+    const supabase = createSupabaseBrowserClient();
 
     const callbackUrl = new URL('/auth/callback', window.location.origin);
     callbackUrl.searchParams.set('next', redirectTo);

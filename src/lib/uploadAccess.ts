@@ -25,9 +25,19 @@ export function getAllowedEmails() {
   return (config.allowedEmails ?? []).map(normalizeEmail).filter(Boolean);
 }
 
+export function getEmailDomain(email: string) {
+  const atIndex = email.lastIndexOf('@');
+
+  if (atIndex === -1) {
+    return '';
+  }
+
+  return email.slice(atIndex + 1);
+}
+
 export function getUploadAccess(email: string | null | undefined): UploadAccessResult {
   const normalizedEmail = normalizeEmail(email ?? '');
-  const domain = normalizedEmail.includes('@') ? normalizedEmail.split('@').at(-1) ?? '' : '';
+  const domain = getEmailDomain(normalizedEmail);
   const isSchoolEmail = Boolean(domain) && getAllowedDomains().includes(domain);
   const isAllowedUploader = isSchoolEmail && getAllowedEmails().includes(normalizedEmail);
 
