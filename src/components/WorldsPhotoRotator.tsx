@@ -49,8 +49,8 @@ export default function WorldsPhotoRotator({ photos, placeholder }: WorldsPhotoR
     <section className="flex min-h-0 flex-col rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
       <div className="mb-4 flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-red-300">Latest Highlights</p>
-          <h2 className="mt-2 text-2xl font-black text-white md:text-3xl">Team Highlights</h2>
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-red-300">Latest Updates</p>
+          <h2 className="mt-2 text-2xl font-black text-white md:text-3xl">Team Photos</h2>
         </div>
         <div className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-muted)]">
           {photos.length} photos

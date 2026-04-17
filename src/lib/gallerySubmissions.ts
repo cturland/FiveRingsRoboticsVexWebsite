@@ -4,7 +4,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type GallerySubmissionInsert = {
   email: string;
-  image_path: string;
+  media_type: 'image' | 'youtube';
+  image_path?: string | null;
+  youtube_url?: string | null;
+  youtube_video_id?: string | null;
   title: string;
   category: string;
   date: string;

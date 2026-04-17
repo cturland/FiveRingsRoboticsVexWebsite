@@ -104,7 +104,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
               Upload a Highlight
             </Link>
             <Link href="/gallery" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
-              View Highlights
+              View Updates
             </Link>
             <Link href="/admin/gallery" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
               {isAdmin ? 'Open Admin Review' : 'Admin Review Page'}

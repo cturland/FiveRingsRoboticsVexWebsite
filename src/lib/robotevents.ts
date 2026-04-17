@@ -26,7 +26,15 @@ export type RobotEventsResult = {
   opponentScore: string;
   ourTeams: string;
   opponentTeams: string;
+  ourAllianceTeams: RobotEventsMatchTeam[];
+  opponentAllianceTeams: RobotEventsMatchTeam[];
   link: string;
+};
+
+export type RobotEventsMatchTeam = {
+  id: number | null;
+  number: string;
+  name: string;
 };
 
 export type RobotEventsSummary = {
@@ -84,27 +92,32 @@ function getMatchTimestamp(match: any) {
   return match.started || match.date || match.scheduled || match.updated_at || '';
 }
 
-function getMatchLabel(match: any) {
-  const candidates = [
+function getMatchTextCandidates(match: any) {
+  return [
     match?.name,
     match?.round?.name,
     match?.round,
     match?.instance,
     match?.type,
     match?.match_type,
-  ];
+  ]
+    .filter((value) => typeof value === 'string')
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
 
-  for (const value of candidates) {
-    if (typeof value === 'string' && value.trim()) {
-      return value.trim();
-    }
+function getMatchLabel(match: any) {
+  const candidates = getMatchTextCandidates(match);
+
+  if (candidates.length > 0) {
+    return candidates[0];
   }
 
   return 'Match';
 }
 
 function isPracticeMatch(match: any) {
-  return /^practice\b/i.test(getMatchLabel(match));
+  return getMatchTextCandidates(match).some((value) => /\bpractice\b/i.test(value));
 }
 
 function hasUsableMatchData(match: any) {
@@ -228,29 +241,46 @@ async function getTeamDetails(teamId: number): Promise<RobotEventsTeamDetails | 
   return teamDetailsCache.get(teamId) ?? null;
 }
 
-async function formatAllianceTeams(alliance: any): Promise<string> {
+async function getAllianceTeamDetails(alliance: any): Promise<RobotEventsMatchTeam[]> {
   if (!alliance?.teams?.length) {
-    return 'TBD';
+    return [];
   }
 
-  const teamLabels = await Promise.all(
+  return Promise.all(
     alliance.teams.map(async (entry: any) => {
       const fallbackNumber = entry.team?.number || entry.team?.name || 'Unknown Team';
-      const teamId = entry.team?.id;
+      const teamId = typeof entry.team?.id === 'number' ? entry.team.id : null;
 
       if (!teamId) {
-        return fallbackNumber;
+        return {
+          id: null,
+          number: fallbackNumber,
+          name: '',
+        };
       }
 
       const teamDetails = await getTeamDetails(teamId);
       const teamNumber = teamDetails?.number || fallbackNumber;
       const teamName = teamDetails?.team_name?.trim();
 
-      return teamName ? `${teamNumber}: ${teamName}` : teamNumber;
+      return {
+        id: teamId,
+        number: teamNumber,
+        name: teamName || '',
+      };
     })
   );
+}
 
-  return teamLabels.filter(Boolean).join(', ');
+function formatAllianceTeamDetails(teams: RobotEventsMatchTeam[]) {
+  if (teams.length === 0) {
+    return 'TBD';
+  }
+
+  return teams
+    .map((team) => (team.name ? `${team.number}: ${team.name}` : team.number))
+    .filter(Boolean)
+    .join(', ');
 }
 
 // Fetch team ID from team number
@@ -367,8 +397,10 @@ export const fetchRoboteventsResults = cache(async (): Promise<RobotEventsResult
         const { ourAlliance, opponentAlliance, ourScore, opponentScore } = getMatchScores(match, teamId);
         const result = ourScore > opponentScore ? 'Win' : ourScore < opponentScore ? 'Loss' : 'Tie';
         const allianceColor = (ourAlliance?.color || 'unknown').toUpperCase();
-        const ourTeams = await formatAllianceTeams(ourAlliance);
-        const opponentTeams = await formatAllianceTeams(opponentAlliance);
+        const ourAllianceTeams = await getAllianceTeamDetails(ourAlliance);
+        const opponentAllianceTeams = await getAllianceTeamDetails(opponentAlliance);
+        const ourTeams = formatAllianceTeamDetails(ourAllianceTeams);
+        const opponentTeams = formatAllianceTeamDetails(opponentAllianceTeams);
         const season = seasonByEventId.get(match.event?.id) || seasonByEventCode.get(match.event?.code) || 'Unknown Season';
         const matchLabel = getMatchLabel(match);
         const countsForRecord = isCountableForStats(match, teamId);
@@ -402,6 +434,8 @@ export const fetchRoboteventsResults = cache(async (): Promise<RobotEventsResult
           opponentScore: opponentScore.toString(),
           ourTeams,
           opponentTeams,
+          ourAllianceTeams,
+          opponentAllianceTeams,
           link: buildRobotEventsLink(match.event?.code, 'results-'),
         };
       }));

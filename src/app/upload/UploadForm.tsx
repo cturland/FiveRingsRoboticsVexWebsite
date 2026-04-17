@@ -25,6 +25,7 @@ type UploadFormProps = {
 
 export default function UploadForm({ userEmail }: UploadFormProps) {
   const [state, formAction] = useFormState(submitUpload, initialUploadFormState);
+  const [mediaType, setMediaType] = useState<'image' | 'youtube'>('image');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
@@ -32,6 +33,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
   useEffect(() => {
     if (state.status === 'success') {
       formRef.current?.reset();
+      setMediaType('image');
       setPreviewUrl(null);
       setSelectedFileName('');
     }
@@ -62,14 +64,27 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
     setPreviewUrl(URL.createObjectURL(file));
   }
 
+  function handleMediaTypeChange(nextMediaType: 'image' | 'youtube') {
+    setMediaType(nextMediaType);
+
+    if (nextMediaType === 'youtube') {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+
+      setPreviewUrl(null);
+      setSelectedFileName('');
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl py-6 sm:py-8">
       <Card className="space-y-6 overflow-hidden p-0">
         <div className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,89,100,0.18),transparent_32%),linear-gradient(180deg,rgba(18,34,56,0.96),rgba(11,20,33,0.96))] px-5 py-6 sm:px-7">
           <p className="eyebrow">Checkpoint 4</p>
-          <h1 className="heading-display mt-4 text-3xl font-black text-white sm:text-4xl">Mobile Photo Upload</h1>
+          <h1 className="heading-display mt-4 text-3xl font-black text-white sm:text-4xl">Mobile Update Upload</h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--color-muted)] sm:text-base">
-            Add a gallery photo straight from a phone with the image, title, category, and event date. The upload is only available to approved student accounts.
+            Add a photo or YouTube video link straight from a phone with the title, category, and event date. The upload is only available to approved student accounts.
           </p>
 
           <div className="mt-5 rounded-[1.3rem] border border-white/10 bg-black/20 px-4 py-4">
@@ -92,40 +107,88 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
           ) : null}
 
           <form ref={formRef} action={formAction} className="space-y-5">
-            <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">Image</span>
-              <div className="rounded-[1.4rem] border border-dashed border-white/15 bg-white/5 p-3">
+            <input type="hidden" name="mediaType" value={mediaType} />
+
+            <fieldset className="rounded-[1.2rem] border border-white/10 bg-white/5 p-3">
+              <legend className="mb-3 px-1 text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">Update Type</legend>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <label className={`cursor-pointer rounded-[1rem] border px-4 py-3 transition ${mediaType === 'image' ? 'border-red-400 bg-red-500/15 text-white' : 'border-white/10 bg-black/15 text-[var(--color-muted)]'}`}>
+                  <input
+                    type="radio"
+                    name="mediaTypeChoice"
+                    value="image"
+                    checked={mediaType === 'image'}
+                    onChange={() => handleMediaTypeChange('image')}
+                    className="sr-only"
+                  />
+                  <span className="text-sm font-black uppercase tracking-[0.16em]">Photo</span>
+                </label>
+                <label className={`cursor-pointer rounded-[1rem] border px-4 py-3 transition ${mediaType === 'youtube' ? 'border-red-400 bg-red-500/15 text-white' : 'border-white/10 bg-black/15 text-[var(--color-muted)]'}`}>
+                  <input
+                    type="radio"
+                    name="mediaTypeChoice"
+                    value="youtube"
+                    checked={mediaType === 'youtube'}
+                    onChange={() => handleMediaTypeChange('youtube')}
+                    className="sr-only"
+                  />
+                  <span className="text-sm font-black uppercase tracking-[0.16em]">YouTube Video</span>
+                </label>
+              </div>
+            </fieldset>
+
+            {mediaType === 'image' ? (
+              <>
+                <label className="block">
+                  <span className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">Image</span>
+                  <div className="rounded-[1.4rem] border border-dashed border-white/15 bg-white/5 p-3">
+                    <input
+                      type="file"
+                      name="image"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handleImageChange}
+                      className="block w-full text-sm text-[var(--color-muted)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-primary)] file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-[0.16em] file:text-white"
+                      required
+                    />
+                    <p className="mt-3 text-xs leading-5 text-[var(--color-muted)]">
+                      Use the camera or photo library. Images up to 10 MB are accepted.
+                    </p>
+                    {selectedFileName ? (
+                      <p className="mt-2 text-xs font-semibold text-white/90">{selectedFileName}</p>
+                    ) : null}
+                  </div>
+                </label>
+
+                {previewUrl ? (
+                  <div className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/20">
+                    <Image
+                      src={previewUrl}
+                      alt="Selected upload preview"
+                      width={1200}
+                      height={900}
+                      sizes="100vw"
+                      className="h-64 w-full object-cover sm:h-80"
+                      unoptimized
+                    />
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <label className="block">
+                <span className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">YouTube Link</span>
                 <input
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleImageChange}
-                  className="block w-full text-sm text-[var(--color-muted)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-primary)] file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-[0.16em] file:text-white"
-                  required
+                  type="url"
+                  name="youtubeUrl"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="w-full rounded-[1rem] border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-[var(--color-primary-accent)] focus:bg-white/10"
+                  required={mediaType === 'youtube'}
                 />
                 <p className="mt-3 text-xs leading-5 text-[var(--color-muted)]">
-                  Use the camera or photo library. Images up to 10 MB are accepted.
+                  Paste a YouTube watch, Shorts, or youtu.be link. The video will be reviewed before it appears in Updates.
                 </p>
-                {selectedFileName ? (
-                  <p className="mt-2 text-xs font-semibold text-white/90">{selectedFileName}</p>
-                ) : null}
-              </div>
-            </label>
-
-            {previewUrl ? (
-              <div className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/20">
-                <Image
-                  src={previewUrl}
-                  alt="Selected upload preview"
-                  width={1200}
-                  height={900}
-                  sizes="100vw"
-                  className="h-64 w-full object-cover sm:h-80"
-                  unoptimized
-                />
-              </div>
-            ) : null}
+              </label>
+            )}
 
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">Title</span>
@@ -168,7 +231,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
             </label>
 
             <div className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-[var(--color-muted)]">
-              Successful uploads are sent to Supabase Storage and then saved as pending gallery submissions for review.
+              Photo uploads are saved to Supabase Storage. YouTube links are saved as pending update submissions for review.
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -176,7 +239,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
                 Edit your team profile
               </a>
               <a href="/gallery" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
-                View public Highlights
+                View public Updates
               </a>
             </div>
 
@@ -202,7 +265,7 @@ function SubmitButton() {
 
   return (
     <button type="submit" disabled={pending} className="btn btn-primary w-full disabled:cursor-not-allowed disabled:opacity-70">
-      {pending ? 'Uploading Photo...' : 'Upload Photo'}
+      {pending ? 'Submitting Update...' : 'Submit Update'}
     </button>
   );
 }

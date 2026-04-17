@@ -87,8 +87,8 @@ export default async function AdminGalleryPage() {
   return (
     <AdminShell
       activeSection="gallery"
-      title="Pending Gallery Submissions"
-      description="Review student uploads and approve the ones that should appear on Highlights, the homepage preview, and the worlds display."
+      title="Pending Update Submissions"
+      description="Review student photos and YouTube links before they appear on Updates, the homepage preview, and the worlds display."
       userEmail={user.email}
     >
       {submissions.length === 0 ? (
@@ -103,20 +103,33 @@ export default async function AdminGalleryPage() {
           {submissions.map((submission) => (
             <Card key={submission.id} className="grid gap-5 lg:grid-cols-[320px_1fr]">
               <div className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/20">
-                <Image
-                  src={submission.imageUrl}
-                  alt={submission.title}
-                  width={640}
-                  height={480}
-                  sizes="(min-width: 1024px) 320px, 100vw"
-                  className="h-72 w-full object-cover"
-                />
+                {submission.mediaType === 'youtube' ? (
+                  <iframe
+                    src={submission.youtubeEmbedUrl}
+                    title={submission.title}
+                    className="h-72 w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                ) : (
+                  <Image
+                    src={submission.imageUrl}
+                    alt={submission.title}
+                    width={640}
+                    height={480}
+                    sizes="(min-width: 1024px) 320px, 100vw"
+                    className="h-72 w-full object-cover"
+                  />
+                )}
               </div>
 
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-yellow-200">
                     Pending
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-white">
+                    {submission.mediaType === 'youtube' ? 'YouTube' : 'Photo'}
                   </span>
                   <span className="text-sm text-[var(--color-muted)]">Submitted {formatDateTime(submission.createdAt)}</span>
                 </div>
@@ -132,10 +145,21 @@ export default async function AdminGalleryPage() {
                     <p className="mt-2 break-all text-sm font-semibold text-white">{submission.email}</p>
                   </div>
                   <div className="rounded-[1.2rem] border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--color-muted)]">Photo Date</p>
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--color-muted)]">Update Date</p>
                     <p className="mt-2 text-sm font-semibold text-white">{formatDate(submission.date)}</p>
                   </div>
                 </div>
+
+                {submission.mediaType === 'youtube' ? (
+                  <a
+                    href={submission.youtubeUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex text-sm font-bold text-red-300 hover:text-red-200"
+                  >
+                    Open video on YouTube
+                  </a>
+                ) : null}
 
                 <form action={approveGallerySubmission}>
                   <input type="hidden" name="submissionId" value={submission.id} />

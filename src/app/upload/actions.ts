@@ -5,6 +5,7 @@ import { getUploadAccess } from '@/lib/uploadAccess';
 import { createPendingGallerySubmission } from '@/lib/gallerySubmissions';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getSupabaseGalleryBucket, isSupabaseConfigured } from '@/lib/supabase/env';
+import { parseYouTubeUrl } from '@/lib/youtube';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const DEFAULT_IMAGE_EXTENSION = 'jpg';
@@ -49,12 +50,61 @@ export async function submitUpload(
   const title = String(formData.get('title') ?? '').trim();
   const category = String(formData.get('category') ?? '').trim();
   const date = String(formData.get('date') ?? '').trim();
+  const mediaType = String(formData.get('mediaType') ?? 'image') === 'youtube' ? 'youtube' : 'image';
+  const youtubeUrl = String(formData.get('youtubeUrl') ?? '').trim();
   const image = formData.get('image');
 
   if (!title || !category || !date) {
     return {
       status: 'error',
       message: 'Please complete the title, category, and date fields before submitting.',
+    };
+  }
+
+  const parsedDate = new Date(`${date}T00:00:00`);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return {
+      status: 'error',
+      message: 'Enter a valid date before uploading.',
+    };
+  }
+
+  if (mediaType === 'youtube') {
+    const video = parseYouTubeUrl(youtubeUrl);
+
+    if (!video) {
+      return {
+        status: 'error',
+        message: 'Enter a valid YouTube link before submitting. Supported formats include youtube.com/watch, youtu.be, and YouTube Shorts links.',
+      };
+    }
+
+    const { error: submissionError } = await createPendingGallerySubmission(supabase, {
+      email: user.email,
+      media_type: 'youtube',
+      image_path: null,
+      youtube_url: video.url,
+      youtube_video_id: video.videoId,
+      title,
+      category,
+      date,
+    });
+
+    if (submissionError) {
+      console.error('YouTube submission insert failed:', submissionError);
+
+      return {
+        status: 'error',
+        message: `Creating the YouTube submission record failed: ${submissionError.message}.`,
+      };
+    }
+
+    revalidatePath('/upload');
+
+    return {
+      status: 'success',
+      message: 'YouTube video submitted for review. It will appear in Updates once approved.',
     };
   }
 
@@ -76,15 +126,6 @@ export async function submitUpload(
     return {
       status: 'error',
       message: 'This image is larger than 10 MB. Choose a smaller file and try again.',
-    };
-  }
-
-  const parsedDate = new Date(`${date}T00:00:00`);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return {
-      status: 'error',
-      message: 'Enter a valid date before uploading.',
     };
   }
 
@@ -113,7 +154,10 @@ export async function submitUpload(
 
     const { error: submissionError } = await createPendingGallerySubmission(supabase, {
       email: user.email,
+      media_type: 'image',
       image_path: storagePath,
+      youtube_url: null,
+      youtube_video_id: null,
       title,
       category,
       date,

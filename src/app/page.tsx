@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { getTeamFixtures, getTeamResults, getTeamSummary } from '@/app/actions';
+import LatestUpdatesPreview from '@/components/LatestUpdatesPreview';
 import { getGalleryItems } from '@/lib/gallery';
 
 function formatResultDate(value: string) {
@@ -335,52 +336,17 @@ export default async function Home() {
       <section className="rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(10,18,31,0.92),rgba(11,23,38,0.96))] px-6 py-8 md:px-8 md:py-10">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="eyebrow mb-4">Highlights Preview</span>
+            <span className="eyebrow mb-4">Updates Preview</span>
             <h2 className="heading-display text-3xl font-black text-white">Latest updates</h2>
             <p className="mt-3 max-w-2xl text-[var(--color-muted)]">
-              Recent highlights from the live team feed, pulled directly from approved uploads.
+              Recent photos and videos from the live team feed, pulled directly from approved submissions.
             </p>
           </div>
-          <a href="/gallery" className="btn btn-primary">Open Highlights</a>
+          <a href="/gallery" className="btn btn-primary">Open Updates</a>
         </div>
 
         <div className="grid gap-5 md:grid-cols-3">
-          {galleryItems.length > 0 ? (
-            galleryItems.map((item) => (
-              <article key={item.id ?? item.title} className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[rgba(255,255,255,0.03)]">
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={item.image || '/images/gallery/robot.jpg'}
-                    alt={item.title || 'Highlights preview'}
-                    fill
-                    sizes="(min-width: 768px) 33vw, 100vw"
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 p-5">
-                    <div className="w-fit rounded-full border border-white/15 bg-black/45 px-3 py-1 text-xs font-black uppercase tracking-[0.24em] text-white">
-                      {item.category || 'Highlight'}
-                    </div>
-                  </div>
-                </div>
-                <div className="p-5">
-                  <h3 className="text-xl font-bold text-white">{item.title || 'Untitled image'}</h3>
-                  <p className="mt-2 text-sm text-[var(--color-muted)]">
-                    {item.date
-                      ? new Intl.DateTimeFormat('en-GB', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        }).format(new Date(item.date))
-                      : 'Date unavailable'}
-                  </p>
-                </div>
-              </article>
-            ))
-          ) : (
-            <article className="rounded-[1.6rem] border border-white/10 bg-[rgba(255,255,255,0.03)] p-6 text-[var(--color-muted)] md:col-span-3">
-              No approved gallery items yet. Once submissions are approved, they will appear here automatically.
-            </article>
-          )}
+          <LatestUpdatesPreview items={galleryItems} />
         </div>
       </section>
     </div>

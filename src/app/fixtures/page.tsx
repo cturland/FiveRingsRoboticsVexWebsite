@@ -2,6 +2,7 @@ import { getTeamFixtures, getTeamResults, getTeamSeasonStats, getTeamSummary } f
 import EventCard from '@/components/EventCard';
 import ResultsHistory from '@/components/ResultsHistory';
 import SectionHeading from '@/components/SectionHeading';
+import Link from 'next/link';
 
 export default async function FixturesPage() {
   const [fixturesResult, resultsResult, seasonStatsResult, summaryResult] = await Promise.all([
@@ -44,6 +45,20 @@ export default async function FixturesPage() {
         title="Competition Hub"
         subtitle="Upcoming fixtures and full match history from RobotEvents, in one place."
       />
+
+      <section className="rounded-[1.4rem] border border-white/10 bg-[rgba(255,255,255,0.03)] px-5 py-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-red-300">Opponent Records</p>
+            <p className="mt-2 text-sm text-[var(--color-muted)]">
+              Explore our match history against teams we have played before.
+            </p>
+          </div>
+          <Link href="/fixtures/opponents" className="btn btn-primary w-fit">
+            Open Opponent History
+          </Link>
+        </div>
+      </section>
 
       <div className="grid gap-10 xl:grid-cols-[0.92fr_1.08fr]">
         <div className="space-y-5">

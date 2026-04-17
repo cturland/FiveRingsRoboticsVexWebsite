@@ -14,7 +14,9 @@ const instagramAccount = {
 };
 
 type ActiveImage = {
+  mediaType: 'image' | 'youtube';
   src: string;
+  embedUrl: string;
   title: string;
   category: string;
   date: string;
@@ -48,7 +50,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
 
   return (
     <section className="space-y-6">
-      <SectionHeading title="Highlights" subtitle="Photos and updates from the team" />
+      <SectionHeading title="Updates" subtitle="Photos and videos from the team" />
 
       <Card className="overflow-hidden border-white/10 bg-[linear-gradient(180deg,rgba(16,29,47,0.92),rgba(9,18,31,0.9))] px-5 py-4 sm:px-6 sm:py-5">
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -92,15 +94,16 @@ export default function GalleryClient({ images }: GalleryClientProps) {
 
       {filteredImages.length === 0 ? (
         <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-[var(--color-muted)]">
-          No images found for {activeCategory}. Upload a photo or choose a different category.
+          No updates found for {activeCategory}. Submit a photo or YouTube link, or choose a different category.
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredImages.map((item) => {
-            const showTitle = item.title || 'Untitled image';
+            const showTitle = item.title || 'Untitled update';
             const showDate = item.date || 'Date not available';
             const showCategory = item.category || 'Uncategorized';
-            const src = item.image || placeholder;
+            const isYouTube = item.mediaType === 'youtube';
+            const src = isYouTube ? item.youtubeThumbnailUrl : item.image || placeholder;
 
             return (
               <button
@@ -108,7 +111,9 @@ export default function GalleryClient({ images }: GalleryClientProps) {
                 type="button"
                 onClick={() =>
                   setActiveImage({
+                    mediaType: item.mediaType,
                     src,
+                    embedUrl: item.youtubeEmbedUrl,
                     title: showTitle,
                     category: showCategory,
                     date: showDate,
@@ -118,14 +123,28 @@ export default function GalleryClient({ images }: GalleryClientProps) {
               >
                 <Card className="overflow-hidden p-0">
                   <div className="relative h-48 w-full overflow-hidden bg-[var(--color-surface-alt)]">
-                    <Image
-                      src={src}
-                      alt={showTitle}
-                      fill
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover transition-transform duration-300 hover:scale-105"
-                      unoptimized={src.startsWith('data:')}
-                    />
+                    {isYouTube ? (
+                      <div
+                        className="h-full w-full bg-cover bg-center transition-transform duration-300 hover:scale-105"
+                        style={{ backgroundImage: `url(${src})` }}
+                        aria-label={showTitle}
+                      >
+                        <div className="flex h-full w-full items-center justify-center bg-black/20">
+                          <span className="rounded-full border border-white/20 bg-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-white">
+                            Play
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <Image
+                        src={src}
+                        alt={showTitle}
+                        fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                        className="object-cover transition-transform duration-300 hover:scale-105"
+                        unoptimized={src.startsWith('data:')}
+                      />
+                    )}
                   </div>
                   <div className="p-4">
                     <p className="text-sm font-semibold uppercase tracking-wider text-[var(--color-primary-accent)]">{showCategory}</p>
@@ -163,15 +182,25 @@ export default function GalleryClient({ images }: GalleryClientProps) {
               </button>
             </div>
             <div className="relative bg-black">
-              <Image
-                src={activeImage.src}
-                alt={activeImage.title}
-                width={1600}
-                height={1200}
-                sizes="100vw"
-                className="max-h-[80vh] w-full object-contain"
-                unoptimized={activeImage.src.startsWith('data:')}
-              />
+              {activeImage.mediaType === 'youtube' ? (
+                <iframe
+                  src={activeImage.embedUrl}
+                  title={activeImage.title}
+                  className="aspect-video w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <Image
+                  src={activeImage.src}
+                  alt={activeImage.title}
+                  width={1600}
+                  height={1200}
+                  sizes="100vw"
+                  className="max-h-[80vh] w-full object-contain"
+                  unoptimized={activeImage.src.startsWith('data:')}
+                />
+              )}
             </div>
           </div>
         </div>

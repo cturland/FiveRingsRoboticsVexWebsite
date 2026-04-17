@@ -90,7 +90,7 @@ export default async function AdminOverviewPage() {
         <Card>
           <h2 className="text-2xl font-black text-white">Gallery Moderation</h2>
           <p className="mt-3 text-[var(--color-muted)]">
-            Review student photo submissions and approve the ones that should appear on Highlights, the homepage, and the worlds display.
+            Review student photo and video submissions and approve the ones that should appear on Updates, the homepage, and the worlds display.
           </p>
           <a href="/admin/gallery" className="btn btn-primary mt-5 inline-flex">
             Open Gallery Admin
