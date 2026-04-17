@@ -5,6 +5,7 @@ import type { ReactionTimeScore } from '@/lib/reactionTimes';
 import { submitReactionTimeScore } from './actions';
 
 type GamePhase = 'setup' | 'armed' | 'lighting' | 'waiting' | 'go' | 'result' | 'false-start' | 'locked-out';
+type FalseStartKind = 'early' | 'anticipation';
 
 type ReactionTimeGameProps = {
   initialLeaderboard: ReactionTimeScore[];
@@ -30,6 +31,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
   const [phase, setPhase] = useState<GamePhase>('setup');
   const [litLights, setLitLights] = useState(0);
   const [falseStarts, setFalseStarts] = useState(0);
+  const [falseStartKind, setFalseStartKind] = useState<FalseStartKind>('early');
   const [reactionTimeMs, setReactionTimeMs] = useState<number | null>(null);
   const [message, setMessage] = useState('Enter your details, then start the challenge.');
   const [leaderboard, setLeaderboard] = useState(initialLeaderboard);
@@ -39,6 +41,12 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
 
   const canStart = normalizeTeamNumber(teamNumber).length > 0 && playerName.trim().length > 0 && phase !== 'lighting' && phase !== 'waiting' && phase !== 'go' && phase !== 'locked-out';
   const detailsLocked = phase !== 'setup' && phase !== 'armed' && phase !== 'result' && phase !== 'false-start' && phase !== 'locked-out';
+  const isWarningPhase = phase === 'false-start' || phase === 'locked-out';
+  const warningTitle = phase === 'locked-out'
+    ? 'No Time Recorded'
+    : falseStartKind === 'anticipation'
+      ? 'Jump Start'
+      : 'False Start';
 
   useEffect(() => {
     return () => clearTimers();
@@ -80,6 +88,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
     setTeamNumber('');
     setPlayerName('');
     setFalseStarts(0);
+    setFalseStartKind('early');
     setReactionTimeMs(null);
     setPhase('setup');
     setMessage('Enter your details, then start the challenge.');
@@ -126,9 +135,10 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
     );
   }
 
-  function handleFalseStart(reason = 'False start. One more try.') {
+  function handleFalseStart(reason = 'False start. One more try.', kind: FalseStartKind = 'early') {
     clearTimers();
     setLitLights(0);
+    setFalseStartKind(kind);
 
     const nextFalseStarts = falseStarts + 1;
     setFalseStarts(nextFalseStarts);
@@ -141,14 +151,14 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
     }
 
     setPhase('false-start');
-    setMessage(reason);
+    setMessage(`${reason} Press Space or tap Start to use your final try.`);
   }
 
   function recordReactionTime() {
     const elapsed = Math.round(performance.now() - goTimeRef.current);
 
     if (elapsed < MIN_VALID_REACTION_MS) {
-      handleFalseStart(`Jump start. Reactions under ${MIN_VALID_REACTION_MS} ms count as anticipating the lights. One more try.`);
+      handleFalseStart(`Jump start. Reactions under ${MIN_VALID_REACTION_MS} ms count as anticipating the lights. One more try.`, 'anticipation');
       return;
     }
 
@@ -180,7 +190,9 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
 
   return (
     <div className="grid min-h-[calc(100vh-12rem)] min-w-0 gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(24rem,0.75fr)]">
-      <section className="flex w-full max-w-[21.25rem] min-w-0 flex-col overflow-x-hidden rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(13,24,40,0.97),rgba(7,14,26,0.98))] p-5 sm:max-w-none md:p-7">
+      <section className={`flex w-full max-w-[21.25rem] min-w-0 flex-col overflow-x-hidden rounded-[1.8rem] border bg-[linear-gradient(180deg,rgba(13,24,40,0.97),rgba(7,14,26,0.98))] p-5 transition-colors sm:max-w-none md:p-7 ${
+        isWarningPhase ? 'border-red-400/70 shadow-[0_0_0_3px_rgba(248,113,113,0.18)]' : 'border-white/10'
+      }`}>
         <div>
           <p className="eyebrow">Limited Time Challenge</p>
           <h1 className="heading-display mt-4 text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
@@ -221,8 +233,17 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
           </label>
         </div>
 
+        {isWarningPhase ? (
+          <div className="mt-6 rounded-[1.25rem] border border-red-300/60 bg-red-600/20 px-5 py-4 text-center shadow-[0_0_34px_rgba(220,38,38,0.22)]" role="alert" aria-live="assertive">
+            <p className="text-sm font-black uppercase tracking-[0.24em] text-red-100">
+              {warningTitle}
+            </p>
+            <p className="mt-2 text-base font-bold text-white">{message}</p>
+          </div>
+        ) : null}
+
         <div className="my-8 flex flex-1 flex-col items-center justify-center gap-7">
-          <div className="w-full max-w-3xl rounded-[1.5rem] border border-white/10 bg-black/35 p-4 sm:p-5">
+          <div className={`w-full max-w-3xl rounded-[1.5rem] border bg-black/35 p-4 transition-colors sm:p-5 ${isWarningPhase ? 'border-red-300/60' : 'border-white/10'}`}>
             <div className="grid grid-cols-5 gap-2 sm:gap-3">
               {Array.from({ length: LIGHT_COUNT }).map((_, column) => {
                 const isLit = column < litLights;
@@ -244,10 +265,12 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
             className={`flex h-36 w-36 items-center justify-center rounded-full border text-center text-sm font-black uppercase tracking-[0.18em] transition sm:h-44 sm:w-44 ${
               phase === 'go'
                 ? 'border-green-300 bg-green-500 text-black shadow-[0_0_48px_rgba(34,197,94,0.55)]'
+                : isWarningPhase
+                  ? 'border-red-100 bg-red-700 text-white shadow-[0_0_54px_rgba(239,68,68,0.5)] disabled:cursor-not-allowed disabled:opacity-50'
                 : 'border-red-400/40 bg-red-600 text-white shadow-[0_24px_70px_rgba(227,51,61,0.24)] hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50'
             }`}
           >
-            {phase === 'go' ? 'React' : phase === 'lighting' || phase === 'waiting' ? 'Wait' : isPending ? 'Saving' : 'Start'}
+            {phase === 'go' ? 'React' : phase === 'lighting' || phase === 'waiting' ? 'Wait' : phase === 'false-start' ? 'Final Try' : phase === 'locked-out' ? 'Stopped' : isPending ? 'Saving' : 'Start'}
           </button>
 
           <div className="min-h-[5rem] text-center">
@@ -256,10 +279,10 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
             ) : (
               <p className="heading-display text-5xl font-black text-white/35 md:text-7xl">00.000</p>
             )}
-            <p className={`mt-3 text-sm font-semibold ${phase === 'false-start' || phase === 'locked-out' ? 'text-red-200' : 'text-[var(--color-muted)]'}`}>
+            <p className={`mt-3 text-sm font-semibold ${isWarningPhase ? 'text-red-100' : 'text-[var(--color-muted)]'}`}>
               {message}
             </p>
-            <p className="mt-2 text-xs font-black uppercase tracking-[0.18em] text-[var(--color-muted)]">False starts: {falseStarts}/2</p>
+            <p className={`mt-2 text-xs font-black uppercase tracking-[0.18em] ${isWarningPhase ? 'text-red-200' : 'text-[var(--color-muted)]'}`}>False starts: {falseStarts}/2</p>
           </div>
         </div>
 
