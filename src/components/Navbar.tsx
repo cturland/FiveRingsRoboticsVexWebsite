@@ -9,7 +9,7 @@ export default function Navbar() {
   const links = [
     { href: '/', label: 'Home' },
     { href: '/team', label: 'Team' },
-    { href: '/gallery', label: 'Highlights' },
+    { href: '/gallery', label: 'Updates' },
     { href: '/fixtures', label: 'Competition' },
   ];
 

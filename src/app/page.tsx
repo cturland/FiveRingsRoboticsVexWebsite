@@ -336,7 +336,7 @@ export default async function Home() {
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <span className="eyebrow mb-4">Highlights Preview</span>
-            <h2 className="heading-display text-3xl font-black text-white">A sharper look at the season</h2>
+            <h2 className="heading-display text-3xl font-black text-white">Latest updates</h2>
             <p className="mt-3 max-w-2xl text-[var(--color-muted)]">
               Recent highlights from the live team feed, pulled directly from approved uploads.
             </p>

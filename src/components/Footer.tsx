@@ -24,7 +24,7 @@ export default function Footer() {
             <div className="grid gap-2 text-sm text-[var(--color-muted)]">
               <Link href="/">Home</Link>
               <Link href="/team">Team</Link>
-              <Link href="/gallery">Highlights</Link>
+              <Link href="/gallery">Updates</Link>
               <Link href="/fixtures">Competition</Link>
             </div>
           </div>
