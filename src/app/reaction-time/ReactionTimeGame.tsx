@@ -195,20 +195,19 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
       }`}>
         <div>
           <p className="eyebrow">Limited Time Challenge</p>
-          <h1 className="heading-display mt-4 text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
-            <span className="block">VEX Worlds</span>
-            <span className="block">Fastest</span>
-            <span className="block">Reaction Times</span>
+          <h1 className="heading-display mt-3 text-2xl font-black leading-tight text-white sm:text-3xl lg:text-4xl">
+            <span className="block sm:inline">VEX Worlds</span>
+            <span className="block sm:inline"> Fastest Reaction Times</span>
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--color-muted)]">
-            Five red start lights, a random delay, then lights out. React too early and it counts as a false start.
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--color-muted)] sm:text-base">
+            Five lights, a random delay, then lights out.
           </p>
-          <p className="mt-3 max-w-3xl text-sm font-semibold leading-6 text-red-200">
-            Desktop racers use Spacebar. Mobile racers can tap the control. Anything under {MIN_VALID_REACTION_MS} ms is treated as a jump start.
+          <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-red-200">
+            Spacebar to race. Mobile users can tap. Under {MIN_VALID_REACTION_MS} ms counts as a jump start.
           </p>
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="block">
             <span className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">VEX Team Number</span>
             <input
@@ -242,7 +241,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
           </div>
         ) : null}
 
-        <div className="my-8 flex flex-1 flex-col items-center justify-center gap-7">
+        <div className="my-5 flex flex-1 flex-col items-center justify-center gap-5 md:my-6">
           <div className={`w-full max-w-3xl rounded-[1.5rem] border bg-black/35 p-4 transition-colors sm:p-5 ${isWarningPhase ? 'border-red-300/60' : 'border-white/10'}`}>
             <div className="grid grid-cols-5 gap-2 sm:gap-3">
               {Array.from({ length: LIGHT_COUNT }).map((_, column) => {
