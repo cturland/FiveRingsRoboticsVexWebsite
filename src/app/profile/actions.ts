@@ -1,7 +1,8 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { getAdminAccess } from '@/lib/adminAccess';
+import { PUBLIC_TEAM_PROFILES_CACHE_TAG } from '@/lib/teamProfiles';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { buildTeamProfilePayload, parseTeamProfileFormData, uploadTeamProfilePhoto } from '@/lib/teamProfileMutations';
@@ -77,6 +78,7 @@ export async function saveTeamProfile(
   revalidatePath('/profile');
   revalidatePath('/upload');
   revalidatePath('/team');
+  revalidateTag(PUBLIC_TEAM_PROFILES_CACHE_TAG);
 
   const adminAccess = await getAdminAccess(user.email);
 

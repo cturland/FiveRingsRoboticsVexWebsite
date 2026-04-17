@@ -1,15 +1,22 @@
 import 'server-only';
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { unstable_cache } from 'next/cache';
 import { getSupabaseGalleryBucket, isSupabaseConfigured } from '@/lib/supabase/env';
+import { createSupabasePublicClient } from '@/lib/supabase/public';
 import type { PublicGalleryItem } from './gallery.types';
 
-export async function getGalleryItems(): Promise<PublicGalleryItem[]> {
+export const GALLERY_ITEMS_CACHE_TAG = 'gallery-items';
+
+async function loadGalleryItems(): Promise<PublicGalleryItem[]> {
   if (!isSupabaseConfigured()) {
     return [];
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
+  if (!supabase) {
+    return [];
+  }
+
   const bucket = getSupabaseGalleryBucket();
 
   const { data, error } = await supabase
@@ -42,3 +49,8 @@ export async function getGalleryItems(): Promise<PublicGalleryItem[]> {
     } satisfies PublicGalleryItem;
   });
 }
+
+export const getGalleryItems = unstable_cache(loadGalleryItems, ['gallery-items'], {
+  revalidate: 300,
+  tags: [GALLERY_ITEMS_CACHE_TAG],
+});

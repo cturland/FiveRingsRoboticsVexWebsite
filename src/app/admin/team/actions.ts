@@ -1,7 +1,8 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { getAdminAccess } from '@/lib/adminAccess';
+import { PUBLIC_TEAM_PROFILES_CACHE_TAG } from '@/lib/teamProfiles';
 import { buildTeamProfilePayload, deleteTeamProfilePhoto, parseTeamProfileFormData, uploadTeamProfilePhoto } from '@/lib/teamProfileMutations';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -53,6 +54,7 @@ export async function updateTeamProfileAsAdmin(formData: FormData) {
 
   revalidatePath('/admin/team');
   revalidatePath('/team');
+  revalidateTag(PUBLIC_TEAM_PROFILES_CACHE_TAG);
 }
 
 export async function deleteTeamProfileAsAdmin(formData: FormData) {
@@ -79,4 +81,5 @@ export async function deleteTeamProfileAsAdmin(formData: FormData) {
   revalidatePath('/admin/team');
   revalidatePath('/team');
   revalidatePath('/profile');
+  revalidateTag(PUBLIC_TEAM_PROFILES_CACHE_TAG);
 }

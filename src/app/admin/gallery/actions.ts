@@ -1,7 +1,8 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { getAdminAccess } from '@/lib/adminAccess';
+import { GALLERY_ITEMS_CACHE_TAG } from '@/lib/gallery';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export async function approveGallerySubmission(formData: FormData) {
@@ -36,4 +37,5 @@ export async function approveGallerySubmission(formData: FormData) {
   revalidatePath('/gallery');
   revalidatePath('/');
   revalidatePath('/worlds-live');
+  revalidateTag(GALLERY_ITEMS_CACHE_TAG);
 }

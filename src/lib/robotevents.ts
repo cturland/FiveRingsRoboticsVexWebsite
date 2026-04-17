@@ -1,4 +1,5 @@
 import { cache } from 'react';
+import { createSupabasePublicClient } from './supabase/public';
 
 export type RobotEventsFixture = {
   id: number;
@@ -71,6 +72,18 @@ type RobotEventsTeamDetails = {
   id: number;
   number: string;
   team_name?: string;
+};
+
+type CachedRobotEventsTeamDetails = {
+  team_id: number;
+  team_number: string;
+  team_name: string | null;
+  updated_at: string | null;
+};
+
+type CachedRobotEventsTeamLookup = {
+  details: RobotEventsTeamDetails;
+  isStale: boolean;
 };
 
 function buildRobotEventsLink(eventCode?: string, anchor?: string) {
@@ -220,19 +233,128 @@ const fetchAllPagesFromRobotEvents = cache(async (endpoint: string) => {
 });
 
 const teamDetailsCache = new Map<number, Promise<RobotEventsTeamDetails | null>>();
+const TEAM_DETAILS_CACHE_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 90;
+let robotEventsTeamCacheUnavailable = false;
+
+function getRobotEventsCacheClient() {
+  return createSupabasePublicClient();
+}
+
+function markTeamCacheUnavailable(errorMessage: string) {
+  if (
+    /robotevents_team_cache/i.test(errorMessage) ||
+    /upsert_robotevents_team_cache/i.test(errorMessage) ||
+    /could not find/i.test(errorMessage)
+  ) {
+    robotEventsTeamCacheUnavailable = true;
+  }
+}
+
+function isCachedTeamStale(updatedAt: string | null) {
+  if (!updatedAt) {
+    return true;
+  }
+
+  const updatedAtMs = new Date(updatedAt).getTime();
+  if (Number.isNaN(updatedAtMs)) {
+    return true;
+  }
+
+  return Date.now() - updatedAtMs > TEAM_DETAILS_CACHE_MAX_AGE_MS;
+}
+
+function warnTeamCacheFailure(action: string, teamId: number, errorMessage: string) {
+  markTeamCacheUnavailable(errorMessage);
+  logRobotEventsDebug(`[RobotEvents] Failed to ${action} cached team ${teamId}: ${errorMessage}`);
+}
+
+async function getCachedTeamDetails(teamId: number): Promise<CachedRobotEventsTeamLookup | null> {
+  if (robotEventsTeamCacheUnavailable) {
+    return null;
+  }
+
+  const supabase = getRobotEventsCacheClient();
+  if (!supabase) {
+    return null;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('robotevents_team_cache')
+      .select('team_id, team_number, team_name, updated_at')
+      .eq('team_id', teamId)
+      .maybeSingle<CachedRobotEventsTeamDetails>();
+
+    if (error) {
+      warnTeamCacheFailure('read', teamId, error.message);
+      return null;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    return {
+      details: {
+        id: data.team_id,
+        number: data.team_number,
+        team_name: data.team_name ?? undefined,
+      },
+      isStale: isCachedTeamStale(data.updated_at),
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warnTeamCacheFailure('read', teamId, errorMessage);
+    return null;
+  }
+}
+
+async function saveCachedTeamDetails(teamDetails: RobotEventsTeamDetails) {
+  if (robotEventsTeamCacheUnavailable || !teamDetails.id || !teamDetails.number) {
+    return;
+  }
+
+  const supabase = getRobotEventsCacheClient();
+  if (!supabase) {
+    return;
+  }
+
+  try {
+    const { error } = await supabase.rpc('upsert_robotevents_team_cache', {
+      submitted_team_id: teamDetails.id,
+      submitted_team_number: teamDetails.number,
+      submitted_team_name: teamDetails.team_name?.trim() || null,
+    });
+
+    if (error) {
+      warnTeamCacheFailure('cache', teamDetails.id, error.message);
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warnTeamCacheFailure('cache', teamDetails.id, errorMessage);
+  }
+}
 
 async function getTeamDetails(teamId: number): Promise<RobotEventsTeamDetails | null> {
   if (!teamDetailsCache.has(teamId)) {
     teamDetailsCache.set(
       teamId,
       (async () => {
+        const cachedTeamLookup = await getCachedTeamDetails(teamId);
+        if (cachedTeamLookup?.details.team_name?.trim() && !cachedTeamLookup.isStale) {
+          return cachedTeamLookup.details;
+        }
+
         try {
           const data = await fetchFromRobotEvents(`/teams/${teamId}`);
-          return data ?? null;
+          if (data?.id && data?.number) {
+            await saveCachedTeamDetails(data);
+          }
+          return data ?? cachedTeamLookup?.details ?? null;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
           console.warn(`[RobotEvents] Failed to fetch team ${teamId}: ${errorMessage}`);
-          return null;
+          return cachedTeamLookup?.details ?? null;
         }
       })()
     );

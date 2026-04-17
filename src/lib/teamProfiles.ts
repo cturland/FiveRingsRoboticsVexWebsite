@@ -1,8 +1,9 @@
 import 'server-only';
 
-import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getSupabaseTeamProfileBucket } from '@/lib/supabase/env';
+import { createSupabasePublicClient } from '@/lib/supabase/public';
 import { TEAM_PROFILE_ROLE_OPTIONS, type TeamProfileRole } from './teamProfileConstants';
 
 export type TeamProfileRecord = {
@@ -17,6 +18,8 @@ export type TeamProfileRecord = {
   createdAt: string;
   updatedAt: string;
 };
+
+export const PUBLIC_TEAM_PROFILES_CACHE_TAG = 'public-team-profiles';
 
 export async function getTeamProfileByEmail(email: string | null | undefined): Promise<TeamProfileRecord | null> {
   const normalizedEmail = (email ?? '').trim().toLowerCase();
@@ -56,8 +59,12 @@ export async function getTeamProfileByEmail(email: string | null | undefined): P
   };
 }
 
-export const getPublicTeamProfiles = cache(async (): Promise<TeamProfileRecord[]> => {
-  const supabase = createSupabaseServerClient();
+async function loadPublicTeamProfiles(): Promise<TeamProfileRecord[]> {
+  const supabase = createSupabasePublicClient();
+  if (!supabase) {
+    return [];
+  }
+
   const bucket = getSupabaseTeamProfileBucket();
   const { data, error } = await supabase
     .from('team_profiles')
@@ -82,6 +89,11 @@ export const getPublicTeamProfiles = cache(async (): Promise<TeamProfileRecord[]
     createdAt: item.created_at,
     updatedAt: item.updated_at,
   }));
+}
+
+export const getPublicTeamProfiles = unstable_cache(loadPublicTeamProfiles, ['public-team-profiles'], {
+  revalidate: 3600,
+  tags: [PUBLIC_TEAM_PROFILES_CACHE_TAG],
 });
 
 export async function getAllTeamProfilesForAdmin(): Promise<(TeamProfileRecord & { ownerKey: string })[]> {
