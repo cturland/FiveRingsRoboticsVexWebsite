@@ -179,6 +179,7 @@ export default async function Home() {
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
               <a href="/team" className="btn btn-primary px-7 py-3.5">Meet The Team</a>
               <a href="/fixtures" className="btn btn-secondary px-6 py-3.5">Competition Hub</a>
+              <a href="/reaction-time" className="btn btn-secondary px-6 py-3.5">Reaction Challenge</a>
             </div>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">

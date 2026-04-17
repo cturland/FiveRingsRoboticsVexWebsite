@@ -55,8 +55,8 @@ export default function Navbar() {
               ))}
             </nav>
 
-            <Link href="/worlds-live" className="btn btn-primary px-5 py-2.5 text-xs">
-              Worlds Display
+            <Link href="/reaction-time" className="btn btn-primary px-5 py-2.5 text-xs">
+              Reaction Challenge
             </Link>
           </div>
 
@@ -96,8 +96,8 @@ export default function Navbar() {
               ))}
             </nav>
 
-            <Link href="/worlds-live" onClick={() => setIsMenuOpen(false)} className="btn btn-primary w-full px-5 py-3 text-xs">
-              Worlds Display
+            <Link href="/reaction-time" onClick={() => setIsMenuOpen(false)} className="btn btn-primary w-full px-5 py-3 text-xs">
+              Reaction Challenge
             </Link>
           </div>
         </div>
