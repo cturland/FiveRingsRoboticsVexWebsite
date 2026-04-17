@@ -216,7 +216,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
               onChange={(event) => setTeamNumber(event.target.value)}
               placeholder="21052A"
               disabled={detailsLocked}
-              className="w-full rounded-[1rem] border border-white/10 bg-white/5 px-4 py-3 text-base font-semibold uppercase text-white outline-none transition focus:border-[var(--color-primary-accent)] focus:bg-white/10 disabled:opacity-70"
+              className="w-full rounded-[1rem] border border-white/10 bg-white/5 px-4 py-3 text-base font-semibold uppercase text-white outline-none transition placeholder:font-medium placeholder:text-slate-500/55 focus:border-[var(--color-primary-accent)] focus:bg-white/10 disabled:opacity-70"
             />
           </label>
           <label className="block">
@@ -227,7 +227,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
               onChange={(event) => setPlayerName(event.target.value)}
               placeholder="Your name"
               disabled={detailsLocked}
-              className="w-full rounded-[1rem] border border-white/10 bg-white/5 px-4 py-3 text-base font-semibold text-white outline-none transition focus:border-[var(--color-primary-accent)] focus:bg-white/10 disabled:opacity-70"
+              className="w-full rounded-[1rem] border border-white/10 bg-white/5 px-4 py-3 text-base font-semibold text-white outline-none transition placeholder:font-medium placeholder:text-slate-500/55 focus:border-[var(--color-primary-accent)] focus:bg-white/10 disabled:opacity-70"
             />
           </label>
         </div>
