@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import Card from '@/components/Card';
+import { formatFileSize, optimizeImageFile, setFileInputFile } from '@/lib/clientImageOptimization';
 import { TEAM_PROFILE_ROLE_OPTIONS } from '@/lib/teamProfileConstants';
 import type { TeamProfileRecord } from '@/lib/teamProfiles';
 import { saveTeamProfile, type TeamProfileFormState } from './actions';
@@ -24,6 +25,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
   const [state, formAction] = useFormState(saveTeamProfile, initialState);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState('');
+  const [photoOptimizationNote, setPhotoOptimizationNote] = useState('');
   const existingPhoto = profile?.photoUrl ?? null;
   const bioDefault = profile?.bio ?? '';
   const [bioValue, setBioValue] = useState(bioDefault);
@@ -45,8 +47,9 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
     return normalized ? normalized.split(/\s+/).length : 0;
   }, [bioValue]);
 
-  function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+  async function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
 
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
@@ -55,11 +58,40 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
     if (!file) {
       setPreviewUrl(null);
       setSelectedFileName('');
+      setPhotoOptimizationNote('');
       return;
     }
 
-    setSelectedFileName(file.name);
-    setPreviewUrl(URL.createObjectURL(file));
+    setPreviewUrl(null);
+    setSelectedFileName('Optimizing photo...');
+    setPhotoOptimizationNote('');
+
+    try {
+      const optimized = await optimizeImageFile(file, {
+        maxDimension: 1200,
+        quality: 0.82,
+      });
+
+      if (optimized.wasOptimized && !setFileInputFile(input, optimized.file)) {
+        setSelectedFileName(file.name);
+        setPreviewUrl(URL.createObjectURL(file));
+        setPhotoOptimizationNote('This browser could not attach the optimized file, so the original photo will be uploaded.');
+        return;
+      }
+
+      setSelectedFileName(optimized.file.name);
+      setPreviewUrl(URL.createObjectURL(optimized.file));
+      setPhotoOptimizationNote(
+        optimized.wasOptimized
+          ? `Optimized from ${formatFileSize(optimized.originalSize)} to ${formatFileSize(optimized.file.size)} before upload.`
+          : 'This image is already small enough for upload.',
+      );
+    } catch (error) {
+      console.error('Profile photo optimization failed:', error);
+      setSelectedFileName(file.name);
+      setPreviewUrl(URL.createObjectURL(file));
+      setPhotoOptimizationNote('This photo could not be optimized in the browser, so the original file will be uploaded.');
+    }
   }
 
   const displayPhoto = previewUrl || existingPhoto;
@@ -151,10 +183,13 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
                       className="block w-full text-sm text-[var(--color-muted)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-primary)] file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-[0.16em] file:text-white"
                     />
                     <p className="mt-3 text-xs leading-5 text-[var(--color-muted)]">
-                      Upload a headshot or team photo. Images up to 5 MB are accepted.
+                      Upload a headshot or team photo. Photos are resized before upload.
                     </p>
                     {selectedFileName ? (
                       <p className="mt-2 text-xs font-semibold text-white/90">{selectedFileName}</p>
+                    ) : null}
+                    {photoOptimizationNote ? (
+                      <p className="mt-2 text-xs leading-5 text-red-200/90">{photoOptimizationNote}</p>
                     ) : null}
                   </div>
                 </label>

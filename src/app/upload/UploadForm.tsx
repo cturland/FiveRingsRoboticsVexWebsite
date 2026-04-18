@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import Card from '@/components/Card';
+import { formatFileSize, optimizeImageFile, setFileInputFile } from '@/lib/clientImageOptimization';
 import { submitUpload, type UploadFormState } from './actions';
 
 const categorySuggestions = [
@@ -28,6 +29,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
   const [mediaType, setMediaType] = useState<'image' | 'youtube'>('image');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState('');
+  const [imageOptimizationNote, setImageOptimizationNote] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -36,6 +38,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
       setMediaType('image');
       setPreviewUrl(null);
       setSelectedFileName('');
+      setImageOptimizationNote('');
     }
   }, [state.status]);
 
@@ -47,8 +50,9 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
     };
   }, [previewUrl]);
 
-  function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+  async function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
 
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
@@ -57,11 +61,40 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
     if (!file) {
       setPreviewUrl(null);
       setSelectedFileName('');
+      setImageOptimizationNote('');
       return;
     }
 
-    setSelectedFileName(file.name);
-    setPreviewUrl(URL.createObjectURL(file));
+    setPreviewUrl(null);
+    setSelectedFileName('Optimizing photo...');
+    setImageOptimizationNote('');
+
+    try {
+      const optimized = await optimizeImageFile(file, {
+        maxDimension: 1800,
+        quality: 0.82,
+      });
+
+      if (optimized.wasOptimized && !setFileInputFile(input, optimized.file)) {
+        setSelectedFileName(file.name);
+        setPreviewUrl(URL.createObjectURL(file));
+        setImageOptimizationNote('This browser could not attach the optimized file, so the original photo will be uploaded.');
+        return;
+      }
+
+      setSelectedFileName(optimized.file.name);
+      setPreviewUrl(URL.createObjectURL(optimized.file));
+      setImageOptimizationNote(
+        optimized.wasOptimized
+          ? `Optimized from ${formatFileSize(optimized.originalSize)} to ${formatFileSize(optimized.file.size)} before upload.`
+          : 'This image is already small enough for upload.',
+      );
+    } catch (error) {
+      console.error('Image optimization failed:', error);
+      setSelectedFileName(file.name);
+      setPreviewUrl(URL.createObjectURL(file));
+      setImageOptimizationNote('This photo could not be optimized in the browser, so the original file will be uploaded.');
+    }
   }
 
   function handleMediaTypeChange(nextMediaType: 'image' | 'youtube') {
@@ -74,6 +107,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
 
       setPreviewUrl(null);
       setSelectedFileName('');
+      setImageOptimizationNote('');
     }
   }
 
@@ -146,16 +180,18 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
                       type="file"
                       name="image"
                       accept="image/*"
-                      capture="environment"
                       onChange={handleImageChange}
                       className="block w-full text-sm text-[var(--color-muted)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-primary)] file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-[0.16em] file:text-white"
                       required
                     />
                     <p className="mt-3 text-xs leading-5 text-[var(--color-muted)]">
-                      Use the camera or photo library. Images up to 10 MB are accepted.
+                      Choose a photo from your library or take a new one. Photos are resized before upload.
                     </p>
                     {selectedFileName ? (
                       <p className="mt-2 text-xs font-semibold text-white/90">{selectedFileName}</p>
+                    ) : null}
+                    {imageOptimizationNote ? (
+                      <p className="mt-2 text-xs leading-5 text-red-200/90">{imageOptimizationNote}</p>
                     ) : null}
                   </div>
                 </label>

@@ -103,7 +103,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
             const showDate = item.date || 'Date not available';
             const showCategory = item.category || 'Uncategorized';
             const isYouTube = item.mediaType === 'youtube';
-            const src = isYouTube ? item.youtubeThumbnailUrl : item.image || placeholder;
+            const src = isYouTube ? item.youtubeThumbnailUrl || placeholder : item.image || placeholder;
 
             return (
               <button
@@ -124,12 +124,16 @@ export default function GalleryClient({ images }: GalleryClientProps) {
                 <Card className="overflow-hidden p-0">
                   <div className="relative h-48 w-full overflow-hidden bg-[var(--color-surface-alt)]">
                     {isYouTube ? (
-                      <div
-                        className="h-full w-full bg-cover bg-center transition-transform duration-300 hover:scale-105"
-                        style={{ backgroundImage: `url(${src})` }}
-                        aria-label={showTitle}
-                      >
-                        <div className="flex h-full w-full items-center justify-center bg-black/20">
+                      <div className="relative h-full w-full overflow-hidden">
+                        <Image
+                          src={src}
+                          alt={`${showTitle} thumbnail`}
+                          fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          className="object-cover transition-transform duration-300 hover:scale-105"
+                          unoptimized={src.startsWith('data:')}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                           <span className="rounded-full border border-white/20 bg-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-white">
                             Play
                           </span>

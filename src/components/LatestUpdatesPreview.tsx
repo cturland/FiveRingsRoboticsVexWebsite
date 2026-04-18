@@ -47,7 +47,7 @@ export default function LatestUpdatesPreview({ items }: LatestUpdatesPreviewProp
         const category = item.category || 'Update';
         const date = formatDate(item.date);
         const isYouTube = item.mediaType === 'youtube';
-        const src = isYouTube ? item.youtubeThumbnailUrl : item.image || '/images/gallery/robot.jpg';
+        const src = isYouTube ? item.youtubeThumbnailUrl || '/images/gallery/robot.jpg' : item.image || '/images/gallery/robot.jpg';
 
         return (
           <button
@@ -68,11 +68,15 @@ export default function LatestUpdatesPreview({ items }: LatestUpdatesPreviewProp
             <article className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-[rgba(255,255,255,0.03)] transition hover:border-red-400/35">
               <div className="relative aspect-[4/3] overflow-hidden">
                 {isYouTube ? (
-                  <div
-                    className="h-full w-full bg-cover bg-center transition-transform duration-300 hover:scale-105"
-                    style={{ backgroundImage: `url(${src})` }}
-                  >
-                    <div className="flex h-full w-full items-center justify-center bg-black/20">
+                  <div className="relative h-full w-full overflow-hidden">
+                    <Image
+                      src={src}
+                      alt={`${title} thumbnail`}
+                      fill
+                      sizes="(min-width: 768px) 33vw, 100vw"
+                      className="object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                       <span className="rounded-full border border-white/20 bg-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-white">
                         Play
                       </span>

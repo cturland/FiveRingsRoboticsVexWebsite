@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import AdminShell from '@/components/AdminShell';
 import Card from '@/components/Card';
+import OptimizedPhotoInput from '@/components/OptimizedPhotoInput';
 import { getAdminAccess } from '@/lib/adminAccess';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -121,10 +122,9 @@ export default async function AdminTeamPage() {
 
                       <label className="block">
                         <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-[var(--color-muted)]">Replace Photo</span>
-                        <input
-                          type="file"
+                        <OptimizedPhotoInput
                           name="photo"
-                          accept="image/*"
+                          maxDimension={1200}
                           className="block w-full text-sm text-[var(--color-muted)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-primary)] file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-[0.16em] file:text-white"
                         />
                       </label>
