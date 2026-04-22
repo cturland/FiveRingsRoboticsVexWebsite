@@ -134,9 +134,25 @@ function isPracticeMatch(match: any) {
 }
 
 function hasUsableMatchData(match: any) {
-  const hasTimestamp = Boolean(getMatchTimestamp(match));
-  const hasAllianceScores = Array.isArray(match.alliances) && match.alliances.some((alliance: any) => typeof alliance?.score === 'number');
-  return hasTimestamp || hasAllianceScores;
+  if (match?.scored === false) {
+    return false;
+  }
+
+  const scoredAlliances = Array.isArray(match.alliances)
+    ? match.alliances.filter((alliance: any) => typeof alliance?.score === 'number')
+    : [];
+
+  if (scoredAlliances.length < 2) {
+    return false;
+  }
+
+  if (match?.scored === true) {
+    return true;
+  }
+
+  // If RobotEvents omits the scored flag, avoid treating scheduled 0-0
+  // placeholders as finished matches.
+  return scoredAlliances.some((alliance: any) => alliance.score !== 0);
 }
 
 function getMatchScores(match: any, teamId: number) {
