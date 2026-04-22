@@ -133,26 +133,47 @@ function isPracticeMatch(match: any) {
   return getMatchTextCandidates(match).some((value) => /\bpractice\b/i.test(value));
 }
 
+function normalizeScore(value: unknown) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string' && value.trim() !== '') {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : null;
+  }
+
+  return null;
+}
+
+function isExplicitlyScored(value: unknown) {
+  return value === true || value === 1 || value === '1' || value === 'true';
+}
+
+function isExplicitlyUnscored(value: unknown) {
+  return value === false || value === 0 || value === '0' || value === 'false';
+}
+
 function hasUsableMatchData(match: any) {
-  if (match?.scored === false) {
+  if (isExplicitlyUnscored(match?.scored)) {
     return false;
   }
 
-  const scoredAlliances = Array.isArray(match.alliances)
-    ? match.alliances.filter((alliance: any) => typeof alliance?.score === 'number')
+  const scores = Array.isArray(match.alliances)
+    ? match.alliances.map((alliance: any) => normalizeScore(alliance?.score)).filter((score) => score !== null)
     : [];
 
-  if (scoredAlliances.length < 2) {
+  if (scores.length < 2) {
     return false;
   }
 
-  if (match?.scored === true) {
+  if (isExplicitlyScored(match?.scored)) {
     return true;
   }
 
   // If RobotEvents omits the scored flag, avoid treating scheduled 0-0
   // placeholders as finished matches.
-  return scoredAlliances.some((alliance: any) => alliance.score !== 0);
+  return scores.some((score) => score !== 0);
 }
 
 function getMatchScores(match: any, teamId: number) {
@@ -166,8 +187,8 @@ function getMatchScores(match: any, teamId: number) {
   return {
     ourAlliance,
     opponentAlliance,
-    ourScore: ourAlliance?.score ?? 0,
-    opponentScore: opponentAlliance?.score ?? 0,
+    ourScore: normalizeScore(ourAlliance?.score) ?? 0,
+    opponentScore: normalizeScore(opponentAlliance?.score) ?? 0,
   };
 }
 
