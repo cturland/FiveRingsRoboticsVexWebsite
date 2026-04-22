@@ -14,7 +14,8 @@ function formatDate(value: string, includeTime = false) {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
-    ...(includeTime ? { hour: 'numeric', minute: '2-digit', timeZone: 'Europe/Zurich', timeZoneName: 'short' as const } : {}),
+    timeZone: 'Europe/Zurich',
+    ...(includeTime ? { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' as const } : {}),
   }).format(new Date(value));
 }
 
@@ -160,17 +161,19 @@ export default async function WorldsLivePage() {
                       <p className="mt-3 text-sm font-black uppercase tracking-[0.18em] text-white xl:text-base">
                         {formatDate(fixture.startDate, fixture.fixtureType === 'match')}
                       </p>
-                      <p className="mt-1 line-clamp-2 text-sm text-[var(--color-muted)] xl:text-base">{fixture.location}</p>
+                      {fixture.fixtureType !== 'match' ? (
+                        <p className="mt-1 line-clamp-2 text-sm text-[var(--color-muted)] xl:text-base">{fixture.location}</p>
+                      ) : null}
 
                       {fixture.fixtureType === 'match' && (fixture.ourTeams || fixture.opponentTeams) ? (
-                        <div className="mt-2 grid gap-2 text-sm font-semibold text-slate-100 md:grid-cols-2">
+                        <div className="mt-3 grid gap-2 text-sm font-semibold text-slate-100 md:grid-cols-2">
                           <div className="min-w-0 rounded-[0.85rem] border border-white/10 bg-white/5 px-3 py-2">
                             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-red-200">Our {getAllianceLabel(fixture.ourAllianceColor)}</p>
-                            <p className="mt-1 line-clamp-1">{fixture.ourTeams || 'TBD'}</p>
+                            <p className="mt-1 line-clamp-2">{fixture.ourTeams || 'TBD'}</p>
                           </div>
                           <div className="min-w-0 rounded-[0.85rem] border border-white/10 bg-white/5 px-3 py-2">
                             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-200">{getAllianceLabel(fixture.opponentAllianceColor)}</p>
-                            <p className="mt-1 line-clamp-1">{fixture.opponentTeams || 'TBD'}</p>
+                            <p className="mt-1 line-clamp-2">{fixture.opponentTeams || 'TBD'}</p>
                           </div>
                         </div>
                       ) : null}
