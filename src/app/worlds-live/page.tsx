@@ -130,9 +130,9 @@ export default async function WorldsLivePage() {
         </header>
 
         <div className="grid min-h-0 flex-1 gap-5 xl:grid-cols-[0.82fr_1.18fr]">
-          <section className="grid min-h-0 gap-5 xl:grid-rows-[0.76fr_1.24fr]">
-            <div className="min-h-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
-              <div className="mb-3">
+          <section className="min-h-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
+            <div className="grid h-full min-h-0 gap-4 xl:grid-rows-[auto_1fr_auto_1.08fr]">
+              <div>
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-red-300">What&apos;s Next</p>
                 <h2 className="mt-2 text-2xl font-black text-white md:text-3xl">Next Fixture</h2>
               </div>
@@ -160,7 +160,7 @@ export default async function WorldsLivePage() {
                       <p className="mt-3 text-sm font-black uppercase tracking-[0.18em] text-white xl:text-base">
                         {formatDate(fixture.startDate, fixture.fixtureType === 'match')}
                       </p>
-                      <p className="mt-1 line-clamp-1 text-base text-[var(--color-muted)] xl:text-lg">{fixture.location}</p>
+                      <p className="mt-1 line-clamp-2 text-sm text-[var(--color-muted)] xl:text-base">{fixture.location}</p>
 
                       {fixture.fixtureType === 'match' && (fixture.ourTeams || fixture.opponentTeams) ? (
                         <div className="mt-2 grid gap-2 text-sm font-semibold text-slate-100 md:grid-cols-2">
@@ -178,15 +178,13 @@ export default async function WorldsLivePage() {
                   ))
                 )}
               </div>
-            </div>
 
-            <div className="min-h-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
-              <div className="mb-4">
+              <div className="border-t border-white/10 pt-4">
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-red-300">Recent Results</p>
                 <h2 className="mt-2 text-2xl font-black text-white md:text-3xl">Latest Match</h2>
               </div>
 
-              <div className="grid gap-3">
+              <div className="min-h-0">
                 {results.length === 0 ? (
                   <div className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-5 text-base text-[var(--color-muted)]">
                     {resultsResult.error || 'No recent results available right now.'}
