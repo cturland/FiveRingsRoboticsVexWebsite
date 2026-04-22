@@ -146,34 +146,10 @@ function normalizeScore(value: unknown) {
   return null;
 }
 
-function isExplicitlyScored(value: unknown) {
-  return value === true || value === 1 || value === '1' || value === 'true';
-}
-
-function isExplicitlyUnscored(value: unknown) {
-  return value === false || value === 0 || value === '0' || value === 'false';
-}
-
 function hasUsableMatchData(match: any) {
-  if (isExplicitlyUnscored(match?.scored)) {
-    return false;
-  }
-
-  const scores = Array.isArray(match.alliances)
-    ? match.alliances.map((alliance: any) => normalizeScore(alliance?.score)).filter((score) => score !== null)
-    : [];
-
-  if (scores.length < 2) {
-    return false;
-  }
-
-  if (isExplicitlyScored(match?.scored)) {
-    return true;
-  }
-
-  // If RobotEvents omits the scored flag, avoid treating scheduled 0-0
-  // placeholders as finished matches.
-  return scores.some((score) => score !== 0);
+  const hasTimestamp = Boolean(getMatchTimestamp(match));
+  const hasAllianceScores = Array.isArray(match.alliances) && match.alliances.some((alliance: any) => normalizeScore(alliance?.score) !== null);
+  return hasTimestamp || hasAllianceScores;
 }
 
 function getMatchScores(match: any, teamId: number) {
@@ -543,7 +519,7 @@ export const fetchRoboteventsResults = cache(async (): Promise<RobotEventsResult
     // Format all played matches so the UI can filter across seasons
     const playedMatches = matches
       .filter((match: any) => {
-        const includeMatch = hasUsableMatchData(match);
+        const includeMatch = isCountableForStats(match, teamId);
         logRobotEventsDebug('[RobotEvents] Processing match:', { id: match.id, scored: match.scored, started: match.started, updatedAt: match.updated_at, name: match.name, includeMatch });
         return includeMatch;
       })
