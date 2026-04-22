@@ -103,6 +103,11 @@ export default async function Home() {
           ? 'Next scheduled match from RobotEvents.'
           : 'Live schedule synced from RobotEvents.',
         label: fixtures[0].fixtureType === 'match' ? 'Next Fixture' : 'Next Event',
+        fixtureType: fixtures[0].fixtureType,
+        ourAllianceColor: fixtures[0].ourAllianceColor || 'unknown',
+        opponentAllianceColor: fixtures[0].opponentAllianceColor || 'unknown',
+        ourTeams: fixtures[0].ourTeams || '',
+        opponentTeams: fixtures[0].opponentTeams || '',
         isError: false,
       }
     : {
@@ -111,6 +116,11 @@ export default async function Home() {
         location: '',
         notes: fixturesResult.error || 'API connection failed',
         label: 'Next Event',
+        fixtureType: 'event',
+        ourAllianceColor: 'unknown',
+        opponentAllianceColor: 'unknown',
+        ourTeams: '',
+        opponentTeams: '',
         isError: true,
       };
 
@@ -170,6 +180,8 @@ export default async function Home() {
   ];
   const latestOurAlliance = getAllianceStyles(latestResult.ourAllianceColor);
   const latestOpponentAlliance = getAllianceStyles(latestResult.opponentAllianceColor, true);
+  const nextOurAlliance = getAllianceStyles(nextEvent.ourAllianceColor);
+  const nextOpponentAlliance = getAllianceStyles(nextEvent.opponentAllianceColor, true);
 
   return (
     <div className="space-y-12 pb-6 md:space-y-20">
@@ -336,12 +348,35 @@ export default async function Home() {
               <div>
                 <h4 className="text-xl font-bold leading-tight text-white">{nextEvent.name}</h4>
                 <p className="mt-3 text-sm font-semibold uppercase tracking-[0.2em] text-red-300">{nextEvent.date}</p>
-                <p className="mt-1 text-[var(--color-muted)]">{nextEvent.location}</p>
+                {nextEvent.fixtureType !== 'match' ? (
+                  <p className="mt-1 text-[var(--color-muted)]">{nextEvent.location}</p>
+                ) : null}
               </div>
 
-              <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-4">
-                <p className="text-sm text-[var(--color-muted)]">{nextEvent.notes}</p>
-              </div>
+              {nextEvent.fixtureType === 'match' && (nextEvent.ourTeams || nextEvent.opponentTeams) ? (
+                <div className="grid gap-3">
+                  <div className={`rounded-[1rem] px-4 py-4 ${nextOurAlliance.panelClass}`}>
+                    <p className={`text-xs font-black uppercase tracking-[0.18em] ${nextOurAlliance.labelClass}`}>{nextOurAlliance.label}</p>
+                    <div className="mt-3 space-y-2 text-sm font-semibold text-slate-100">
+                      {splitAllianceTeams(nextEvent.ourTeams || 'TBD').map((team) => (
+                        <p key={team}>{team}</p>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={`rounded-[1rem] px-4 py-4 ${nextOpponentAlliance.panelClass}`}>
+                    <p className={`text-xs font-black uppercase tracking-[0.18em] ${nextOpponentAlliance.labelClass}`}>{nextOpponentAlliance.label}</p>
+                    <div className="mt-3 space-y-2 text-sm font-semibold text-slate-100">
+                      {splitAllianceTeams(nextEvent.opponentTeams || 'TBD').map((team) => (
+                        <p key={team}>{team}</p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-4">
+                  <p className="text-sm text-[var(--color-muted)]">{nextEvent.notes}</p>
+                </div>
+              )}
 
               <a href="/fixtures" className="btn btn-primary w-full">Open Competition Hub</a>
             </div>

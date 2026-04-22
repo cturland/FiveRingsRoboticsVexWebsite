@@ -107,7 +107,7 @@ function logRobotEventsDebug(message: string, ...args: unknown[]) {
 }
 
 function getMatchTimestamp(match: any) {
-  return match.started || match.date || match.scheduled || match.updated_at || '';
+  return match.started || match.scheduled || match.date || match.updated_at || '';
 }
 
 function getScheduledMatchTimestamp(match: any) {

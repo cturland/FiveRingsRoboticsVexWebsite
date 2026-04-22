@@ -146,6 +146,12 @@ export default async function WorldsLivePage() {
                 ) : (
                   fixtures.map((fixture) => (
                     <div key={fixture.id} className="rounded-[1.2rem] border border-white/10 bg-[rgba(8,16,29,0.55)] px-4 py-3.5">
+                      {(() => {
+                        const ourAlliance = getAllianceStyles(fixture.ourAllianceColor || 'unknown');
+                        const opponentAlliance = getAllianceStyles(fixture.opponentAllianceColor || 'unknown', true);
+
+                        return (
+                          <>
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-xs font-black uppercase tracking-[0.22em] text-red-300 xl:text-sm">
@@ -158,25 +164,30 @@ export default async function WorldsLivePage() {
                         </p>
                       </div>
 
-                      <p className="mt-3 text-sm font-black uppercase tracking-[0.18em] text-white xl:text-base">
-                        {formatDate(fixture.startDate, fixture.fixtureType === 'match')}
-                      </p>
+                      <div className="mt-3 rounded-[1rem] border border-white/70 bg-[rgba(12,20,34,0.75)] px-4 py-3">
+                        <p className="text-xs font-black uppercase tracking-[0.22em] text-white xl:text-sm">
+                          {formatDate(fixture.startDate, fixture.fixtureType === 'match')}
+                        </p>
+                      </div>
                       {fixture.fixtureType !== 'match' ? (
                         <p className="mt-1 line-clamp-2 text-sm text-[var(--color-muted)] xl:text-base">{fixture.location}</p>
                       ) : null}
 
                       {fixture.fixtureType === 'match' && (fixture.ourTeams || fixture.opponentTeams) ? (
-                        <div className="mt-3 grid gap-2 text-sm font-semibold text-slate-100 md:grid-cols-2">
-                          <div className="min-w-0 rounded-[0.85rem] border border-white/10 bg-white/5 px-3 py-2">
-                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-red-200">Our {getAllianceLabel(fixture.ourAllianceColor)}</p>
-                            <p className="mt-1 line-clamp-2">{fixture.ourTeams || 'TBD'}</p>
+                        <div className="mt-3 grid gap-2 md:grid-cols-2">
+                          <div className={`min-w-0 rounded-[0.95rem] px-3 py-3 ${ourAlliance.panelClass}`}>
+                            <p className={`text-[10px] font-black uppercase tracking-[0.18em] ${ourAlliance.labelClass}`}>Our {getAllianceLabel(fixture.ourAllianceColor)}</p>
+                            <p className="mt-2 line-clamp-2 text-sm font-bold leading-5 text-white">{fixture.ourTeams || 'TBD'}</p>
                           </div>
-                          <div className="min-w-0 rounded-[0.85rem] border border-white/10 bg-white/5 px-3 py-2">
-                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-200">{getAllianceLabel(fixture.opponentAllianceColor)}</p>
-                            <p className="mt-1 line-clamp-2">{fixture.opponentTeams || 'TBD'}</p>
+                          <div className={`min-w-0 rounded-[0.95rem] px-3 py-3 ${opponentAlliance.panelClass}`}>
+                            <p className={`text-[10px] font-black uppercase tracking-[0.18em] ${opponentAlliance.labelClass}`}>{getAllianceLabel(fixture.opponentAllianceColor)}</p>
+                            <p className="mt-2 line-clamp-2 text-sm font-bold leading-5 text-white">{fixture.opponentTeams || 'TBD'}</p>
                           </div>
                         </div>
                       ) : null}
+                          </>
+                        );
+                      })()}
                     </div>
                   ))
                 )}
