@@ -131,7 +131,7 @@ export default async function WorldsLivePage() {
                 ) : (
                   fixtures.map((fixture) => (
                     <div key={fixture.id} className="rounded-[1.2rem] border border-white/10 bg-[rgba(8,16,29,0.55)] px-4 py-4">
-                      <p className="text-xs font-black uppercase tracking-[0.22em] text-red-300 xl:text-sm">{formatDate(fixture.startDate)}</p>
+                      <p className="text-xs font-black uppercase tracking-[0.22em] text-red-300 xl:text-sm">{formatDate(fixture.startDate, fixture.fixtureType === 'match')}</p>
                       <h3 className="mt-2 line-clamp-2 text-xl font-black text-white xl:text-2xl">{fixture.eventName}</h3>
                       <p className="mt-2 text-base text-[var(--color-muted)] xl:text-lg">{fixture.location}</p>
                     </div>

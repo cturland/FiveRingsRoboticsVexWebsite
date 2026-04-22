@@ -7,6 +7,11 @@ type EventCardProps = {
   endDate: string;
   season: string;
   link: string;
+  fixtureType?: 'match' | 'event';
+  ourAllianceColor?: string;
+  opponentAllianceColor?: string;
+  ourTeams?: string;
+  opponentTeams?: string;
 };
 
 function formatEventDate(startDate: string, endDate: string) {
@@ -16,10 +21,12 @@ function formatEventDate(startDate: string, endDate: string) {
 
   const start = new Date(startDate);
   const end = endDate ? new Date(endDate) : null;
+  const includeTime = startDate.includes('T') || Boolean(endDate?.includes('T'));
   const formatter = new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
+    ...(includeTime ? { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' as const } : {}),
     timeZone: 'Europe/Zurich',
   });
 
@@ -30,13 +37,41 @@ function formatEventDate(startDate: string, endDate: string) {
   return `${formatter.format(start)} - ${formatter.format(end)}`;
 }
 
-export default function EventCard({ eventName, location, startDate, endDate, season, link }: EventCardProps) {
+function getAllianceLabel(color?: string) {
+  const normalized = color?.toLowerCase();
+
+  if (normalized === 'red') {
+    return 'Red Alliance';
+  }
+
+  if (normalized === 'blue') {
+    return 'Blue Alliance';
+  }
+
+  return 'Alliance';
+}
+
+export default function EventCard({
+  eventName,
+  location,
+  startDate,
+  endDate,
+  season,
+  link,
+  fixtureType,
+  ourAllianceColor,
+  opponentAllianceColor,
+  ourTeams,
+  opponentTeams,
+}: EventCardProps) {
+  const isMatch = fixtureType === 'match';
+
   return (
     <Card className="rounded-[1.6rem]">
       <div className="relative z-10">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Upcoming Event</p>
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">{isMatch ? 'Upcoming Fixture' : 'Upcoming Event'}</p>
             <h3 className="mt-3 text-2xl font-black leading-tight text-white">{eventName || 'Unnamed Event'}</h3>
           </div>
           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[var(--color-muted)]">
@@ -50,7 +85,7 @@ export default function EventCard({ eventName, location, startDate, endDate, sea
             <p className="mt-2">{formatEventDate(startDate, endDate)}</p>
           </div>
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-white">Location</p>
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-white">{isMatch ? 'Event' : 'Location'}</p>
             <p className="mt-2">{location || 'Location not specified'}</p>
           </div>
           <div>
@@ -59,8 +94,21 @@ export default function EventCard({ eventName, location, startDate, endDate, sea
           </div>
         </div>
 
+        {isMatch && (ourTeams || opponentTeams) ? (
+          <div className="mt-4 grid gap-3 rounded-[1.3rem] border border-white/10 bg-white/5 p-4 text-sm text-[var(--color-muted)]">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-white">Our {getAllianceLabel(ourAllianceColor)}</p>
+              <p className="mt-2">{ourTeams || 'TBD'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-white">{getAllianceLabel(opponentAllianceColor)}</p>
+              <p className="mt-2">{opponentTeams || 'TBD'}</p>
+            </div>
+          </div>
+        ) : null}
+
         <a href={link || '#'} className="btn btn-secondary mt-6 w-full" aria-label={`Details for ${eventName || 'event'}`}>
-          Event Details
+          {isMatch ? 'Match Details' : 'Event Details'}
         </a>
       </div>
     </Card>

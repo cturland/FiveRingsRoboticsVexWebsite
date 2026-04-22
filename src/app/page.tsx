@@ -19,6 +19,22 @@ function formatResultDate(value: string) {
   }).format(new Date(value));
 }
 
+function formatScheduleDate(value: string) {
+  if (!value) {
+    return '';
+  }
+
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'Europe/Zurich',
+    timeZoneName: 'short',
+  }).format(new Date(value));
+}
+
 function splitAllianceTeams(teams: string) {
   return teams
     .split(',')
@@ -81,13 +97,12 @@ export default async function Home() {
   const nextEvent = fixtures.length > 0
     ? {
         name: fixtures[0].eventName,
-        date: new Intl.DateTimeFormat('en-GB', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }).format(new Date(fixtures[0].startDate)),
+        date: formatScheduleDate(fixtures[0].startDate),
         location: fixtures[0].location,
-        notes: 'Live schedule synced from RobotEvents.',
+        notes: fixtures[0].fixtureType === 'match'
+          ? 'Next scheduled match from RobotEvents.'
+          : 'Live schedule synced from RobotEvents.',
+        label: fixtures[0].fixtureType === 'match' ? 'Next Fixture' : 'Next Event',
         isError: false,
       }
     : {
@@ -95,6 +110,7 @@ export default async function Home() {
         date: '',
         location: '',
         notes: fixturesResult.error || 'API connection failed',
+        label: 'Next Event',
         isError: true,
       };
 
@@ -305,7 +321,7 @@ export default async function Home() {
         <div className={`${nextEvent.isError ? 'border-red-500/35 bg-[rgba(103,16,22,0.42)]' : 'border-white/10 bg-[linear-gradient(180deg,rgba(12,23,39,0.96),rgba(16,30,50,0.96))]'} card rounded-[1.9rem] p-8`}>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Next Event</p>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">{nextEvent.label}</p>
               <h3 className="mt-2 text-2xl font-black text-white">Upcoming Schedule</h3>
             </div>
             <div className={`h-3.5 w-3.5 rounded-full ${nextEvent.isError ? 'bg-red-400' : 'animate-pulse bg-red-500'}`}></div>

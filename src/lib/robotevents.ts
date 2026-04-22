@@ -10,6 +10,11 @@ export type RobotEventsFixture = {
   endDate: string;
   season: string;
   link: string;
+  fixtureType?: 'match' | 'event';
+  ourAllianceColor?: string;
+  opponentAllianceColor?: string;
+  ourTeams?: string;
+  opponentTeams?: string;
 };
 
 export type RobotEventsResult = {
@@ -103,6 +108,10 @@ function logRobotEventsDebug(message: string, ...args: unknown[]) {
 
 function getMatchTimestamp(match: any) {
   return match.started || match.date || match.scheduled || match.updated_at || '';
+}
+
+function getScheduledMatchTimestamp(match: any) {
+  return match.scheduled || match.date || match.started || '';
 }
 
 function getMatchTextCandidates(match: any) {
@@ -437,6 +446,29 @@ function getEventEndTimestamp(event: any) {
   return endDate.getTime();
 }
 
+function isFutureScheduledMatch(match: any, teamId: number, nowMs: number) {
+  if (isPracticeMatch(match)) {
+    return false;
+  }
+
+  const scheduledTimestamp = getScheduledMatchTimestamp(match);
+  if (!scheduledTimestamp) {
+    return false;
+  }
+
+  const scheduledMs = new Date(scheduledTimestamp).getTime();
+  if (Number.isNaN(scheduledMs) || scheduledMs < nowMs) {
+    return false;
+  }
+
+  const { ourAlliance, opponentAlliance, ourScore, opponentScore } = getMatchScores(match, teamId);
+  if (!ourAlliance || !opponentAlliance) {
+    return false;
+  }
+
+  return ourScore === 0 && opponentScore === 0;
+}
+
 // Fetch team ID from team number
 export const getTeamIdByNumber = cache(async (teamNumber: string = TEAM_NUMBER): Promise<number | null> => {
   try {
@@ -461,7 +493,11 @@ export const fetchRoboteventsFixtures = cache(async (): Promise<RobotEventsFixtu
       throw new Error('Could not get team ID for 21052A');
     }
 
-    const events = await fetchAllPagesFromRobotEvents(`/teams/${teamId}/events`);
+    const [events, matches] = await Promise.all([
+      fetchAllPagesFromRobotEvents(`/teams/${teamId}/events`),
+      fetchAllPagesFromRobotEvents(`/teams/${teamId}/matches`),
+    ]);
+
     if (!events || events.length === 0) {
       console.warn('[RobotEvents] No events found for team');
       return [];
@@ -470,6 +506,44 @@ export const fetchRoboteventsFixtures = cache(async (): Promise<RobotEventsFixtu
     // Keep future and in-progress multi-day events. RobotEvents event starts can
     // be in the past while the team still has scheduled matches remaining.
     const now = new Date();
+    const upcomingMatchFixtures = await Promise.all(
+      matches
+        .filter((match: any) => isFutureScheduledMatch(match, teamId, now.getTime()))
+        .sort((a: any, b: any) => {
+          return new Date(getScheduledMatchTimestamp(a) || 0).getTime() - new Date(getScheduledMatchTimestamp(b) || 0).getTime();
+        })
+        .slice(0, 5)
+        .map(async (match: any) => {
+          const { ourAlliance, opponentAlliance } = getMatchScores(match, teamId);
+          const ourAllianceTeams = await getAllianceTeamDetails(ourAlliance);
+          const opponentAllianceTeams = await getAllianceTeamDetails(opponentAlliance);
+          const matchLabel = getMatchLabel(match);
+          const eventName = match.event?.name || 'Event';
+          const eventCode = match.event?.code || '';
+
+          return {
+            id: match.id,
+            eventName: matchLabel === 'Match' ? eventName : matchLabel,
+            eventCode,
+            location: eventName,
+            startDate: getScheduledMatchTimestamp(match),
+            endDate: getScheduledMatchTimestamp(match),
+            season: match.season?.name || 'Current',
+            link: buildRobotEventsLink(eventCode, 'results-'),
+            fixtureType: 'match' as const,
+            ourAllianceColor: (ourAlliance?.color || 'unknown').toLowerCase(),
+            opponentAllianceColor: (opponentAlliance?.color || 'unknown').toLowerCase(),
+            ourTeams: formatAllianceTeamDetails(ourAllianceTeams),
+            opponentTeams: formatAllianceTeamDetails(opponentAllianceTeams),
+          };
+        })
+    );
+
+    if (upcomingMatchFixtures.length > 0) {
+      logRobotEventsDebug(`[RobotEvents] Fetched ${upcomingMatchFixtures.length} upcoming match fixtures`);
+      return upcomingMatchFixtures;
+    }
+
     const fixtures = events
       .filter((event: any) => getEventEndTimestamp(event) >= now.getTime())
       .sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime())
@@ -483,6 +557,7 @@ export const fetchRoboteventsFixtures = cache(async (): Promise<RobotEventsFixtu
         endDate: event.end,
         season: event.season?.name || "Current",
         link: buildRobotEventsLink(event.sku),
+        fixtureType: 'event' as const,
       }));
     
     logRobotEventsDebug(`[RobotEvents] Fetched ${fixtures.length} upcoming fixtures`);
