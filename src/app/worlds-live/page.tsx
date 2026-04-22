@@ -18,6 +18,20 @@ function formatDate(value: string, includeTime = false) {
   }).format(new Date(value));
 }
 
+function getAllianceLabel(color?: string) {
+  const normalized = color?.toLowerCase();
+
+  if (normalized === 'red') {
+    return 'Red Alliance';
+  }
+
+  if (normalized === 'blue') {
+    return 'Blue Alliance';
+  }
+
+  return 'Alliance';
+}
+
 function getAllianceStyles(color: string, isOpponent = false) {
   const normalized = color.toLowerCase();
 
@@ -131,9 +145,35 @@ export default async function WorldsLivePage() {
                 ) : (
                   fixtures.map((fixture) => (
                     <div key={fixture.id} className="rounded-[1.2rem] border border-white/10 bg-[rgba(8,16,29,0.55)] px-4 py-4">
-                      <p className="text-xs font-black uppercase tracking-[0.22em] text-red-300 xl:text-sm">{formatDate(fixture.startDate, fixture.fixtureType === 'match')}</p>
-                      <h3 className="mt-2 line-clamp-2 text-xl font-black text-white xl:text-2xl">{fixture.eventName}</h3>
-                      <p className="mt-2 text-base text-[var(--color-muted)] xl:text-lg">{fixture.location}</p>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-[0.22em] text-red-300 xl:text-sm">
+                            {fixture.fixtureType === 'match' ? 'Next Fixture' : 'Upcoming Event'}
+                          </p>
+                          <h3 className="mt-2 line-clamp-2 text-xl font-black text-white xl:text-2xl">{fixture.eventName}</h3>
+                        </div>
+                        <p className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                          {fixture.fixtureType === 'match' ? 'Match' : 'Event'}
+                        </p>
+                      </div>
+
+                      <p className="mt-3 text-sm font-black uppercase tracking-[0.18em] text-white xl:text-base">
+                        {formatDate(fixture.startDate, fixture.fixtureType === 'match')}
+                      </p>
+                      <p className="mt-1 text-base text-[var(--color-muted)] xl:text-lg">{fixture.location}</p>
+
+                      {fixture.fixtureType === 'match' && (fixture.ourTeams || fixture.opponentTeams) ? (
+                        <div className="mt-3 grid gap-2 text-sm font-semibold text-slate-100">
+                          <div className="rounded-[0.85rem] border border-white/10 bg-white/5 px-3 py-2">
+                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-red-200">Our {getAllianceLabel(fixture.ourAllianceColor)}</p>
+                            <p className="mt-1 line-clamp-1">{fixture.ourTeams || 'TBD'}</p>
+                          </div>
+                          <div className="rounded-[0.85rem] border border-white/10 bg-white/5 px-3 py-2">
+                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-200">{getAllianceLabel(fixture.opponentAllianceColor)}</p>
+                            <p className="mt-1 line-clamp-1">{fixture.opponentTeams || 'TBD'}</p>
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
                   ))
                 )}
