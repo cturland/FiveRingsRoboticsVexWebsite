@@ -418,6 +418,25 @@ function formatAllianceTeamDetails(teams: RobotEventsMatchTeam[]) {
     .join(', ');
 }
 
+function getEventEndTimestamp(event: any) {
+  const endValue = event?.end || event?.start;
+  if (!endValue) {
+    return 0;
+  }
+
+  const endDate = new Date(endValue);
+  if (Number.isNaN(endDate.getTime())) {
+    return 0;
+  }
+
+  if (typeof endValue === 'string' && !endValue.includes('T')) {
+    endDate.setDate(endDate.getDate() + 1);
+    endDate.setMilliseconds(endDate.getMilliseconds() - 1);
+  }
+
+  return endDate.getTime();
+}
+
 // Fetch team ID from team number
 export const getTeamIdByNumber = cache(async (teamNumber: string = TEAM_NUMBER): Promise<number | null> => {
   try {
@@ -448,10 +467,11 @@ export const fetchRoboteventsFixtures = cache(async (): Promise<RobotEventsFixtu
       return [];
     }
 
-    // Filter for future events and format them
+    // Keep future and in-progress multi-day events. RobotEvents event starts can
+    // be in the past while the team still has scheduled matches remaining.
     const now = new Date();
     const fixtures = events
-      .filter((event: any) => new Date(event.start) > now)
+      .filter((event: any) => getEventEndTimestamp(event) >= now.getTime())
       .sort((a: any, b: any) => new Date(a.start).getTime() - new Date(b.start).getTime())
       .slice(0, 5) // Get next 5 events
       .map((event: any) => ({
