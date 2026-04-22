@@ -130,21 +130,21 @@ export default async function WorldsLivePage() {
         </header>
 
         <div className="grid min-h-0 flex-1 gap-5 xl:grid-cols-[0.82fr_1.18fr]">
-          <section className="grid min-h-0 gap-5 xl:grid-rows-[0.82fr_1.18fr]">
-            <div className="min-h-0 rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
-              <div className="mb-4">
+          <section className="grid min-h-0 gap-5 xl:grid-rows-[0.76fr_1.24fr]">
+            <div className="min-h-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
+              <div className="mb-3">
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-red-300">What&apos;s Next</p>
                 <h2 className="mt-2 text-2xl font-black text-white md:text-3xl">Next Fixture</h2>
               </div>
 
-              <div className="grid gap-3">
+              <div className="min-h-0">
                 {fixtures.length === 0 ? (
                   <div className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-5 text-base text-[var(--color-muted)]">
                     {fixturesResult.error || 'No upcoming fixtures available right now.'}
                   </div>
                 ) : (
                   fixtures.map((fixture) => (
-                    <div key={fixture.id} className="rounded-[1.2rem] border border-white/10 bg-[rgba(8,16,29,0.55)] px-4 py-4">
+                    <div key={fixture.id} className="rounded-[1.2rem] border border-white/10 bg-[rgba(8,16,29,0.55)] px-4 py-3.5">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-xs font-black uppercase tracking-[0.22em] text-red-300 xl:text-sm">
@@ -160,15 +160,15 @@ export default async function WorldsLivePage() {
                       <p className="mt-3 text-sm font-black uppercase tracking-[0.18em] text-white xl:text-base">
                         {formatDate(fixture.startDate, fixture.fixtureType === 'match')}
                       </p>
-                      <p className="mt-1 line-clamp-2 text-base text-[var(--color-muted)] xl:text-lg">{fixture.location}</p>
+                      <p className="mt-1 line-clamp-1 text-base text-[var(--color-muted)] xl:text-lg">{fixture.location}</p>
 
                       {fixture.fixtureType === 'match' && (fixture.ourTeams || fixture.opponentTeams) ? (
-                        <div className="mt-3 grid gap-2 text-sm font-semibold text-slate-100">
-                          <div className="rounded-[0.85rem] border border-white/10 bg-white/5 px-3 py-2">
+                        <div className="mt-2 grid gap-2 text-sm font-semibold text-slate-100 md:grid-cols-2">
+                          <div className="min-w-0 rounded-[0.85rem] border border-white/10 bg-white/5 px-3 py-2">
                             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-red-200">Our {getAllianceLabel(fixture.ourAllianceColor)}</p>
                             <p className="mt-1 line-clamp-1">{fixture.ourTeams || 'TBD'}</p>
                           </div>
-                          <div className="rounded-[0.85rem] border border-white/10 bg-white/5 px-3 py-2">
+                          <div className="min-w-0 rounded-[0.85rem] border border-white/10 bg-white/5 px-3 py-2">
                             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-200">{getAllianceLabel(fixture.opponentAllianceColor)}</p>
                             <p className="mt-1 line-clamp-1">{fixture.opponentTeams || 'TBD'}</p>
                           </div>
@@ -180,7 +180,7 @@ export default async function WorldsLivePage() {
               </div>
             </div>
 
-            <div className="min-h-0 rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
+            <div className="min-h-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
               <div className="mb-4">
                 <p className="text-xs font-black uppercase tracking-[0.28em] text-red-300">Recent Results</p>
                 <h2 className="mt-2 text-2xl font-black text-white md:text-3xl">Latest Match</h2>
