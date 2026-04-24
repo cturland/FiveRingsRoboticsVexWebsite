@@ -3,10 +3,10 @@ import { redirect } from 'next/navigation';
 import AdminShell from '@/components/AdminShell';
 import Card from '@/components/Card';
 import { getAdminAccess } from '@/lib/adminAccess';
-import { getPendingGallerySubmissions } from '@/lib/galleryAdmin';
+import { getAllGallerySubmissionsForAdmin } from '@/lib/galleryAdmin';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
-import { approveGallerySubmission } from './actions';
+import { deleteGallerySubmissionAsAdmin, setGallerySubmissionStatus, updateGallerySubmissionAsAdmin } from './actions';
 
 function formatDate(value: string) {
   if (!value) {
@@ -34,6 +34,18 @@ function formatDateTime(value: string) {
     timeZone: 'Europe/Zurich',
     timeZoneName: 'short',
   }).format(new Date(value));
+}
+
+function getStatusClasses(status: string) {
+  if (status === 'approved') {
+    return 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200';
+  }
+
+  if (status === 'rejected') {
+    return 'border-red-400/20 bg-red-400/10 text-red-200';
+  }
+
+  return 'border-yellow-400/20 bg-yellow-400/10 text-yellow-200';
 }
 
 export default async function AdminGalleryPage() {
@@ -82,18 +94,39 @@ export default async function AdminGalleryPage() {
     );
   }
 
-  const submissions = await getPendingGallerySubmissions();
+  const submissions = await getAllGallerySubmissionsForAdmin();
+  const pendingCount = submissions.filter((submission) => submission.status === 'pending').length;
+  const approvedCount = submissions.filter((submission) => submission.status === 'approved').length;
+  const rejectedCount = submissions.filter((submission) => submission.status === 'rejected').length;
 
   return (
     <AdminShell
       activeSection="gallery"
-      title="Pending Update Submissions"
-      description="Review student photos and YouTube links before they appear on Updates, the homepage preview, and the worlds display."
+      title="Update Post Management"
+      description="Edit, approve, reject, and delete student photo and video updates before or after they appear publicly."
       userEmail={user.email}
     >
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="space-y-2">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-200">Pending</p>
+          <p className="text-3xl font-black text-white">{pendingCount}</p>
+          <p className="text-sm text-[var(--color-muted)]">Waiting for admin review.</p>
+        </Card>
+        <Card className="space-y-2">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-200">Approved</p>
+          <p className="text-3xl font-black text-white">{approvedCount}</p>
+          <p className="text-sm text-[var(--color-muted)]">Visible on public update surfaces.</p>
+        </Card>
+        <Card className="space-y-2">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-red-200">Rejected</p>
+          <p className="text-3xl font-black text-white">{rejectedCount}</p>
+          <p className="text-sm text-[var(--color-muted)]">Held back from public pages.</p>
+        </Card>
+      </div>
+
       {submissions.length === 0 ? (
         <Card>
-          <p className="text-lg font-semibold text-white">No pending submissions right now.</p>
+          <p className="text-lg font-semibold text-white">No submissions yet.</p>
           <p className="mt-3 text-[var(--color-muted)]">
             New uploads will appear here once students submit them.
           </p>
@@ -123,20 +156,15 @@ export default async function AdminGalleryPage() {
                 )}
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-yellow-200">
-                    Pending
+                  <span className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-[0.2em] ${getStatusClasses(submission.status)}`}>
+                    {submission.status}
                   </span>
                   <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black uppercase tracking-[0.2em] text-white">
                     {submission.mediaType === 'youtube' ? 'YouTube' : 'Photo'}
                   </span>
                   <span className="text-sm text-[var(--color-muted)]">Submitted {formatDateTime(submission.createdAt)}</span>
-                </div>
-
-                <div>
-                  <h2 className="text-2xl font-black text-white">{submission.title}</h2>
-                  <p className="mt-2 text-sm font-semibold uppercase tracking-[0.18em] text-red-300">{submission.category}</p>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -145,10 +173,75 @@ export default async function AdminGalleryPage() {
                     <p className="mt-2 break-all text-sm font-semibold text-white">{submission.email}</p>
                   </div>
                   <div className="rounded-[1.2rem] border border-white/10 bg-white/5 p-4">
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--color-muted)]">Update Date</p>
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--color-muted)]">Current Update Date</p>
                     <p className="mt-2 text-sm font-semibold text-white">{formatDate(submission.date)}</p>
                   </div>
                 </div>
+
+                <form action={updateGallerySubmissionAsAdmin} className="grid gap-4">
+                  <input type="hidden" name="submissionId" value={submission.id} />
+                  <input type="hidden" name="mediaType" value={submission.mediaType} />
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="grid gap-2 text-sm font-semibold text-white">
+                      Title
+                      <input
+                        type="text"
+                        name="title"
+                        defaultValue={submission.title}
+                        required
+                        className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-red-400/50"
+                      />
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-semibold text-white">
+                      Category
+                      <input
+                        type="text"
+                        name="category"
+                        defaultValue={submission.category}
+                        required
+                        className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-red-400/50"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="grid gap-2 text-sm font-semibold text-white">
+                      Date
+                      <input
+                        type="date"
+                        name="date"
+                        defaultValue={submission.date}
+                        required
+                        className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-red-400/50"
+                      />
+                    </label>
+
+                    {submission.mediaType === 'youtube' ? (
+                      <label className="grid gap-2 text-sm font-semibold text-white">
+                        YouTube Link
+                        <input
+                          type="url"
+                          name="youtubeUrl"
+                          defaultValue={submission.youtubeUrl}
+                          required
+                          className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-red-400/50"
+                        />
+                      </label>
+                    ) : (
+                      <div className="rounded-[1rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-[var(--color-muted)]">
+                        Image replacement is not part of this admin form yet, but the post details can be edited and the post can be approved, rejected, or deleted.
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    <button type="submit" className="btn btn-secondary">
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
 
                 {submission.mediaType === 'youtube' ? (
                   <a
@@ -161,12 +254,39 @@ export default async function AdminGalleryPage() {
                   </a>
                 ) : null}
 
-                <form action={approveGallerySubmission}>
-                  <input type="hidden" name="submissionId" value={submission.id} />
-                  <button type="submit" className="btn btn-primary w-full sm:w-auto">
-                    Approve Submission
-                  </button>
-                </form>
+                <div className="flex flex-wrap gap-3">
+                  <form action={setGallerySubmissionStatus}>
+                    <input type="hidden" name="submissionId" value={submission.id} />
+                    <input type="hidden" name="status" value="approved" />
+                    <button type="submit" className="btn btn-primary">
+                      Approve
+                    </button>
+                  </form>
+
+                  <form action={setGallerySubmissionStatus}>
+                    <input type="hidden" name="submissionId" value={submission.id} />
+                    <input type="hidden" name="status" value="rejected" />
+                    <button type="submit" className="btn btn-secondary">
+                      Reject
+                    </button>
+                  </form>
+
+                  <form action={setGallerySubmissionStatus}>
+                    <input type="hidden" name="submissionId" value={submission.id} />
+                    <input type="hidden" name="status" value="pending" />
+                    <button type="submit" className="btn btn-secondary">
+                      Mark Pending
+                    </button>
+                  </form>
+
+                  <form action={deleteGallerySubmissionAsAdmin}>
+                    <input type="hidden" name="submissionId" value={submission.id} />
+                    <input type="hidden" name="imagePath" value={submission.imagePath ?? ''} />
+                    <button type="submit" className="btn border-red-400/40 bg-red-500/10 text-red-100 hover:bg-red-500/20">
+                      Delete
+                    </button>
+                  </form>
+                </div>
               </div>
             </Card>
           ))}
