@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import SectionHeading from '../../components/SectionHeading';
 import Card from '../../components/Card';
+import PreviewImage from '@/components/PreviewImage';
 import type { PublicGalleryItem } from '@/lib/gallery.types';
 
 const instagramAccount = {
@@ -140,7 +141,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
                         </div>
                       </div>
                     ) : (
-                      <Image
+                      <PreviewImage
                         src={src}
                         alt={showTitle}
                         fill

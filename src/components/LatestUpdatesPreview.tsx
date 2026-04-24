@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import PreviewImage from '@/components/PreviewImage';
 import type { PublicGalleryItem } from '@/lib/gallery.types';
 
 type ActiveUpdate = {
@@ -83,7 +84,7 @@ export default function LatestUpdatesPreview({ items }: LatestUpdatesPreviewProp
                     </div>
                   </div>
                 ) : (
-                  <Image
+                  <PreviewImage
                     src={src}
                     alt={title}
                     fill

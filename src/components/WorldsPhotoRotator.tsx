@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import PreviewImage from '@/components/PreviewImage';
 
 type PhotoItem = {
   id: number;
@@ -59,7 +59,7 @@ export default function WorldsPhotoRotator({ photos, placeholder }: WorldsPhotoR
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.4rem] border border-white/10 bg-[rgba(8,16,29,0.55)]">
         <div className="relative min-h-0 flex-1 bg-[rgba(255,255,255,0.03)]">
-          <Image
+          <PreviewImage
             src={activePhoto?.image || placeholder}
             alt={activePhoto?.title || 'Team photo'}
             fill
