@@ -68,7 +68,8 @@ export type RobotEventsSeasonStats = {
   winPercentage: number;
 };
 
-const ROBOTEVENTS_BASE_URL = "https://www.robotevents.com/api/v2";
+const ROBOTEVENTS_BASE_URL = "https://events.vex.com/api/v2";
+const ROBOTEVENTS_WEB_BASE_URL = "https://events.vex.com";
 const TEAM_NUMBER = "21052A";
 const ROBOTEVENTS_API_TOKEN = process.env.ROBOTEVENTS_API_TOKEN;
 const ROBOTEVENTS_DEBUG = process.env.ROBOTEVENTS_DEBUG === 'true';
@@ -97,7 +98,7 @@ function buildRobotEventsLink(eventCode?: string, anchor?: string) {
   }
 
   const suffix = anchor ? `#${anchor}` : '';
-  return `https://www.robotevents.com/robot-competitions/vex-robotics-competition/${eventCode}.html${suffix}`;
+  return `${ROBOTEVENTS_WEB_BASE_URL}/robot-competitions/vex-robotics-competition/${eventCode}.html${suffix}`;
 }
 
 function logRobotEventsDebug(message: string, ...args: unknown[]) {
@@ -579,7 +580,7 @@ export const fetchRoboteventsResults = cache(async (): Promise<RobotEventsResult
 
     const matchesEndpoint = `/teams/${teamId}/matches`;
     const eventsEndpoint = `/teams/${teamId}/events`;
-    const fullUrl = `https://www.robotevents.com/api/v2${matchesEndpoint}`;
+    const fullUrl = `${ROBOTEVENTS_BASE_URL}${matchesEndpoint}`;
     logRobotEventsDebug('[RobotEvents] Fetching matches from:', fullUrl);
     
     const [matches, events] = await Promise.all([
