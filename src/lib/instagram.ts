@@ -1,8 +1,9 @@
+import { teamSite } from '@/lib/teamSite';
 import 'server-only';
 
 export const instagram = {
-  handle: 'the.vextagram',
-  url: 'https://www.instagram.com/the.vextagram/',
+  handle: teamSite.instagramHandle,
+  url: 'https://www.instagram.com/' + teamSite.instagramHandle + '/',
 };
 
 type InstagramMedia = {

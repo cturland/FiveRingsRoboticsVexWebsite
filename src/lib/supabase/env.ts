@@ -1,7 +1,15 @@
-const publicUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const publicAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+import { teamSite } from '@/lib/teamSite';
+const isCoolRunnings = teamSite.slug === 'cool-runnings';
+const publicUrl = isCoolRunnings
+  ? process.env.NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_URL
+  : process.env.NEXT_PUBLIC_SUPABASE_URL;
+const publicAnonKey = isCoolRunnings
+  ? process.env.NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_ANON_KEY
+  : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const publicGalleryBucket = process.env.NEXT_PUBLIC_SUPABASE_GALLERY_BUCKET || 'gallery-uploads';
 const publicTeamProfileBucket = process.env.NEXT_PUBLIC_SUPABASE_TEAM_PROFILE_BUCKET || 'team-profile-photos';
+
+export const supabaseCacheScope = teamSite.slug + ':' + (publicUrl ?? 'unconfigured');
 
 export function isSupabaseConfigured() {
   return Boolean(publicUrl && publicAnonKey);

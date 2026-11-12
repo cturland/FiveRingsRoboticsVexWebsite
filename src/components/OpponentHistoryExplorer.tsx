@@ -1,5 +1,6 @@
 'use client';
 
+import { teamSite } from '@/lib/teamSite';
 import { useMemo, useState } from 'react';
 import type { RobotEventsMatchTeam, RobotEventsResult } from '@/lib/robotevents';
 
@@ -186,7 +187,7 @@ export default function OpponentHistoryExplorer({ results }: OpponentHistoryExpl
   return (
     <div className="space-y-6">
       <section className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(18,34,56,0.96),rgba(11,20,33,0.96))] p-5 md:p-6">
-        <label htmlFor="opponent-team" className="block text-xs font-black uppercase tracking-[0.22em] text-red-300">
+        <label htmlFor="opponent-team" className="block text-xs font-black uppercase tracking-[0.22em] text-brand-300">
           Opponent Team
         </label>
         <select
@@ -207,7 +208,7 @@ export default function OpponentHistoryExplorer({ results }: OpponentHistoryExpl
         <>
           <section className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 md:p-6">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Overall Against</p>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">Overall Against</p>
               <h2 className="mt-2 text-3xl font-black text-white">{getTeamLabel(selectedRecord.team)}</h2>
             </div>
 
@@ -240,7 +241,7 @@ export default function OpponentHistoryExplorer({ results }: OpponentHistoryExpl
               <article key={match.id} className="rounded-[1.4rem] border border-white/10 bg-[rgba(255,255,255,0.03)] p-5">
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.22em] text-red-300">{formatDate(match.date)}</p>
+                    <p className="text-xs font-black uppercase tracking-[0.22em] text-brand-300">{formatDate(match.date)}</p>
                     <h3 className="mt-2 text-xl font-black text-white">{match.eventName}</h3>
                     <p className="mt-1 text-sm text-[var(--color-muted)]">{match.matchLabel} | {match.season}</p>
                   </div>
@@ -252,7 +253,7 @@ export default function OpponentHistoryExplorer({ results }: OpponentHistoryExpl
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   <div className={`rounded-[1rem] border px-4 py-4 ${getAlliancePanelClass(match.ourAllianceColor)}`}>
                     <p className={`text-xs font-black uppercase tracking-[0.18em] ${getAllianceLabelClass(match.ourAllianceColor)}`}>
-                      Five Rings Alliance
+                      {teamSite.shortName} Alliance
                     </p>
                     <p className="mt-3 text-3xl font-black text-white">{match.awards}</p>
                     <p className="mt-2 text-sm font-semibold leading-6 text-white/85">{match.ourTeams}</p>

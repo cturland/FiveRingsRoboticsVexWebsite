@@ -183,7 +183,7 @@ export default function ResultsHistory({ results, seasonStats, error }: ResultsH
     <div className="space-y-5">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Results</p>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">Results</p>
           <h2 className="mt-2 text-3xl font-black text-white">Match History</h2>
         </div>
         {seasonOptions.length > 0 ? (
@@ -199,7 +199,7 @@ export default function ResultsHistory({ results, seasonStats, error }: ResultsH
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {statsCards.map((stat) => (
             <div key={stat.label} className="rounded-[1.35rem] border border-white/10 bg-white/5 p-5">
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">{stat.label}</p>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">{stat.label}</p>
               <p className="mt-2 text-3xl font-black text-white">{stat.value}</p>
               <p className="mt-2 text-sm text-[var(--color-muted)]">{stat.detail}</p>
             </div>
@@ -230,7 +230,7 @@ export default function ResultsHistory({ results, seasonStats, error }: ResultsH
                 <summary className="cursor-pointer list-none px-5 py-5">
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Tournament</p>
+                      <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">Tournament</p>
                       <h3 className="mt-2 text-xl font-black text-white">{group.eventName}</h3>
                       <p className="mt-2 text-sm text-[var(--color-muted)]">{formatMatchDate(group.latestDate)}</p>
                     </div>

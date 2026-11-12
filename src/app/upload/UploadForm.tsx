@@ -123,7 +123,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
           </p>
 
           <div className="mt-5 rounded-[1.3rem] border border-white/10 bg-black/20 px-4 py-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-red-300">Signed In As</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-brand-300">Signed In As</p>
             <p className="mt-2 break-all text-sm font-bold text-white sm:text-base">{userEmail}</p>
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
             <fieldset className="rounded-[1.2rem] border border-white/10 bg-white/5 p-3">
               <legend className="mb-3 px-1 text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">Update Type</legend>
               <div className="grid gap-2 sm:grid-cols-2">
-                <label className={`cursor-pointer rounded-[1rem] border px-4 py-3 transition ${mediaType === 'image' ? 'border-red-400 bg-red-500/15 text-white' : 'border-white/10 bg-black/15 text-[var(--color-muted)]'}`}>
+                <label className={`cursor-pointer rounded-[1rem] border px-4 py-3 transition ${mediaType === 'image' ? 'border-brand-400 bg-brand-500/15 text-white' : 'border-white/10 bg-black/15 text-[var(--color-muted)]'}`}>
                   <input
                     type="radio"
                     name="mediaTypeChoice"
@@ -158,7 +158,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
                   />
                   <span className="text-sm font-black uppercase tracking-[0.16em]">Photo</span>
                 </label>
-                <label className={`cursor-pointer rounded-[1rem] border px-4 py-3 transition ${mediaType === 'youtube' ? 'border-red-400 bg-red-500/15 text-white' : 'border-white/10 bg-black/15 text-[var(--color-muted)]'}`}>
+                <label className={`cursor-pointer rounded-[1rem] border px-4 py-3 transition ${mediaType === 'youtube' ? 'border-brand-400 bg-brand-500/15 text-white' : 'border-white/10 bg-black/15 text-[var(--color-muted)]'}`}>
                   <input
                     type="radio"
                     name="mediaTypeChoice"
@@ -192,7 +192,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
                       <p className="mt-2 text-xs font-semibold text-white/90">{selectedFileName}</p>
                     ) : null}
                     {imageOptimizationNote ? (
-                      <p className="mt-2 text-xs leading-5 text-red-200/90">{imageOptimizationNote}</p>
+                      <p className="mt-2 text-xs leading-5 text-brand-200/90">{imageOptimizationNote}</p>
                     ) : null}
                   </div>
                 </label>

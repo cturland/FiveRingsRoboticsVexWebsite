@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { supabaseCacheScope } from '@/lib/supabase/env';
+
 import { unstable_cache } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabasePublicClient } from '@/lib/supabase/public';
@@ -85,7 +87,7 @@ async function loadPublicTeamProfiles(): Promise<PublicTeamProfile[]> {
   }));
 }
 
-export const getPublicTeamProfiles = unstable_cache(loadPublicTeamProfiles, ['published-team-profiles', process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'unconfigured'], {
+export const getPublicTeamProfiles = unstable_cache(loadPublicTeamProfiles, ['published-team-profiles', supabaseCacheScope], {
   revalidate: 3600,
   tags: [PUBLIC_TEAM_PROFILES_CACHE_TAG],
 });

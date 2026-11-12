@@ -89,7 +89,7 @@ export default async function AdminGalleryPage() {
           </div>
 
           <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Signed In As</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-300">Signed In As</p>
             <p className="mt-3 text-base font-bold text-white">{user.email}</p>
           </div>
         </Card>
@@ -194,7 +194,7 @@ export default async function AdminGalleryPage() {
                         name="title"
                         defaultValue={submission.title}
                         required
-                        className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-red-400/50"
+                        className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-brand-400/50"
                       />
                     </label>
 
@@ -205,7 +205,7 @@ export default async function AdminGalleryPage() {
                         name="category"
                         defaultValue={submission.category}
                         required
-                        className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-red-400/50"
+                        className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-brand-400/50"
                       />
                     </label>
                   </div>
@@ -218,7 +218,7 @@ export default async function AdminGalleryPage() {
                         name="date"
                         defaultValue={submission.date}
                         required
-                        className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-red-400/50"
+                        className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-brand-400/50"
                       />
                     </label>
 
@@ -230,7 +230,7 @@ export default async function AdminGalleryPage() {
                           name="youtubeUrl"
                           defaultValue={submission.youtubeUrl}
                           required
-                          className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-red-400/50"
+                          className="rounded-[1rem] border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-brand-400/50"
                         />
                       </label>
                     ) : (
@@ -252,7 +252,7 @@ export default async function AdminGalleryPage() {
                     href={submission.youtubeUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex text-sm font-bold text-red-300 hover:text-red-200"
+                    className="inline-flex text-sm font-bold text-brand-300 hover:text-brand-200"
                   >
                     Open video on YouTube
                   </a>

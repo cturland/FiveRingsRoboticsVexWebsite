@@ -1,3 +1,4 @@
+import { teamSite } from '@/lib/teamSite';
 import { redirect } from 'next/navigation';
 import Card from '@/components/Card';
 import { getAllowedDomains } from '@/lib/uploadAccess';
@@ -34,14 +35,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <Card className="space-y-6">
         <div>
           <p className="eyebrow">Team Members</p>
-          <h1 className="heading-display mt-4 text-4xl font-black text-white">Sign in to Five Rings</h1>
+          <h1 className="heading-display mt-4 text-4xl font-black text-white">Sign in to {teamSite.shortName}</h1>
           <p className="mt-4 max-w-2xl text-lg text-[var(--color-muted)]">
             Use your approved school email to request a magic link and manage your team profile.
           </p>
         </div>
 
         <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Current Rules</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-300">Current Rules</p>
           <p className="mt-3 text-sm text-[var(--color-muted)]">
             Allowed domain: {getAllowedDomains().map((domain) => `@${domain}`).join(', ') || 'none configured'}
           </p>
@@ -59,7 +60,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         {!configured ? (
           <div className="rounded-[1.4rem] border border-yellow-500/30 bg-yellow-950/20 p-5 text-sm text-yellow-100">
-            Supabase is not configured yet. Add `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_SITE_URL` before testing magic-link sign-in.
+            Member sign-in is not available yet. Contact your team adviser for roster changes.
           </div>
         ) : null}
 

@@ -89,7 +89,7 @@ export default function ResultCard({
       <div className="relative z-10">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Recent Match</p>
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">Recent Match</p>
             <h3 className="mt-3 text-xl font-black leading-tight text-white">{eventName || 'Unknown Event'}</h3>
             <p className="mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
               {formatMatchDate(date)}

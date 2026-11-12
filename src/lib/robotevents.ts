@@ -1,3 +1,4 @@
+import { teamSite } from '@/lib/teamSite';
 import { cache } from 'react';
 import { createSupabasePublicClient } from './supabase/public';
 
@@ -70,7 +71,7 @@ export type RobotEventsSeasonStats = {
 
 const ROBOTEVENTS_BASE_URL = "https://events.vex.com/api/v2";
 const ROBOTEVENTS_WEB_BASE_URL = "https://events.vex.com";
-const TEAM_NUMBER = "21052A";
+const TEAM_NUMBER = teamSite.number;
 const ROBOTEVENTS_API_TOKEN = process.env.ROBOTEVENTS_API_TOKEN;
 const ROBOTEVENTS_DEBUG = process.env.ROBOTEVENTS_DEBUG === 'true';
 
@@ -491,7 +492,7 @@ export const fetchRoboteventsFixtures = cache(async (): Promise<RobotEventsFixtu
   try {
     const teamId = await getTeamIdByNumber();
     if (!teamId) {
-      throw new Error('Could not get team ID for 21052A');
+      throw new Error('Could not get team ID for ' + TEAM_NUMBER);
     }
 
     const [events, matches] = await Promise.all([
@@ -575,7 +576,7 @@ export const fetchRoboteventsResults = cache(async (): Promise<RobotEventsResult
   try {
     const teamId = await getTeamIdByNumber();
     if (!teamId) {
-      throw new Error('Could not get team ID for 21052A');
+      throw new Error('Could not get team ID for ' + TEAM_NUMBER);
     }
 
     const matchesEndpoint = `/teams/${teamId}/matches`;
@@ -684,7 +685,7 @@ export const fetchRoboteventsSummary = cache(async (): Promise<RobotEventsSummar
   try {
     const teamId = await getTeamIdByNumber();
     if (!teamId) {
-      throw new Error('Could not get team ID for 21052A');
+      throw new Error('Could not get team ID for ' + TEAM_NUMBER);
     }
 
     const [team, events, awards, matches] = await Promise.all([
@@ -723,7 +724,7 @@ export const fetchRoboteventsSummary = cache(async (): Promise<RobotEventsSummar
       : 0;
 
     return {
-      teamName: team?.team_name || 'Five Rings Robotics',
+      teamName: team?.team_name || teamSite.name,
       teamNumber: team?.number || TEAM_NUMBER,
       organization: team?.organization || '',
       seasonsActive,
@@ -746,7 +747,7 @@ export const fetchRoboteventsSeasonStats = cache(async (): Promise<RobotEventsSe
   try {
     const teamId = await getTeamIdByNumber();
     if (!teamId) {
-      throw new Error('Could not get team ID for 21052A');
+      throw new Error('Could not get team ID for ' + TEAM_NUMBER);
     }
 
     const [events, awards, matches] = await Promise.all([

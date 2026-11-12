@@ -13,9 +13,9 @@ export default async function ProfilePage() {
     return (
       <section className="mx-auto max-w-3xl py-8">
         <Card>
-          <h1 className="heading-display text-3xl font-black text-white">Profile Setup Pending</h1>
+          <h1 className="heading-display text-3xl font-black text-white">Member profiles</h1>
           <p className="mt-4 text-[var(--color-muted)]">
-            Supabase environment variables are not configured yet, so member profiles cannot be used. Add the auth env vars first, then return here.
+            Member sign-in is not available yet. Contact your team adviser for roster changes.
           </p>
         </Card>
       </section>

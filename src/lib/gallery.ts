@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { supabaseCacheScope } from '@/lib/supabase/env';
+
 import { unstable_cache } from 'next/cache';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { createSupabasePublicClient } from '@/lib/supabase/public';
@@ -48,7 +50,7 @@ async function loadGalleryItems(): Promise<PublicGalleryItem[]> {
   });
 }
 
-export const getGalleryItems = unstable_cache(loadGalleryItems, ['published-gallery-items', process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'unconfigured'], {
+export const getGalleryItems = unstable_cache(loadGalleryItems, ['published-gallery-items', supabaseCacheScope], {
   revalidate: 300,
   tags: [GALLERY_ITEMS_CACHE_TAG],
 });

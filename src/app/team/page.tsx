@@ -1,3 +1,4 @@
+import { teamSite } from '@/lib/teamSite';
 import Card from "../../components/Card";
 import SectionHeading from "../../components/SectionHeading";
 import TeamMemberCard from "../../components/TeamMemberCard";
@@ -42,10 +43,10 @@ export default async function TeamPage() {
   return (
     <section className="space-y-8">
       <section className="space-y-5">
-        <div className="rounded-xl bg-[linear-gradient(180deg,rgba(18,34,56,0.96),rgba(11,20,33,0.96))] border border-red-500/20 p-8">
+        <div className="rounded-xl bg-[linear-gradient(180deg,rgba(18,34,56,0.96),rgba(11,20,33,0.96))] border border-brand-500/20 p-8">
           <SectionHeading
             title="Meet the Team"
-            subtitle="Meet the students actively building, programming, driving, and scouting for Five Rings Robotics right now."
+            subtitle={'Meet the students building, programming, driving, and scouting for ' + teamSite.name + '.'}
           />
         </div>
 
@@ -77,7 +78,7 @@ export default async function TeamPage() {
       <section className="space-y-5">
         <div className="rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] p-8">
           <SectionHeading
-            title="Five Rings Hall of Fame"
+            title={teamSite.shortName + ' Hall of Fame'}
             subtitle="A place to recognize former members who helped shape the team."
           />
         </div>

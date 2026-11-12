@@ -19,7 +19,7 @@ export default function TeamMemberCard({ member }: { member: TeamMember }) {
   const primaryRole = member.roles[0] || 'Role not set';
 
   return (
-    <Card className={member.isCurrentMember ? 'border-red-500/20 bg-[linear-gradient(180deg,rgba(19,34,56,0.96),rgba(12,22,38,0.96))]' : ''}>
+    <Card className={member.isCurrentMember ? 'border-brand-500/20 bg-[linear-gradient(180deg,rgba(19,34,56,0.96),rgba(12,22,38,0.96))]' : ''}>
       <div className="relative h-48 overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)]">
         <Image
           src={imageSrc}

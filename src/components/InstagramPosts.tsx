@@ -12,7 +12,7 @@ export default function InstagramPosts({ posts }: { posts: InstagramPost[] }) {
         <li key={post.id}>
           <a
             href={post.url}
-            className="group block h-full overflow-hidden rounded-[1.4rem] border border-white/10 bg-[var(--color-surface)] transition hover:border-red-400/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-300"
+            className="group block h-full overflow-hidden rounded-[1.4rem] border border-white/10 bg-[var(--color-surface)] transition hover:border-brand-400/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-300"
           >
             {post.image ? (
               <div className="relative aspect-square overflow-hidden bg-black/20">
@@ -32,7 +32,7 @@ export default function InstagramPosts({ posts }: { posts: InstagramPost[] }) {
                 </time>
               ) : null}
               {post.caption ? <p className="line-clamp-3 text-sm leading-relaxed text-white">{post.caption}</p> : null}
-              <p className="text-sm font-semibold text-red-300">{post.isVideo ? 'Watch on Instagram' : 'View on Instagram'}</p>
+              <p className="text-sm font-semibold text-brand-300">{post.isVideo ? 'Watch on Instagram' : 'View on Instagram'}</p>
             </div>
           </a>
         </li>

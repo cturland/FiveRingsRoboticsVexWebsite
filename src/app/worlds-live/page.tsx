@@ -1,3 +1,4 @@
+import { teamSite } from '@/lib/teamSite';
 import { galleryEnabled } from '@/lib/galleryFeature';
 import Image from 'next/image';
 import { getTeamFixtures, getTeamResults, getTeamSummary } from '@/app/actions';
@@ -98,32 +99,32 @@ export default async function WorldsLivePage() {
             <div className="flex items-center gap-5 xl:gap-6">
               <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[1.35rem] border border-white/10 bg-white/5 p-3 xl:h-28 xl:w-28">
                 <Image
-                  src="/images/FRRLogo.png"
-                  alt="Five Rings Robotics logo"
+                  src={teamSite.displayLogo}
+                  alt={teamSite.name + ' logo'}
                   width={224}
                   height={224}
                   className="h-full w-full object-contain"
                 />
               </div>
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.32em] text-red-300 xl:text-sm">Team 21052A</p>
+                <p className="text-xs font-black uppercase tracking-[0.32em] text-brand-300 xl:text-sm">Team {teamSite.number}</p>
                 <h1 className="heading-display mt-2 text-3xl font-black text-white md:text-5xl">
-                  Five Rings Robotics
+                  {teamSite.name}
                 </h1>
                 <p className="mt-3 max-w-5xl text-base text-[var(--color-muted)] md:text-xl">
-                  Follow ISL&apos;s Five Rings Robotics as they represent Switzerland at the World VEX Finals
+                  {teamSite.worldsDescription}
                 </p>
               </div>
             </div>
 
             <div className="grid gap-3 md:grid-cols-2 xl:min-w-[33rem]">
               <div className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3.5">
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Team</p>
-                <p className="mt-1.5 text-2xl font-black text-white xl:text-3xl">{summary?.teamNumber || '21052A'}</p>
-                <p className="mt-1 text-sm text-[var(--color-muted)]">{summary?.teamName || 'Five Rings Robotics'}</p>
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">Team</p>
+                <p className="mt-1.5 text-2xl font-black text-white xl:text-3xl">{summary?.teamNumber || teamSite.number}</p>
+                <p className="mt-1 text-sm text-[var(--color-muted)]">{summary?.teamName || teamSite.name}</p>
               </div>
               <div className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3.5">
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Status</p>
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">Status</p>
                 <p className="mt-1.5 text-2xl font-black text-white xl:text-3xl">Live</p>
                 <p className="mt-1 text-sm text-[var(--color-muted)]">Auto-refresh data every few minutes</p>
               </div>
@@ -135,7 +136,7 @@ export default async function WorldsLivePage() {
           <section className="min-h-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
             <div className="grid h-full min-h-0 gap-4 xl:grid-rows-[auto_1fr_auto_1.08fr]">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.28em] text-red-300">What&apos;s Next</p>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-brand-300">What&apos;s Next</p>
                 <h2 className="mt-2 text-2xl font-black text-white md:text-3xl">Next Fixture</h2>
               </div>
 
@@ -155,7 +156,7 @@ export default async function WorldsLivePage() {
                           <>
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="text-xs font-black uppercase tracking-[0.22em] text-red-300 xl:text-sm">
+                          <p className="text-xs font-black uppercase tracking-[0.22em] text-brand-300 xl:text-sm">
                             {fixture.fixtureType === 'match' ? 'Next Fixture' : 'Upcoming Event'}
                           </p>
                           <h3 className="mt-2 line-clamp-1 text-xl font-black text-white xl:text-2xl">{fixture.eventName}</h3>
@@ -195,7 +196,7 @@ export default async function WorldsLivePage() {
               </div>
 
               <div className="border-t border-white/10 pt-4">
-                <p className="text-xs font-black uppercase tracking-[0.28em] text-red-300">Recent Results</p>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-brand-300">Recent Results</p>
                 <h2 className="mt-2 text-2xl font-black text-white md:text-3xl">Latest Match</h2>
               </div>
 

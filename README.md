@@ -1,6 +1,6 @@
-# 21052A Robotics Team Website
+# ISL VEX Robotics Team Websites
 
-A Next.js site for Five Rings Robotics (Team 21052A) with:
+A shared Next.js site for Five Rings Robotics (21052A) and Cool Runnings (21052B) with:
 - team information
 - fixtures and results
 - Instagram updates
@@ -31,6 +31,12 @@ npm run dev
 npm run lint
 ```
 
+## Team deployments
+
+The same app can be deployed to a separate Vercel project for each team. The default is Five Rings Robotics. Set `NEXT_PUBLIC_TEAM_SITE=cool-runnings` in the Cool Runnings project for team 21052B. Each project uses its own server-side `INSTAGRAM_ACCESS_TOKEN`, with the same variable name in both projects.
+
+For Cool Runnings member profiles, use a dedicated Supabase project and set `NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_URL` and `NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_ANON_KEY`. The app ignores the Five Rings Supabase variables in this mode. Set `SUPABASE_SECRET_KEY` to the secret key for the same Cool Runnings project. Apply the fresh-project migrations, add the team's approved members and admins in Supabase, and allow the Cool Runnings `/auth/callback` URL in Supabase Auth. Configure `ROBOTEVENTS_API_TOKEN` in the new Vercel project for live competition data.
+
 ## Environment variables
 
 Set these in `.env.local`:
@@ -50,7 +56,7 @@ Set `ROBOTEVENTS_DEBUG=true` in `.env.local` if you want verbose RobotEvents req
 
 ## Instagram updates and event gallery
 
-The homepage and `/updates` show recent posts from [@the.vextagram](https://www.instagram.com/the.vextagram/) when an Instagram Login token is configured. Visitors can always follow the account link. Video posts link to Instagram for playback.
+The homepage and `/updates` show recent posts from the team account, [@the.vextagram](https://www.instagram.com/the.vextagram/) or [@coolrunningsvex](https://www.instagram.com/coolrunningsvex/) when an Instagram Login token is configured. Visitors can always follow the account link. Video posts link to Instagram for playback.
 
 To connect the feed, have the owner of the professional Instagram account authorize a Meta app using Instagram Login and `instagram_business_basic`. Store its long-lived user access token as the server-only `INSTAGRAM_ACCESS_TOKEN` in Vercel, then redeploy. Renew the token before it expires and update the Vercel secret after renewal. [Meta Instagram Login documentation](https://www.postman.com/meta/instagram/folder/1z5vxzu/instagram-api-with-instagram-login)
 

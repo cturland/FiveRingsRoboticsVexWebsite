@@ -1,3 +1,4 @@
+import { teamSite } from '@/lib/teamSite';
 import { galleryEnabled } from '@/lib/galleryFeature';
 import type { Metadata, Viewport } from 'next';
 import { Manrope, Orbitron } from 'next/font/google';
@@ -16,16 +17,11 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: 'Five Rings Robotics | Team 21052A',
-  description: 'Official Five Rings Robotics website for Team 21052A.',
-  manifest: '/site.webmanifest',
+  title: teamSite.name + ' | Team ' + teamSite.number,
+  description: 'Official website for ' + teamSite.name + ', VEX team ' + teamSite.number + ' at the International School of Lausanne.',
   icons: {
-    icon: [
-      { url: '/images/favicon/favicon.ico', sizes: 'any' },
-      { url: '/images/favicon/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
-      { url: '/images/favicon/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
-    ],
-    apple: [{ url: '/images/favicon/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    icon: [{ url: teamSite.favicon, type: 'image/png', sizes: '32x32' }],
+    apple: [{ url: teamSite.appleIcon, type: 'image/png', sizes: '180x180' }],
   },
 };
 
@@ -36,7 +32,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" data-team={teamSite.slug}>
       <body className={`${manrope.variable} ${orbitron.variable}`}>
         <Layout galleryEnabled={galleryEnabled}>{children}</Layout>
         <Analytics />

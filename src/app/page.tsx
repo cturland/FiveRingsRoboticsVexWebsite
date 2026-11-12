@@ -1,3 +1,4 @@
+import { teamSite } from '@/lib/teamSite';
 import Image from 'next/image';
 import { getTeamFixtures, getTeamResults, getTeamSummary } from '@/app/actions';
 import InstagramPosts from '@/components/InstagramPosts';
@@ -78,11 +79,12 @@ export default async function Home() {
 
   const fixtures = fixturesResult.success ? fixturesResult.data : [];
   const results = resultsResult.success ? resultsResult.data : [];
-  const summary = summaryResult.success && summaryResult.data
-    ? summaryResult.data
+  const liveSummary = summaryResult.success ? summaryResult.data : null;
+  const summary = liveSummary
+    ? liveSummary
     : {
-        teamName: 'Five Rings Robotics',
-        teamNumber: '21052A',
+        teamName: teamSite.name,
+        teamNumber: teamSite.number,
         organization: 'International School of Lausanne',
         seasonsActive: 4,
         eventsEntered: 0,
@@ -114,7 +116,7 @@ export default async function Home() {
         name: 'Upcoming event data unavailable',
         date: '',
         location: '',
-        notes: fixturesResult.error || 'API connection failed',
+        notes: fixturesResult.error || 'Competition data is temporarily unavailable.',
         label: 'Next Event',
         fixtureType: 'event',
         ourAllianceColor: 'unknown',
@@ -147,11 +149,11 @@ export default async function Home() {
         opponentAllianceColor: 'unknown',
         ourTeams: '',
         opponentTeams: '',
-        notes: resultsResult.error || 'API connection failed',
+        notes: resultsResult.error || 'Competition data is temporarily unavailable.',
         isError: true,
       };
 
-  const teamStats = [
+  const teamStats = liveSummary ? [
     {
       value: `${summary.winPercentage}%`,
       label: 'Win Rate',
@@ -172,7 +174,7 @@ export default async function Home() {
       label: 'Matches Played',
       detail: `${summary.teamNumber} | ${summary.teamName}`,
     },
-  ];
+  ] : [];
   const latestOurAlliance = getAllianceStyles(latestResult.ourAllianceColor);
   const latestOpponentAlliance = getAllianceStyles(latestResult.opponentAllianceColor, true);
   const nextOurAlliance = getAllianceStyles(nextEvent.ourAllianceColor);
@@ -182,7 +184,7 @@ export default async function Home() {
     <div className="space-y-12 pb-6 md:space-y-20">
       <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(11,24,40,0.96),rgba(8,16,29,0.92))] px-5 py-7 shadow-[0_40px_120px_rgba(0,0,0,0.35)] md:px-10 md:py-12">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-[-4rem] top-[-3rem] h-48 w-48 rounded-full bg-red-500/12 blur-3xl"></div>
+          <div className="absolute left-[-4rem] top-[-3rem] h-48 w-48 rounded-full bg-brand-500/12 blur-3xl"></div>
           <div className="absolute bottom-[-5rem] right-[-2rem] h-56 w-56 rounded-full bg-blue-500/8 blur-3xl"></div>
           <div className="panel-grid absolute inset-0 opacity-35"></div>
         </div>
@@ -191,12 +193,11 @@ export default async function Home() {
           <div className="max-w-3xl lg:pt-4">
             <span className="eyebrow mb-5">Official Team Site</span>
             <h1 className="heading-primary max-w-4xl text-4xl font-black text-white sm:text-5xl md:text-[4.5rem]">
-              Five Rings
-              <span className="mt-2 block text-red-500">Robotics</span>
+              {teamSite.hero[0]}
+              <span className="mt-2 block text-brand-500">{teamSite.hero[1]}</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-[var(--color-muted)] md:text-lg">
-              Representing the International School of Lausanne with a student-led focus on engineering quality,
-              match discipline, and season-long improvement.
+              {teamSite.intro}
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -218,21 +219,21 @@ export default async function Home() {
           </div>
 
           <div className="grid gap-4 lg:pt-2">
-            <div className="rounded-[1.75rem] border border-red-500/25 bg-[rgba(227,51,61,0.09)] p-6 backdrop-blur-sm">
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Program Profile</p>
+            <div className="rounded-[1.75rem] border border-brand-500/25 bg-brand-500/[0.09] p-6 backdrop-blur-sm">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">Program Profile</p>
               <div className="mt-4 flex items-center gap-5">
-                <div className="flex h-[5.75rem] w-[5.75rem] shrink-0 items-center justify-center rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.06)] p-3 shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
-                  <Image src="/images/FRRLogoBasic.png" alt="Five Rings Robotics logo" width={160} height={160} className="max-h-[4.4rem] w-auto object-contain" />
+                <div className={'flex h-[5.75rem] w-[5.75rem] shrink-0 items-center justify-center rounded-[1.75rem] border border-white/10 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.18)] ' + teamSite.logoBackground}>
+                  <Image src={teamSite.logo} alt={teamSite.name + ' logo'} width={160} height={160} className="max-h-[4.4rem] w-auto object-contain" />
                 </div>
                 <div className="min-w-0">
                   <p className="heading-display text-[2rem] font-black leading-none text-white">{summary.teamNumber}</p>
                   <p className="mt-2 text-base font-semibold text-white/90">{summary.teamName}</p>
-                  <p className="mt-2 text-sm uppercase tracking-[0.18em] text-red-200/80">International School of Lausanne</p>
+                  <p className="mt-2 text-sm uppercase tracking-[0.18em] text-brand-200/80">International School of Lausanne</p>
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            {liveSummary ? <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-[var(--color-muted)]">Events</p>
                 <p className="mt-3 text-4xl font-black text-white">{summary.eventsEntered}</p>
@@ -245,22 +246,22 @@ export default async function Home() {
                 </p>
                 <p className="mt-2 text-sm text-[var(--color-muted)]">Live summary from RobotEvents match history</p>
               </div>
-            </div>
+            </div> : null}
           </div>
         </div>
       </section>
 
-      <section className="rounded-[1.8rem] border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-5 backdrop-blur-sm md:px-8 md:py-6">
+      {teamStats.length > 0 ? <section className="rounded-[1.8rem] border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-5 backdrop-blur-sm md:px-8 md:py-6">
         <div className="grid gap-4 md:grid-cols-4">
           {teamStats.map((stat) => (
             <div key={stat.label} className="rounded-[1.4rem] border border-white/8 bg-[rgba(255,255,255,0.03)] px-5 py-5">
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">{stat.label}</p>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">{stat.label}</p>
               <p className="mt-2.5 text-[2.35rem] font-black text-white">{stat.value}</p>
               <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">{stat.detail}</p>
             </div>
           ))}
         </div>
-      </section>
+      </section> : null}
 
       <section className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="card rounded-[1.9rem] p-8 md:p-10">
@@ -328,7 +329,7 @@ export default async function Home() {
         <div className={`${nextEvent.isError ? 'border-red-500/35 bg-[rgba(103,16,22,0.42)]' : 'border-white/10 bg-[linear-gradient(180deg,rgba(12,23,39,0.96),rgba(16,30,50,0.96))]'} card rounded-[1.9rem] p-8`}>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">{nextEvent.label}</p>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">{nextEvent.label}</p>
               <h3 className="mt-2 text-2xl font-black text-white">Upcoming Schedule</h3>
             </div>
             <div className={`h-3.5 w-3.5 rounded-full ${nextEvent.isError ? 'bg-red-400' : 'animate-pulse bg-red-500'}`}></div>
@@ -342,7 +343,7 @@ export default async function Home() {
             <div className="mt-6 space-y-5">
               <div>
                 <h4 className="text-xl font-bold leading-tight text-white">{nextEvent.name}</h4>
-                <p className="mt-3 text-sm font-semibold uppercase tracking-[0.2em] text-red-300">{nextEvent.date}</p>
+                <p className="mt-3 text-sm font-semibold uppercase tracking-[0.2em] text-brand-300">{nextEvent.date}</p>
                 {nextEvent.fixtureType !== 'match' ? (
                   <p className="mt-1 text-[var(--color-muted)]">{nextEvent.location}</p>
                 ) : null}

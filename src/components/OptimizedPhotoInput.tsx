@@ -64,7 +64,7 @@ export default function OptimizedPhotoInput({ name, maxDimension, className }: O
         <p className="mt-2 text-xs font-semibold text-white/90">{selectedFileName}</p>
       ) : null}
       {note ? (
-        <p className="mt-2 text-xs leading-5 text-red-200/90">{note}</p>
+        <p className="mt-2 text-xs leading-5 text-brand-200/90">{note}</p>
       ) : null}
     </>
   );

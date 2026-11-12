@@ -49,7 +49,7 @@ export default async function FixturesPage() {
       <section className="rounded-[1.4rem] border border-white/10 bg-[rgba(255,255,255,0.03)] px-5 py-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-red-300">Opponent Records</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-brand-300">Opponent Records</p>
             <p className="mt-2 text-sm text-[var(--color-muted)]">
               Explore our match history against teams we have played before.
             </p>
@@ -64,7 +64,7 @@ export default async function FixturesPage() {
         <div className="space-y-5">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Upcoming</p>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">Upcoming</p>
               <h2 className="mt-2 text-3xl font-black text-white">Fixtures</h2>
             </div>
           </div>
@@ -93,7 +93,7 @@ export default async function FixturesPage() {
         <section className="rounded-[1.4rem] border border-white/10 bg-[rgba(255,255,255,0.03)] px-4 py-4 md:px-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-red-300">Overall Record</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-brand-300">Overall Record</p>
               <p className="mt-1 text-sm text-[var(--color-muted)]">
                 A compact RobotEvents summary for the full program.
               </p>

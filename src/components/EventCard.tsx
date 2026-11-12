@@ -71,7 +71,7 @@ export default function EventCard({
       <div className="relative z-10">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">{isMatch ? 'Upcoming Fixture' : 'Upcoming Event'}</p>
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">{isMatch ? 'Upcoming Fixture' : 'Upcoming Event'}</p>
             <h3 className="mt-3 text-2xl font-black leading-tight text-white">{eventName || 'Unnamed Event'}</h3>
           </div>
           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[var(--color-muted)]">

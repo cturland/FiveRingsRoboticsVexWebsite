@@ -1,5 +1,6 @@
 'use client';
 
+import { teamSite } from '@/lib/teamSite';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -30,15 +31,15 @@ export default function Navbar({ galleryEnabled }: { galleryEnabled: boolean }) 
       <div className="container">
         <div className="flex items-center justify-between gap-4 py-3 lg:py-4">
           <Link href="/" className="group flex min-w-0 items-center gap-3 sm:gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-              <Image src="/images/FRRLogoBasic.png" alt="FRR Logo" width={128} height={128} className="h-10 w-auto" />
+            <div className={'flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 overflow-hidden p-1 ' + teamSite.logoBackground}>
+              <Image src={teamSite.navLogo} alt="" width={128} height={128} className="h-10 w-auto" />
             </div>
             <div className="min-w-0">
-              <p className="heading-display truncate text-base font-black text-white transition-colors group-hover:text-red-300 sm:text-lg">
-                Five Rings Robotics
+              <p className="heading-display truncate text-base font-black text-white transition-colors group-hover:text-brand-300 sm:text-lg">
+                {teamSite.name}
               </p>
               <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[var(--color-muted)] sm:text-xs sm:tracking-[0.28em]">
-                Team 21052A
+                Team {teamSite.number}
               </p>
             </div>
           </Link>

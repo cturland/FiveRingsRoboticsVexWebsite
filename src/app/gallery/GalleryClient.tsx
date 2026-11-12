@@ -1,5 +1,6 @@
 'use client';
 
+import { teamSite } from '@/lib/teamSite';
 import Image from 'next/image';
 import Card from '@/components/Card';
 import { useMemo, useState } from 'react';
@@ -44,7 +45,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
 
   return (
     <section className="space-y-6">
-      <SectionHeading title="Event Gallery" subtitle="Photos and videos from Five Rings Robotics events" />
+      <SectionHeading title="Event Gallery" subtitle={'Photos and videos from ' + teamSite.name + ' events'} />
 
       <div className="flex flex-wrap gap-2">
         {categories.map((category) => (
@@ -100,7 +101,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
                           unoptimized={src.startsWith('data:') || src.startsWith('/api/media/')}
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                          <span className="rounded-full border border-white/20 bg-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-white">
+                          <span className="rounded-full border border-white/20 bg-brand-600 px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-white">
                             Play
                           </span>
                         </div>

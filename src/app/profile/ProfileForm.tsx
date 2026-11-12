@@ -111,11 +111,11 @@ export default function ProfileForm({ userEmail, profile, isAdmin, galleryEnable
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="rounded-[1.3rem] border border-white/10 bg-black/20 px-4 py-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-red-300">Signed In As</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-brand-300">Signed In As</p>
               <p className="mt-2 break-all text-sm font-bold text-white sm:text-base">{userEmail}</p>
             </div>
             <div className="rounded-[1.3rem] border border-white/10 bg-black/20 px-4 py-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-red-300">Profile Status</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-brand-300">Profile Status</p>
               <p className="mt-2 text-sm font-bold text-white sm:text-base">{profile ? 'Existing profile found' : 'No profile saved yet'}</p>
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin, galleryEnable
                       <p className="mt-2 text-xs font-semibold text-white/90">{selectedFileName}</p>
                     ) : null}
                     {photoOptimizationNote ? (
-                      <p className="mt-2 text-xs leading-5 text-red-200/90">{photoOptimizationNote}</p>
+                      <p className="mt-2 text-xs leading-5 text-brand-200/90">{photoOptimizationNote}</p>
                     ) : null}
                   </div>
                 </label>
@@ -203,7 +203,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin, galleryEnable
                     type="checkbox"
                     name="isCurrentMember"
                     defaultChecked={profile ? profile.isCurrentMember : true}
-                    className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent text-red-500"
+                    className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent text-brand-500"
                   />
                   <span>
                     <span className="block text-sm font-bold text-white">Current member</span>
@@ -225,7 +225,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin, galleryEnable
                           name="roles"
                           value={role}
                           defaultChecked={profile?.roles.includes(role) ?? false}
-                          className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent text-red-500"
+                          className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent text-brand-500"
                         />
                         <span>{role}</span>
                       </label>

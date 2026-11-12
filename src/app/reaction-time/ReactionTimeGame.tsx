@@ -1,5 +1,6 @@
 'use client';
 
+import { teamSite } from '@/lib/teamSite';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import type { ReactionTimeScore } from '@/lib/reactionTimes';
 import { submitReactionTimeScore } from './actions';
@@ -196,7 +197,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
         <div>
           <p className="eyebrow">Limited Time Challenge</p>
           <h1 className="heading-display mt-3 text-2xl font-black leading-tight text-white sm:text-3xl lg:text-4xl">
-            <span className="block sm:inline">VEX Worlds</span>
+            <span className="block sm:inline">{teamSite.slug === 'five-rings' ? 'VEX Worlds' : 'VEX Robotics'}</span>
             <span className="block sm:inline"> Fastest Reaction Times</span>
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--color-muted)] sm:text-base">
@@ -214,7 +215,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
               type="text"
               value={teamNumber}
               onChange={(event) => setTeamNumber(event.target.value)}
-              placeholder="21052A"
+              placeholder={teamSite.number}
               disabled={detailsLocked}
               className="w-full rounded-[1rem] border border-white/10 bg-white/5 px-4 py-3 text-base font-semibold uppercase text-white outline-none transition placeholder:font-medium placeholder:text-slate-500/55 focus:border-[var(--color-primary-accent)] focus:bg-white/10 disabled:opacity-70"
             />
@@ -266,7 +267,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
                 ? 'border-green-300 bg-green-500 text-black shadow-[0_0_48px_rgba(34,197,94,0.55)]'
                 : isWarningPhase
                   ? 'border-red-100 bg-red-700 text-white shadow-[0_0_54px_rgba(239,68,68,0.5)] disabled:cursor-not-allowed disabled:opacity-50'
-                : 'border-red-400/40 bg-red-600 text-white shadow-[0_24px_70px_rgba(227,51,61,0.24)] hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50'
+                : 'border-brand-400/40 bg-brand-600 text-white shadow-[0_24px_70px_rgb(var(--brand-primary)/0.24)] hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-50'
             }`}
           >
             {phase === 'go' ? 'React' : phase === 'lighting' || phase === 'waiting' ? 'Wait' : phase === 'false-start' ? 'Final Try' : phase === 'locked-out' ? 'Stopped' : isPending ? 'Saving' : 'Start'}
@@ -297,7 +298,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
 
       <aside className="flex min-h-[34rem] w-full max-w-[21.25rem] min-w-0 flex-col rounded-[1.8rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-4 sm:max-w-none md:p-5 xl:sticky xl:top-28 xl:max-h-[calc(100vh-9rem)]">
         <div className="border-b border-white/10 pb-4">
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-red-300">Leaderboard</p>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-300">Leaderboard</p>
           <h2 className="mt-2 text-2xl font-black text-white">Fastest Times</h2>
         </div>
 
@@ -317,7 +318,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
                     key={score.id}
                     className={`grid grid-cols-[3rem_1fr_auto] items-center gap-3 rounded-[1rem] border ${
                       isTopTen
-                        ? 'border-red-400/25 bg-red-500/10 px-4 py-4 text-base'
+                        ? 'border-brand-400/25 bg-brand-500/10 px-4 py-4 text-base'
                         : 'border-white/10 bg-black/15 px-3 py-2 text-sm'
                     }`}
                   >
@@ -326,7 +327,7 @@ export default function ReactionTimeGame({ initialLeaderboard }: ReactionTimeGam
                       <p className={`${isTopTen ? 'text-lg' : 'text-sm'} truncate font-black text-white`}>{score.playerName}</p>
                       <p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">{score.teamNumber}</p>
                     </div>
-                    <p className={`${isTopTen ? 'text-2xl' : 'text-base'} font-black text-red-200`}>{score.reactionTimeMs} ms</p>
+                    <p className={`${isTopTen ? 'text-2xl' : 'text-base'} font-black text-brand-200`}>{score.reactionTimeMs} ms</p>
                   </div>
                 );
               })}

@@ -46,7 +46,7 @@ export default async function AdminOverviewPage() {
           </div>
 
           <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Signed In As</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-300">Signed In As</p>
             <p className="mt-3 text-base font-bold text-white">{user.email}</p>
           </div>
         </Card>
@@ -72,18 +72,18 @@ export default async function AdminOverviewPage() {
       <div className={'grid gap-5 ' + (galleryEnabled ? 'md:grid-cols-3' : 'md:grid-cols-2')}>
         {galleryEnabled ? (
           <Card>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Pending Uploads</p>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-300">Pending Uploads</p>
             <p className="mt-3 text-4xl font-black text-white">{submissions.length}</p>
             <p className="mt-2 text-sm text-[var(--color-muted)]">Waiting for gallery approval</p>
           </Card>
         ) : null}
         <Card>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Current Members</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-300">Current Members</p>
           <p className="mt-3 text-4xl font-black text-white">{currentMembers}</p>
           <p className="mt-2 text-sm text-[var(--color-muted)]">Live on the public team page</p>
         </Card>
         <Card>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Hall of Fame</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-300">Hall of Fame</p>
           <p className="mt-3 text-4xl font-black text-white">{alumniMembers}</p>
           <p className="mt-2 text-sm text-[var(--color-muted)]">Former members preserved on the site</p>
         </Card>
