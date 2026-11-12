@@ -34,27 +34,23 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <section className="mx-auto max-w-3xl py-8">
       <Card className="space-y-6">
         <div>
-          <p className="eyebrow">Team Members</p>
           <h1 className="heading-display mt-4 text-4xl font-black text-white">Sign in to {teamSite.shortName}</h1>
           <p className="mt-4 max-w-2xl text-lg text-[var(--color-muted)]">
-            Use your approved school email to request a magic link and manage your team profile.
+            Use your approved ISL Google account to sign in.
           </p>
         </div>
 
-        <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-5">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-300">Current Rules</p>
-          <p className="mt-3 text-sm text-[var(--color-muted)]">
-            Allowed domain: {getAllowedDomains().map((domain) => `@${domain}`).join(', ') || 'none configured'}
-          </p>
-        </div>
+        <p className="text-sm text-[var(--color-muted)]">
+          School accounts: {getAllowedDomains().map((domain) => '@' + domain).join(' or ')}
+        </p>
 
         {error ? (
           <div className="rounded-[1.4rem] border border-red-500/30 bg-red-950/20 p-4 text-sm text-red-200">
             {error === 'not_school_email'
               ? 'That account is not a school email address.'
               : error === 'not_allowed'
-                ? 'That school email is not on the approved member list yet.'
-                : 'Sign-in could not be completed.'}
+                ? 'This school account is not approved for this team. Ask your team adviser for access.'
+                : 'Sign-in could not be completed. Please try again with your school account.'}
           </div>
         ) : null}
 
@@ -64,7 +60,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         ) : null}
 
-        <LoginForm redirectTo={redirectTo} allowedDomains={getAllowedDomains()} configured={configured} />
+        {configured ? <LoginForm redirectTo={redirectTo} /> : null}
       </Card>
     </section>
   );
