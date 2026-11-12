@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { getUploadAccess } from '@/lib/uploadAccess';
 import { createPendingGallerySubmission } from '@/lib/gallerySubmissions';
@@ -26,7 +27,7 @@ export async function submitUpload(
     };
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -38,7 +39,7 @@ export async function submitUpload(
     };
   }
 
-  const access = getUploadAccess(user.email);
+  const access = await getUploadAccess(supabase, user.email);
 
   if (!access.isSchoolEmail || !access.isAllowedUploader) {
     return {
@@ -131,11 +132,7 @@ export async function submitUpload(
 
   const extension = getSafeExtension(image);
   const bucket = getSupabaseGalleryBucket();
-  const userFolder = slugify(user.email);
-  const baseName = slugify(title);
-  const timestamp = Date.now();
-  const fileName = `${baseName || 'upload'}-${timestamp}.${extension}`;
-  const storagePath = `${userFolder}/${date}/${fileName}`;
+  const storagePath = [user.id, randomUUID() + '.' + extension].join('/');
 
   try {
     const bytes = Buffer.from(await image.arrayBuffer());
@@ -169,7 +166,7 @@ export async function submitUpload(
 
       return {
         status: 'error',
-        message: `Upload saved to storage, but creating the submission record failed: ${submissionError.message}.`,
+        message: `Creating the submission record failed: ${submissionError.message}.`,
       };
     }
 
@@ -200,12 +197,4 @@ function getSafeExtension(file: File) {
   const mimeSubtype = file.type.split('/')[1] ?? DEFAULT_IMAGE_EXTENSION;
   const cleanedSubtype = mimeSubtype.toLowerCase().replace(/[^a-z0-9]/g, '');
   return cleanedSubtype || DEFAULT_IMAGE_EXTENSION;
-}
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80);
 }

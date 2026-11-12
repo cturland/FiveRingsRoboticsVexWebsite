@@ -62,7 +62,7 @@ export default async function AdminGalleryPage() {
     );
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -146,7 +146,8 @@ export default async function AdminGalleryPage() {
                   />
                 ) : (
                   <Image
-                    src={submission.imageUrl}
+                    src={submission.imageUrl || '/images/gallery/robot.jpg'}
+                    unoptimized
                     alt={submission.title}
                     width={640}
                     height={480}
@@ -281,7 +282,6 @@ export default async function AdminGalleryPage() {
 
                   <form action={deleteGallerySubmissionAsAdmin}>
                     <input type="hidden" name="submissionId" value={submission.id} />
-                    <input type="hidden" name="imagePath" value={submission.imagePath ?? ''} />
                     <button type="submit" className="btn border-red-400/40 bg-red-500/10 text-red-100 hover:bg-red-500/20">
                       Delete
                     </button>

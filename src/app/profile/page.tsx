@@ -21,7 +21,7 @@ export default async function ProfilePage() {
     );
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -30,7 +30,7 @@ export default async function ProfilePage() {
     redirect('/login?next=/profile');
   }
 
-  const access = getUploadAccess(user.email);
+  const access = await getUploadAccess(supabase, user.email);
   if (!access.isSchoolEmail || !access.isAllowedUploader) {
     redirect('/login?error=not_allowed');
   }

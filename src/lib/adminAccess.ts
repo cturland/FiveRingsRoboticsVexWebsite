@@ -12,7 +12,7 @@ export async function getAdminAccess(email: string | null | undefined) {
     };
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('gallery_admins')
     .select('email')

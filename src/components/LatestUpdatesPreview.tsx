@@ -86,6 +86,7 @@ export default function LatestUpdatesPreview({ items }: LatestUpdatesPreviewProp
                 ) : (
                   <PreviewImage
                     src={src}
+                    unoptimized={src.startsWith('/api/media/')}
                     alt={title}
                     fill
                     sizes="(min-width: 768px) 33vw, 100vw"
@@ -142,6 +143,7 @@ export default function LatestUpdatesPreview({ items }: LatestUpdatesPreviewProp
               ) : (
                 <Image
                   src={activeUpdate.src}
+                  unoptimized={activeUpdate.src.startsWith('/api/media/')}
                   alt={activeUpdate.title}
                   width={1600}
                   height={1200}

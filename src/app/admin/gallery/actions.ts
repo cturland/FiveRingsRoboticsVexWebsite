@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { getAdminAccess } from '@/lib/adminAccess';
 import { GALLERY_ITEMS_CACHE_TAG } from '@/lib/gallery';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -8,7 +8,7 @@ import { getSupabaseGalleryBucket } from '@/lib/supabase/env';
 import { parseYouTubeUrl } from '@/lib/youtube';
 
 async function requireAdminUser() {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -27,7 +27,7 @@ function revalidateGalleryPaths() {
   revalidatePath('/gallery');
   revalidatePath('/');
   revalidatePath('/worlds-live');
-  revalidateTag(GALLERY_ITEMS_CACHE_TAG);
+  updateTag(GALLERY_ITEMS_CACHE_TAG);
 }
 
 export async function setGallerySubmissionStatus(formData: FormData) {
@@ -113,25 +113,26 @@ export async function updateGallerySubmissionAsAdmin(formData: FormData) {
 
 export async function deleteGallerySubmissionAsAdmin(formData: FormData) {
   const submissionId = Number(formData.get('submissionId'));
-  const imagePath = String(formData.get('imagePath') ?? '').trim() || null;
 
   if (!Number.isFinite(submissionId)) {
     throw new Error('Missing submission id.');
   }
 
   const { supabase } = await requireAdminUser();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('gallery_submissions')
     .delete()
-    .eq('id', submissionId);
+    .eq('id', submissionId)
+    .select('image_path')
+    .single();
 
   if (error) {
     throw new Error(error.message);
   }
 
-  if (imagePath) {
+  if (data.image_path) {
     const bucket = getSupabaseGalleryBucket();
-    const { error: storageError } = await supabase.storage.from(bucket).remove([imagePath]);
+    const { error: storageError } = await supabase.storage.from(bucket).remove([data.image_path]);
 
     if (storageError) {
       console.error('Failed to delete gallery image from storage:', storageError);

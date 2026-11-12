@@ -2,7 +2,6 @@ import 'server-only';
 
 import { unstable_cache } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getSupabaseTeamProfileBucket } from '@/lib/supabase/env';
 import { createSupabasePublicClient } from '@/lib/supabase/public';
 import { TEAM_PROFILE_ROLE_OPTIONS, type TeamProfileRole } from './teamProfileConstants';
 
@@ -19,6 +18,8 @@ export type TeamProfileRecord = {
   updatedAt: string;
 };
 
+export type PublicTeamProfile = Pick<TeamProfileRecord, 'id' | 'name' | 'photoUrl' | 'roles' | 'bio' | 'isCurrentMember'>;
+
 export const PUBLIC_TEAM_PROFILES_CACHE_TAG = 'public-team-profiles';
 
 export async function getTeamProfileByEmail(email: string | null | undefined): Promise<TeamProfileRecord | null> {
@@ -28,8 +29,7 @@ export async function getTeamProfileByEmail(email: string | null | undefined): P
     return null;
   }
 
-  const supabase = createSupabaseServerClient();
-  const bucket = getSupabaseTeamProfileBucket();
+  const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('team_profiles')
     .select('id, email, name, photo_path, roles, bio, is_current_member, created_at, updated_at')
@@ -50,7 +50,7 @@ export async function getTeamProfileByEmail(email: string | null | undefined): P
     email: data.email,
     name: data.name,
     photoPath: data.photo_path,
-    photoUrl: data.photo_path ? supabase.storage.from(bucket).getPublicUrl(data.photo_path).data.publicUrl : null,
+    photoUrl: data.photo_path ? '/api/media/profile/' + data.id : null,
     roles: normalizeRoles(data.roles),
     bio: data.bio,
     isCurrentMember: data.is_current_member,
@@ -59,18 +59,16 @@ export async function getTeamProfileByEmail(email: string | null | undefined): P
   };
 }
 
-async function loadPublicTeamProfiles(): Promise<TeamProfileRecord[]> {
+async function loadPublicTeamProfiles(): Promise<PublicTeamProfile[]> {
   const supabase = createSupabasePublicClient();
   if (!supabase) {
     return [];
   }
 
-  const bucket = getSupabaseTeamProfileBucket();
   const { data, error } = await supabase
-    .from('team_profiles')
-    .select('id, email, name, photo_path, roles, bio, is_current_member, created_at, updated_at')
-    .order('is_current_member', { ascending: false })
-    .order('updated_at', { ascending: false });
+    .from('published_team_profiles')
+    .select('id, name, has_photo, roles, bio, is_current_member')
+    .order('id');
 
   if (error) {
     console.error('Failed to load public team profiles:', error);
@@ -79,26 +77,21 @@ async function loadPublicTeamProfiles(): Promise<TeamProfileRecord[]> {
 
   return (data ?? []).map((item) => ({
     id: item.id,
-    email: item.email,
     name: item.name,
-    photoPath: item.photo_path,
-    photoUrl: item.photo_path ? supabase.storage.from(bucket).getPublicUrl(item.photo_path).data.publicUrl : null,
+    photoUrl: item.has_photo ? '/api/media/profile/' + item.id : null,
     roles: normalizeRoles(item.roles),
     bio: item.bio,
     isCurrentMember: item.is_current_member,
-    createdAt: item.created_at,
-    updatedAt: item.updated_at,
   }));
 }
 
-export const getPublicTeamProfiles = unstable_cache(loadPublicTeamProfiles, ['public-team-profiles'], {
+export const getPublicTeamProfiles = unstable_cache(loadPublicTeamProfiles, ['published-team-profiles', process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'unconfigured'], {
   revalidate: 3600,
   tags: [PUBLIC_TEAM_PROFILES_CACHE_TAG],
 });
 
-export async function getAllTeamProfilesForAdmin(): Promise<(TeamProfileRecord & { ownerKey: string })[]> {
-  const supabase = createSupabaseServerClient();
-  const bucket = getSupabaseTeamProfileBucket();
+export async function getAllTeamProfilesForAdmin(): Promise<TeamProfileRecord[]> {
+  const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('team_profiles')
     .select('id, email, name, photo_path, roles, bio, is_current_member, created_at, updated_at')
@@ -115,13 +108,12 @@ export async function getAllTeamProfilesForAdmin(): Promise<(TeamProfileRecord &
     email: item.email,
     name: item.name,
     photoPath: item.photo_path,
-    photoUrl: item.photo_path ? supabase.storage.from(bucket).getPublicUrl(item.photo_path).data.publicUrl : null,
+    photoUrl: item.photo_path ? '/api/media/profile/' + item.id : null,
     roles: normalizeRoles(item.roles),
     bio: item.bio,
     isCurrentMember: item.is_current_member,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
-    ownerKey: item.email.replace(/[^a-zA-Z0-9_-]/g, '-'),
   }));
 }
 

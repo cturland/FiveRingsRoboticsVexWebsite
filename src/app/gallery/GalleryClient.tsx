@@ -132,7 +132,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
                           fill
                           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                           className="object-cover transition-transform duration-300 hover:scale-105"
-                          unoptimized={src.startsWith('data:')}
+                          unoptimized={src.startsWith('data:') || src.startsWith('/api/media/')}
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                           <span className="rounded-full border border-white/20 bg-red-600 px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-white">
@@ -147,7 +147,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
                         fill
                         sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                         className="object-cover transition-transform duration-300 hover:scale-105"
-                        unoptimized={src.startsWith('data:')}
+                        unoptimized={src.startsWith('data:') || src.startsWith('/api/media/')}
                       />
                     )}
                   </div>
@@ -203,7 +203,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
                   height={1200}
                   sizes="100vw"
                   className="max-h-[80vh] w-full object-contain"
-                  unoptimized={activeImage.src.startsWith('data:')}
+                  unoptimized={activeImage.src.startsWith('data:') || activeImage.src.startsWith('/api/media/')}
                 />
               )}
             </div>

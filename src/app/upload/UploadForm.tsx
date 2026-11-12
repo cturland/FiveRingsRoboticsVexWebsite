@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useEffect, useRef, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import Card from '@/components/Card';
 import { formatFileSize, optimizeImageFile, setFileInputFile } from '@/lib/clientImageOptimization';
 import { submitUpload, type UploadFormState } from './actions';
@@ -25,22 +25,23 @@ type UploadFormProps = {
 };
 
 export default function UploadForm({ userEmail }: UploadFormProps) {
-  const [state, formAction] = useFormState(submitUpload, initialUploadFormState);
   const [mediaType, setMediaType] = useState<'image' | 'youtube'>('image');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState('');
   const [imageOptimizationNote, setImageOptimizationNote] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (state.status === 'success') {
+  const [state, formAction] = useActionState(async (previousState: UploadFormState, data: FormData) => {
+    const result = await submitUpload(previousState, data);
+    if (result.status === 'success') {
       formRef.current?.reset();
       setMediaType('image');
       setPreviewUrl(null);
       setSelectedFileName('');
       setImageOptimizationNote('');
     }
-  }, [state.status]);
+    return result;
+  }, initialUploadFormState);
 
   useEffect(() => {
     return () => {

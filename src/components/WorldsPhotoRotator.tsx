@@ -65,7 +65,7 @@ export default function WorldsPhotoRotator({ photos, placeholder }: WorldsPhotoR
             fill
             sizes="(min-width: 1280px) 45vw, 100vw"
             className="object-cover"
-            unoptimized={!activePhoto?.image || (activePhoto.image || '').startsWith('data:')}
+            unoptimized={!activePhoto?.image || activePhoto.image.startsWith('data:') || activePhoto.image.startsWith('/api/media/')}
           />
         </div>
         <div className="p-5">

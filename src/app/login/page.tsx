@@ -1,24 +1,25 @@
 import { redirect } from 'next/navigation';
 import Card from '@/components/Card';
 import { getAllowedDomains } from '@/lib/uploadAccess';
+import { getSafeLoginRedirect } from '@/lib/loginRedirect';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import LoginForm from './LoginForm';
 
 type LoginPageProps = {
-  searchParams?: {
+  searchParams: Promise<{
     next?: string;
     error?: string;
-  };
+  }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const configured = isSupabaseConfigured();
-  const redirectTo = searchParams?.next?.startsWith('/') ? searchParams.next : '/upload';
-  const error = searchParams?.error;
+  const { next, error } = await searchParams;
+  const redirectTo = getSafeLoginRedirect(next);
 
   if (configured) {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

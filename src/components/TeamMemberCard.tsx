@@ -27,7 +27,7 @@ export default function TeamMemberCard({ member }: { member: TeamMember }) {
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw"
           className="object-cover"
-          unoptimized={imageSrc.startsWith('data:')}
+          unoptimized={imageSrc.startsWith('data:') || imageSrc.startsWith('/api/media/')}
           onError={() => {
             if (imageSrc !== fallback) {
               setImageSrc(fallback);

@@ -1,49 +1,19 @@
-import uploadAccessConfig from '../../data/upload-allowed-users.json';
+import 'server-only';
 
-type UploadAccessConfig = {
-  allowedDomains?: string[];
-  allowedEmails?: string[];
-};
-
-export type UploadAccessResult = {
-  isSchoolEmail: boolean;
-  isAllowedUploader: boolean;
-  normalizedEmail: string;
-};
-
-const config = (uploadAccessConfig ?? {}) as UploadAccessConfig;
-
-function normalizeEmail(email: string) {
-  return email.trim().toLowerCase();
-}
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getEmailDomain } from './emailDomain';
 
 export function getAllowedDomains() {
-  return (config.allowedDomains ?? []).map((domain) => domain.trim().toLowerCase()).filter(Boolean);
+  return ['isl.ch', 'islstudent.ch'];
 }
 
-export function getAllowedEmails() {
-  return (config.allowedEmails ?? []).map(normalizeEmail).filter(Boolean);
-}
-
-export function getEmailDomain(email: string) {
-  const atIndex = email.lastIndexOf('@');
-
-  if (atIndex === -1) {
-    return '';
+export async function getUploadAccess(supabase: SupabaseClient, email: string | null | undefined) {
+  const domain = getEmailDomain((email ?? '').trim().toLowerCase());
+  if (!getAllowedDomains().includes(domain)) {
+    return { isSchoolEmail: false, isAllowedUploader: false };
   }
 
-  return email.slice(atIndex + 1);
-}
-
-export function getUploadAccess(email: string | null | undefined): UploadAccessResult {
-  const normalizedEmail = normalizeEmail(email ?? '');
-  const domain = getEmailDomain(normalizedEmail);
-  const isSchoolEmail = Boolean(domain) && getAllowedDomains().includes(domain);
-  const isAllowedUploader = isSchoolEmail && getAllowedEmails().includes(normalizedEmail);
-
-  return {
-    isSchoolEmail,
-    isAllowedUploader,
-    normalizedEmail,
-  };
+  const { data, error } = await supabase.rpc('has_team_site_access');
+  if (error) console.error('Failed to check team site access:', error);
+  return { isSchoolEmail: true, isAllowedUploader: data === true };
 }

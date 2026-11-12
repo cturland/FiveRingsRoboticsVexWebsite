@@ -1,5 +1,12 @@
 .next/
 node_modules/
-.env.local
+.env
+.env.*
+!.env.example
 tmp_test.txt
 *.log
+
+*.tsbuildinfo
+/supabase/.temp/
+/supabase/seed.sql
+/data/upload-allowed-users.json

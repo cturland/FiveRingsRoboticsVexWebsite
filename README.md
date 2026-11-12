@@ -9,10 +9,10 @@ A Next.js site for Five Rings Robotics (Team 21052A) with:
 
 ## Run locally
 
-1. Install dependencies:
+1. Use Node.js 24 LTS and install dependencies:
 
 ```bash
-npm install
+npm ci
 ```
 
 2. Run the development server:
@@ -40,6 +40,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 NEXT_PUBLIC_SUPABASE_GALLERY_BUCKET=gallery-uploads
 NEXT_PUBLIC_SUPABASE_TEAM_PROFILE_BUCKET=team-profile-photos
+SUPABASE_SECRET_KEY=your_server_only_supabase_secret_key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ROBOTEVENTS_API_TOKEN=your_api_token_here
 ROBOTEVENTS_DEBUG=false
@@ -49,17 +50,13 @@ Set `ROBOTEVENTS_DEBUG=true` in `.env.local` if you want verbose RobotEvents req
 
 ## Student upload flow
 
-Student upload access is controlled by:
-
-- [`data/upload-allowed-users.json`](data/upload-allowed-users.json)
-
-Only approved school email addresses can sign in and submit uploads.
+Approved school email addresses are stored in the private Supabase table `private.team_site_members`. Only approved team members and gallery admins can use the protected upload and profile features.
 
 Uploads go through this flow:
 
 1. student signs in with Supabase magic link
 2. approved uploader submits image, title, category, and date
-3. image is stored in Supabase Storage
+3. the image is stored in a private Supabase Storage bucket
 4. a `gallery_submissions` row is created with `status = 'pending'`
 5. admin approves it
 6. approved items appear on the public Highlights page and homepage preview
@@ -81,17 +78,17 @@ Then sign in and open:
 
 ## Supabase migrations
 
-This repo includes migrations for:
+For a fresh project, apply all files in [supabase/migrations](supabase/migrations) in timestamp order. For a local Supabase stack, run `supabase init` once, then `supabase start` and `supabase db reset`. Use synthetic addresses for local testing.
 
-- gallery uploads bucket
-- gallery submissions table
-- approved public gallery read policy
-- gallery admins table and approval permissions
-- team profiles table and team profile photo bucket
+The original Five Rings database was set up manually. For that existing database:
 
-They live in:
+1. Check that the baseline objects are present and take a backup. After verifying the baseline, record version `20261112133901` as already applied in the linked project's migration history. Do not replay the baseline on the live database.
+2. Configure `SUPABASE_SECRET_KEY` in Vercel as a server-only variable. Test the new build against a staging database. The preparation migration adds the new public views and private member table while the previous deployment is still live.
+3. Apply the preparation migration and transfer the approved member addresses into `private.team_site_members` using the Supabase SQL editor or a trusted database connection. Use the existing list from a trusted local copy, and keep the addresses out of Git, tickets and logs. Gallery admins already listed in `public.gallery_admins` retain access. Check that all intended members are present, then build and deploy the new app against production so the public pages are generated with the new views.
+4. Verify the new deployment serves profiles and approved photos. Apply the enforcement migration to make both buckets private and restrict direct access to the source tables.
+5. Verify signed-out access to team pages and approved photos, a member magic link and upload, an admin preview and approval, and the denial of an old public URL for a pending photo. Review cached image URLs and older Vercel deployments that served the original public URLs.
 
-- [`supabase/migrations`](supabase/migrations)
+Removing the allowlist from the working tree leaves it in older commits. Coordinate any history rewrite with ISL and other repository collaborators, and follow GitHub's guidance for removing cached references and handling forks and clones: [Removing sensitive data from a repository](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository).
 
 ## Editing team data
 

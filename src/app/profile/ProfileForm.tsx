@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useEffect, useMemo, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import Card from '@/components/Card';
 import { formatFileSize, optimizeImageFile, setFileInputFile } from '@/lib/clientImageOptimization';
 import { TEAM_PROFILE_ROLE_OPTIONS } from '@/lib/teamProfileConstants';
@@ -22,7 +22,7 @@ type ProfileFormProps = {
 };
 
 export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileFormProps) {
-  const [state, formAction] = useFormState(saveTeamProfile, initialState);
+  const [state, formAction] = useActionState(saveTeamProfile, initialState);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState('');
   const [photoOptimizationNote, setPhotoOptimizationNote] = useState('');
@@ -30,9 +30,11 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
   const bioDefault = profile?.bio ?? '';
   const [bioValue, setBioValue] = useState(bioDefault);
 
-  useEffect(() => {
+  const [previousBio, setPreviousBio] = useState(bioDefault);
+  if (bioDefault !== previousBio) {
+    setPreviousBio(bioDefault);
     setBioValue(bioDefault);
-  }, [bioDefault]);
+  }
 
   useEffect(() => {
     return () => {
@@ -155,7 +157,6 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
           ) : null}
 
           <form action={formAction} className="space-y-6">
-            <input type="hidden" name="currentPhotoPath" value={profile?.photoPath ?? ''} />
 
             <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
               <div className="space-y-5">
@@ -203,7 +204,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
                         fill
                         sizes="(min-width: 1024px) 30vw, 100vw"
                         className="object-cover"
-                        unoptimized={displayPhoto.startsWith('data:')}
+                        unoptimized={displayPhoto.startsWith('data:') || displayPhoto.startsWith('/api/media/')}
                       />
                     </div>
                   ) : (

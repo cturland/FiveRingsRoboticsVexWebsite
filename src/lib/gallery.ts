@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { unstable_cache } from 'next/cache';
-import { getSupabaseGalleryBucket, isSupabaseConfigured } from '@/lib/supabase/env';
+import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { createSupabasePublicClient } from '@/lib/supabase/public';
 import type { PublicGalleryItem } from './gallery.types';
 
@@ -17,12 +17,10 @@ async function loadGalleryItems(): Promise<PublicGalleryItem[]> {
     return [];
   }
 
-  const bucket = getSupabaseGalleryBucket();
 
   const { data, error } = await supabase
-    .from('gallery_submissions')
-    .select('id, media_type, image_path, youtube_url, youtube_video_id, title, category, date')
-    .eq('status', 'approved')
+    .from('published_gallery_submissions')
+    .select('id, media_type, youtube_url, youtube_video_id, title, category, date')
     .order('date', { ascending: false })
     .order('created_at', { ascending: false });
 
@@ -38,7 +36,7 @@ async function loadGalleryItems(): Promise<PublicGalleryItem[]> {
     return {
       id: item.id,
       mediaType,
-      image: item.image_path ? supabase.storage.from(bucket).getPublicUrl(item.image_path).data.publicUrl : '',
+      image: mediaType === 'image' ? '/api/media/gallery/' + item.id : '',
       youtubeUrl: item.youtube_url ?? '',
       youtubeVideoId,
       youtubeEmbedUrl: youtubeVideoId ? `https://www.youtube.com/embed/${youtubeVideoId}` : '',
@@ -50,7 +48,7 @@ async function loadGalleryItems(): Promise<PublicGalleryItem[]> {
   });
 }
 
-export const getGalleryItems = unstable_cache(loadGalleryItems, ['gallery-items'], {
+export const getGalleryItems = unstable_cache(loadGalleryItems, ['published-gallery-items', process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'unconfigured'], {
   revalidate: 300,
   tags: [GALLERY_ITEMS_CACHE_TAG],
 });

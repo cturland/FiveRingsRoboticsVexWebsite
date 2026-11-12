@@ -1,11 +1,11 @@
 'use server';
 
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { getAdminAccess } from '@/lib/adminAccess';
 import { PUBLIC_TEAM_PROFILES_CACHE_TAG } from '@/lib/teamProfiles';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { buildTeamProfilePayload, parseTeamProfileFormData, uploadTeamProfilePhoto } from '@/lib/teamProfileMutations';
+import { buildTeamProfilePayload, deleteTeamProfilePhoto, parseTeamProfileFormData, uploadTeamProfilePhoto } from '@/lib/teamProfileMutations';
 import { getUploadAccess } from '@/lib/uploadAccess';
 
 export type TeamProfileFormState = {
@@ -24,7 +24,7 @@ export async function saveTeamProfile(
     };
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -36,14 +36,24 @@ export async function saveTeamProfile(
     };
   }
 
-  const access = getUploadAccess(user.email);
+  const access = await getUploadAccess(supabase, user.email);
   if (!access.isSchoolEmail || !access.isAllowedUploader) {
     return {
       status: 'error',
       message: 'This account is not allowed to edit member profiles. Sign in with an approved school email.',
     };
   }
-  const parsed = parseTeamProfileFormData(formData, user.email);
+  const { data: existing, error: lookupError } = await supabase
+    .from('team_profiles')
+    .select('id, photo_path')
+    .eq('email', user.email.toLowerCase())
+    .maybeSingle();
+  if (lookupError) {
+    return { status: 'error', message: 'Could not read your current profile. Please try again.' };
+  }
+
+  const oldPhoto = existing?.photo_path ?? null;
+  const parsed = parseTeamProfileFormData(formData, user.email, oldPhoto);
 
   if (!parsed.ok) {
     return {
@@ -63,9 +73,13 @@ export async function saveTeamProfile(
 
   const payload = buildTeamProfilePayload(parsed.values, uploaded.photoPath);
 
-  const { error } = await supabase
-    .from('team_profiles')
-    .upsert(payload, { onConflict: 'email' });
+  const profiles = supabase.from('team_profiles');
+  const save = existing ? profiles.update(payload).eq('id', existing.id) : profiles.insert(payload);
+  if (existing) {
+    if (oldPhoto) save.eq('photo_path', oldPhoto);
+    else save.is('photo_path', null);
+  }
+  const { error } = await save.select('id').single();
 
   if (error) {
     console.error('Failed to save team profile:', error);
@@ -75,10 +89,12 @@ export async function saveTeamProfile(
     };
   }
 
+  if (oldPhoto !== uploaded.photoPath) await deleteTeamProfilePhoto(supabase, oldPhoto);
+
   revalidatePath('/profile');
   revalidatePath('/upload');
   revalidatePath('/team');
-  revalidateTag(PUBLIC_TEAM_PROFILES_CACHE_TAG);
+  updateTag(PUBLIC_TEAM_PROFILES_CACHE_TAG);
 
   const adminAccess = await getAdminAccess(user.email);
 

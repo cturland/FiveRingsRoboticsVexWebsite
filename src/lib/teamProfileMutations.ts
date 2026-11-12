@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { randomUUID } from 'node:crypto';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseTeamProfileBucket } from '@/lib/supabase/env';
 import { TEAM_PROFILE_ROLE_OPTIONS, type TeamProfileRole } from './teamProfileConstants';
 import { normalizeRoles } from './teamProfiles';
@@ -37,12 +39,11 @@ export type TeamProfileValidationResult =
       message: string;
     };
 
-export function parseTeamProfileFormData(formData: FormData, email: string): TeamProfileValidationResult {
+export function parseTeamProfileFormData(formData: FormData, email: string, currentPhotoPath: string | null): TeamProfileValidationResult {
   const name = String(formData.get('name') ?? '').trim();
   const bio = String(formData.get('bio') ?? '').trim();
   const isCurrentMember = formData.get('isCurrentMember') === 'on';
   const selectedRoles = normalizeRoles(formData.getAll('roles'));
-  const currentPhotoPath = String(formData.get('currentPhotoPath') ?? '').trim() || null;
   const photoValue = formData.get('photo');
   const photo = photoValue instanceof File && photoValue.size > 0 ? photoValue : null;
 
@@ -127,9 +128,9 @@ export function parseTeamProfileFormData(formData: FormData, email: string): Tea
 }
 
 export async function uploadTeamProfilePhoto(
-  supabase: any,
+  supabase: SupabaseClient,
   values: TeamProfileFormValues,
-  ownerKey: string,
+  userId: string,
 ): Promise<{ ok: true; photoPath: string } | { ok: false; message: string }> {
   if (!values.photo) {
     if (values.currentPhotoPath) {
@@ -144,9 +145,7 @@ export async function uploadTeamProfilePhoto(
 
   const bucket = getSupabaseTeamProfileBucket();
   const extension = getSafeExtension(values.photo);
-  const baseName = slugify(values.name) || 'member-profile';
-  const fileName = `${baseName}-${Date.now()}.${extension}`;
-  const storagePath = `${ownerKey}/${fileName}`;
+  const storagePath = [userId, randomUUID() + '.' + extension].join('/');
   const bytes = Buffer.from(await values.photo.arrayBuffer());
 
   const { error: uploadError } = await supabase.storage.from(bucket).upload(storagePath, bytes, {
@@ -160,10 +159,6 @@ export async function uploadTeamProfilePhoto(
       ok: false,
       message: `Saving the profile photo failed: ${uploadError.message}. Make sure the team profile bucket and policies are set up.`,
     };
-  }
-
-  if (values.currentPhotoPath && values.currentPhotoPath !== storagePath) {
-    await supabase.storage.from(bucket).remove([values.currentPhotoPath]);
   }
 
   return {
@@ -183,12 +178,13 @@ export function buildTeamProfilePayload(values: TeamProfileFormValues, photoPath
   };
 }
 
-export async function deleteTeamProfilePhoto(supabase: any, photoPath: string | null | undefined) {
+export async function deleteTeamProfilePhoto(supabase: SupabaseClient, photoPath: string | null | undefined) {
   if (!photoPath) {
     return;
   }
 
-  await supabase.storage.from(getSupabaseTeamProfileBucket()).remove([photoPath]);
+  const { error } = await supabase.storage.from(getSupabaseTeamProfileBucket()).remove([photoPath]);
+  if (error) console.error('Failed to remove an old profile photo:', error);
 }
 
 function getSafeExtension(file: File) {
@@ -205,13 +201,6 @@ function getSafeExtension(file: File) {
   return cleanedSubtype || DEFAULT_IMAGE_EXTENSION;
 }
 
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80);
-}
 
 function countWords(value: string) {
   const normalized = value.trim();

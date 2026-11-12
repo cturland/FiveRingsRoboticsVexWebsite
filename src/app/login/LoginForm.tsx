@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import { getEmailDomain } from '@/lib/uploadAccess';
+import { getEmailDomain } from '@/lib/emailDomain';
 
 type LoginFormProps = {
   redirectTo: string;
@@ -81,16 +81,11 @@ export default function LoginForm({ redirectTo, allowedDomains, configured }: Lo
 
     setStatus('success');
     setCooldownSeconds(RESEND_COOLDOWN_SECONDS);
-    setMessage(`Check your email. You can request another link in ${RESEND_COOLDOWN_SECONDS} seconds.`);
   }
 
-  useEffect(() => {
-    if (status !== 'success' || cooldownSeconds <= 0) {
-      return;
-    }
-
-    setMessage(`Check your email. You can request another link in ${cooldownSeconds} seconds.`);
-  }, [cooldownSeconds, status]);
+  const feedback = status === 'success'
+    ? (cooldownSeconds > 0 ? 'Check your email. You can request another link in ' + cooldownSeconds + ' seconds.' : 'Check your email. You can request another link now.')
+    : message;
 
   const isDisabled = status === 'submitting' || cooldownSeconds > 0 || !configured;
 
@@ -121,9 +116,9 @@ export default function LoginForm({ redirectTo, allowedDomains, configured }: Lo
             : 'Send Magic Link'}
       </button>
 
-      {message ? (
+      {feedback ? (
         <p className={`text-sm ${status === 'error' ? 'text-red-300' : 'text-[var(--color-muted)]'}`}>
-          {message}
+          {feedback}
         </p>
       ) : null}
     </form>

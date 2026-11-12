@@ -44,7 +44,7 @@ export async function submitReactionTimeScore(
     };
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { error } = await supabase.rpc('submit_reaction_time_score', {
     submitted_team_number: cleanTeamNumber,
     submitted_player_name: cleanPlayerName,

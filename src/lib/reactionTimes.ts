@@ -17,7 +17,7 @@ export async function getReactionTimeLeaderboard(): Promise<ReactionTimeScore[]>
     return [];
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('reaction_time_scores')
     .select('id, team_number, player_name, reaction_time_ms, attempts, updated_at')

@@ -2,7 +2,7 @@ import Card from "../../components/Card";
 import SectionHeading from "../../components/SectionHeading";
 import TeamMemberCard from "../../components/TeamMemberCard";
 import { getPublicTeamProfiles } from "../../lib/teamProfiles";
-import type { TeamProfileRecord } from "../../lib/teamProfiles";
+import type { PublicTeamProfile } from "../../lib/teamProfiles";
 import type { TeamProfileRole } from "../../lib/teamProfileConstants";
 
 const TEAM_ROLE_PRIORITY: Record<TeamProfileRole, number> = {
@@ -19,7 +19,7 @@ function sortRolesByPriority(roles: TeamProfileRole[]) {
   return [...roles].sort((a, b) => TEAM_ROLE_PRIORITY[a] - TEAM_ROLE_PRIORITY[b] || a.localeCompare(b));
 }
 
-function sortMembersByRolePriority(members: TeamProfileRecord[]) {
+function sortMembersByRolePriority(members: PublicTeamProfile[]) {
   return [...members].sort((a, b) => {
     const aRoles = sortRolesByPriority(a.roles);
     const bRoles = sortRolesByPriority(b.roles);
