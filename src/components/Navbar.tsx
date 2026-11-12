@@ -10,7 +10,7 @@ export default function Navbar({ galleryEnabled }: { galleryEnabled: boolean }) 
   const links = [
     { href: '/', label: 'Home' },
     { href: '/team', label: 'Team' },
-    { href: '/updates', label: 'Updates' },
+    ...(teamSite.instagramHandle ? [{ href: '/updates', label: 'Updates' }] : []),
     ...(galleryEnabled ? [{ href: '/gallery', label: 'Gallery' }] : []),
     { href: '/fixtures', label: 'Competition' },
   ];

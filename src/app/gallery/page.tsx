@@ -8,7 +8,7 @@ import GalleryClient from './GalleryClient';
 export const metadata: Metadata = { title: 'Event Gallery | ' + teamSite.name };
 
 export default async function GalleryPage() {
-  if (!galleryEnabled) redirect('/updates');
+  if (!galleryEnabled) redirect(teamSite.instagramHandle ? '/updates' : '/');
 
   const images = await getGalleryItems();
 

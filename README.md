@@ -1,6 +1,6 @@
 # ISL VEX Robotics Team Websites
 
-A shared Next.js site for Five Rings Robotics (21052A) and Cool Runnings (21052B) with:
+A shared Next.js site for Five Rings Robotics (21052A), Cool Runnings (21052B), and ByteMe Robotics (21052X) with:
 - team information
 - fixtures and results
 - Instagram updates
@@ -33,19 +33,21 @@ npm run lint
 
 ## Team deployments
 
-The same app can be deployed to a separate Vercel project for each team. The default is Five Rings Robotics. Set `NEXT_PUBLIC_TEAM_SITE=cool-runnings` in the Cool Runnings project for team 21052B. Each project uses its own server-side `INSTAGRAM_ACCESS_TOKEN`, with the same variable name in both projects.
+The same app can be deployed to a separate Vercel project for each team. The default is Five Rings Robotics. Set `NEXT_PUBLIC_TEAM_SITE=cool-runnings` in the Cool Runnings project for team 21052B. Each project uses its own server-side `INSTAGRAM_ACCESS_TOKEN`, with the same variable name in each project.
 
-Cool Runnings uses the same Supabase project as Five Rings. Set `NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_URL` and `NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_ANON_KEY` to that project's public credentials in the Cool Runnings deployment. Both sites use the same `reaction_time_scores` table and score submission function.
+Cool Runnings uses the same Supabase project as Five Rings. Set `NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_URL` and `NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_ANON_KEY` to that project's public credentials in the Cool Runnings deployment. All three sites use the same `reaction_time_scores` table and score submission function.
 
 Cool Runnings roster access lives in `public.cr_roster_admins` and `private.cr_team_members`. The team has its own profiles, gallery submissions, and private Storage buckets in the shared project. Add roster admins without gallery moderation unless that access is needed. Add approved member addresses privately through the Supabase dashboard.
 
 To enable Cool Runnings sign-in, add its `/auth/callback` URL to the shared project's Auth redirect allowlist, set a server-only `SUPABASE_SECRET_KEY` for that project in the Cool Runnings deployment, and set `COOL_RUNNINGS_ROSTER_ENABLED=true` before redeploying. Configure `ROBOTEVENTS_API_TOKEN` for live competition data.
 
+ByteMe Robotics uses `NEXT_PUBLIC_TEAM_SITE=byte-me` for team 21052X. Set `NEXT_PUBLIC_BYTE_ME_SUPABASE_URL` and `NEXT_PUBLIC_BYTE_ME_SUPABASE_ANON_KEY` to the shared project, and use `ROBOTEVENTS_API_TOKEN` for competition data. Its roster and gallery use separate tables and private buckets. To enable roster sign-in, add its exact callback to Supabase Auth, add a project secret in Vercel as `SUPABASE_SECRET_KEY`, add approved admins and members to `public.bm_roster_admins` and `private.bm_team_members`, and set `BYTE_ME_ROSTER_ENABLED=true` before redeploying. Leave `NEXT_PUBLIC_BYTE_ME_INSTAGRAM_HANDLE` empty until the account is confirmed.
+
 ## School Google sign-in
 
 The team sites use the Google provider in the shared Supabase Auth project. In Google Auth Platform, create a Web application OAuth client. Use an Internal audience if both school email domains belong to the same ISL Google Workspace organization.
 
-- Authorized JavaScript origins: `https://five-rings-robotics-vex-website.vercel.app` and `https://cool-runnings-vex.vercel.app`.
+- Authorized JavaScript origins: `https://five-rings-robotics-vex-website.vercel.app`, `https://cool-runnings-vex.vercel.app`, and `https://byte-me-robotics.vercel.app`.
 - Authorized redirect URI: the exact callback shown in Supabase's Google provider settings, `https://uiudkwytowxakoohamjk.supabase.co/auth/v1/callback`.
 - In Supabase, enable Google and enter the Client ID and Client Secret in the Google provider settings. Keep the secret out of the repository and Vercel.
 - Supabase's Auth redirect list should include each team's `/auth/callback` URL. Each site still checks the signed-in school email against its own team access records.

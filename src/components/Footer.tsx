@@ -25,7 +25,7 @@ export default function Footer({ galleryEnabled }: { galleryEnabled: boolean }) 
             <div className="grid gap-2 text-sm text-[var(--color-muted)]">
               <Link href="/">Home</Link>
               <Link href="/team">Team</Link>
-              <Link href="/updates">Updates</Link>
+              {teamSite.instagramHandle ? <Link href="/updates">Updates</Link> : null}
               {galleryEnabled ? <Link href="/gallery">Event Gallery</Link> : null}
               <Link href="/fixtures">Competition</Link>
               <Link href="/profile">Member Sign-in</Link>

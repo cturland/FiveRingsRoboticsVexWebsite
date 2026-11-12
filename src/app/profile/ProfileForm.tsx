@@ -1,5 +1,7 @@
 'use client';
 
+import { teamSite } from '@/lib/teamSite';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useActionState, useEffect, useMemo, useState } from 'react';
@@ -135,7 +137,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin, galleryEnable
           ) : null}
 
           <div className="flex flex-wrap gap-3">
-            <Link href="/updates" className="btn btn-secondary">Team Updates</Link>
+            {teamSite.instagramHandle ? <Link href="/updates" className="btn btn-secondary">Team Updates</Link> : null}
             {galleryEnabled ? <Link href="/upload" className="btn btn-secondary">Upload to Event Gallery</Link> : null}
             {isAdmin ? <Link href="/admin" className="btn btn-secondary">Admin Hub</Link> : null}
           </div>

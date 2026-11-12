@@ -380,7 +380,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(10,18,31,0.92),rgba(11,23,38,0.96))] px-6 py-8 md:px-8 md:py-10">
+      {instagram.handle ? <section className="rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(10,18,31,0.92),rgba(11,23,38,0.96))] px-6 py-8 md:px-8 md:py-10">
         <div className={'flex flex-col gap-4 md:flex-row md:items-end md:justify-between' + (instagramPosts.length ? ' mb-8' : '')}>
           <div>
             <h2 className="heading-display text-3xl font-black text-white">Latest updates</h2>
@@ -392,7 +392,7 @@ export default async function Home() {
         </div>
 
         <InstagramPosts posts={instagramPosts.slice(0, 3)} />
-      </section>
+      </section> : null}
     </div>
   );
 }

@@ -18,7 +18,7 @@ export async function getAdminAccess(email: string | null | undefined) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from(teamTables.admins)
-    .select(teamSite.slug === 'cool-runnings' ? 'email, can_moderate_gallery' : 'email')
+    .select(teamSite.slug === 'five-rings' ? 'email' : 'email, can_moderate_gallery')
     .eq('email', normalizedEmail)
     .maybeSingle<{ email: string; can_moderate_gallery?: boolean }>();
 

@@ -1,13 +1,26 @@
 import { teamSite } from '@/lib/teamSite';
-const isCoolRunnings = teamSite.slug === 'cool-runnings';
-const publicUrl = isCoolRunnings
-  ? process.env.NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_URL
-  : process.env.NEXT_PUBLIC_SUPABASE_URL;
-const publicAnonKey = isCoolRunnings
-  ? process.env.NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_ANON_KEY
-  : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const publicGalleryBucket = isCoolRunnings ? 'cool-runnings-gallery' : (process.env.NEXT_PUBLIC_SUPABASE_GALLERY_BUCKET || 'gallery-uploads');
-const publicTeamProfileBucket = isCoolRunnings ? 'cool-runnings-profile-photos' : (process.env.NEXT_PUBLIC_SUPABASE_TEAM_PROFILE_BUCKET || 'team-profile-photos');
+const connections = {
+  'five-rings': {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    galleryBucket: process.env.NEXT_PUBLIC_SUPABASE_GALLERY_BUCKET || 'gallery-uploads',
+    profileBucket: process.env.NEXT_PUBLIC_SUPABASE_TEAM_PROFILE_BUCKET || 'team-profile-photos',
+  },
+  'cool-runnings': {
+    url: process.env.NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_URL,
+    key: process.env.NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_ANON_KEY,
+    galleryBucket: 'cool-runnings-gallery',
+    profileBucket: 'cool-runnings-profile-photos',
+  },
+  'byte-me': {
+    url: process.env.NEXT_PUBLIC_BYTE_ME_SUPABASE_URL,
+    key: process.env.NEXT_PUBLIC_BYTE_ME_SUPABASE_ANON_KEY,
+    galleryBucket: 'byte-me-gallery',
+    profileBucket: 'byte-me-profile-photos',
+  },
+};
+
+const { url: publicUrl, key: publicAnonKey, galleryBucket, profileBucket } = connections[teamSite.slug];
 
 export const supabaseCacheScope = teamSite.slug + ':' + (publicUrl ?? 'unconfigured');
 
@@ -36,9 +49,9 @@ export function getSiteUrl() {
 }
 
 export function getSupabaseGalleryBucket() {
-  return publicGalleryBucket;
+  return galleryBucket;
 }
 
 export function getSupabaseTeamProfileBucket() {
-  return publicTeamProfileBucket;
+  return profileBucket;
 }

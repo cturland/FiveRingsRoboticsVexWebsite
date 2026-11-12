@@ -43,6 +43,18 @@
   --brand-button-end: 0 106 53;
 }
 
+[data-team="byte-me"] {
+  --brand-100: 224 231 255;
+  --brand-200: 199 210 254;
+  --brand-300: 165 180 252;
+  --brand-400: 129 140 248;
+  --brand-500: 123 132 255;
+  --brand-600: 36 33 189;
+  --brand-primary: 36 33 189;
+  --brand-accent: 129 140 248;
+  --brand-button-end: 56 52 191;
+}
+
 html,
 body {
   margin: 0;

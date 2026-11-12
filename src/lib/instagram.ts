@@ -43,7 +43,7 @@ function httpsUrl(value: unknown, allowedHost: (host: string) => boolean) {
 
 export async function getInstagramPosts(): Promise<InstagramPost[]> {
   const token = process.env.INSTAGRAM_ACCESS_TOKEN?.trim();
-  if (!token) return [];
+  if (!token || !instagram.handle) return [];
 
   const url = new URL('https://graph.instagram.com/v25.0/me/media');
   url.searchParams.set('fields', 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,username');

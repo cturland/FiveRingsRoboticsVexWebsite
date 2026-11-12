@@ -1,5 +1,6 @@
 import { teamSite } from '@/lib/teamSite';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import InstagramPosts from '@/components/InstagramPosts';
 import { galleryEnabled } from '@/lib/galleryFeature';
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
 export const revalidate = 900;
 
 export default async function UpdatesPage() {
+  if (!instagram.handle) notFound();
+
   const posts = await getInstagramPosts();
 
   return (

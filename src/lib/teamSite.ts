@@ -1,3 +1,6 @@
+const configuredByteMeHandle = process.env.NEXT_PUBLIC_BYTE_ME_INSTAGRAM_HANDLE?.trim().replace(/^@/, '').toLowerCase() ?? '';
+const byteMeInstagramHandle = /^[a-z0-9_.]{1,30}$/.test(configuredByteMeHandle) ? configuredByteMeHandle : '';
+
 const sites = {
   'five-rings': {
     slug: 'five-rings',
@@ -35,8 +38,27 @@ const sites = {
     themeColor: '#091810',
     worldsDescription: 'Follow Cool Runnings competition fixtures and results.',
   },
+  'byte-me': {
+    slug: 'byte-me',
+    name: 'ByteMe Robotics',
+    shortName: 'ByteMe',
+    hero: ['ByteMe', 'Robotics'],
+    number: '21052X',
+    instagramHandle: byteMeInstagramHandle,
+    logo: '/images/byte-me/logo.webp',
+    navLogo: '/images/byte-me/icon-192.png',
+    intro: 'We are ByteMe Robotics, a student VEX team from the International School of Lausanne. We build, program, and compete as team 21052X.',
+    displayLogo: '/images/byte-me/logo.webp',
+    favicon: '/images/byte-me/icon-32.png',
+    appleIcon: '/images/byte-me/icon-180.png',
+    manifestIcons: ['/images/byte-me/icon-192.png', '/images/byte-me/icon-512.png'],
+    logoBackground: 'bg-white',
+    themeColor: '#101236',
+    worldsDescription: 'Follow ByteMe Robotics competition fixtures and results.',
+  },
 } as const;
 
-export const teamSite = process.env.NEXT_PUBLIC_TEAM_SITE === 'cool-runnings'
-  ? sites['cool-runnings']
+const requestedSite = process.env.NEXT_PUBLIC_TEAM_SITE;
+export const teamSite = requestedSite === 'cool-runnings' || requestedSite === 'byte-me'
+  ? sites[requestedSite]
   : sites['five-rings'];
