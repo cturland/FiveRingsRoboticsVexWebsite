@@ -222,7 +222,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
                   required={mediaType === 'youtube'}
                 />
                 <p className="mt-3 text-xs leading-5 text-[var(--color-muted)]">
-                  Paste a YouTube watch, Shorts, or youtu.be link. The video will be reviewed before it appears in Updates.
+                  Paste a YouTube watch, Shorts, or youtu.be link. The video will be reviewed before it appears in the event gallery.
                 </p>
               </label>
             )}
@@ -276,7 +276,7 @@ export default function UploadForm({ userEmail }: UploadFormProps) {
                 Edit your team profile
               </a>
               <a href="/gallery" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
-                View public Updates
+                View Event Gallery
               </a>
             </div>
 

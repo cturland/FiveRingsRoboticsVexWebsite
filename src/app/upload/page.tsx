@@ -1,3 +1,4 @@
+import { galleryEnabled } from '@/lib/galleryFeature';
 import { redirect } from 'next/navigation';
 import Card from '@/components/Card';
 import { getUploadAccess } from '@/lib/uploadAccess';
@@ -6,6 +7,8 @@ import { isSupabaseConfigured } from '@/lib/supabase/env';
 import UploadForm from './UploadForm';
 
 export default async function UploadPage() {
+  if (!galleryEnabled) redirect('/profile');
+
   if (!isSupabaseConfigured()) {
     return (
       <section className="mx-auto max-w-3xl py-8">

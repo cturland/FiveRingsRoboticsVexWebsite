@@ -1,3 +1,4 @@
+import { galleryEnabled } from '@/lib/galleryFeature';
 import { getSupabaseGalleryBucket, getSupabaseTeamProfileBucket, isSupabaseConfigured } from '@/lib/supabase/env';
 import { createSupabaseMediaClient } from '@/lib/supabase/media';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -13,6 +14,10 @@ export async function GET(_request: Request, context: RouteContext<'/api/media/[
   }
 
   if (kind !== 'gallery' && kind !== 'profile' && kind !== 'submission') {
+    return new Response(null, { status: 404, headers });
+  }
+
+  if (kind !== 'profile' && !galleryEnabled) {
     return new Response(null, { status: 404, headers });
   }
 

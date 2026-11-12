@@ -2,6 +2,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
+import { galleryEnabled } from '@/lib/galleryFeature';
 import { getUploadAccess } from '@/lib/uploadAccess';
 import { createPendingGallerySubmission } from '@/lib/gallerySubmissions';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -20,6 +21,10 @@ export async function submitUpload(
   _prevState: UploadFormState,
   formData: FormData,
 ): Promise<UploadFormState> {
+  if (!galleryEnabled) {
+    return { status: 'error', message: 'The event gallery is closed.' };
+  }
+
   if (!isSupabaseConfigured()) {
     return {
       status: 'error',
@@ -105,7 +110,7 @@ export async function submitUpload(
 
     return {
       status: 'success',
-      message: 'YouTube video submitted for review. It will appear in Updates once approved.',
+      message: 'YouTube video submitted for review. It will appear in the event gallery once approved.',
     };
   }
 

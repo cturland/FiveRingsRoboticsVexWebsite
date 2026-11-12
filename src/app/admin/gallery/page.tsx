@@ -1,3 +1,4 @@
+import { galleryEnabled } from '@/lib/galleryFeature';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import AdminShell from '@/components/AdminShell';
@@ -49,6 +50,8 @@ function getStatusClasses(status: string) {
 }
 
 export default async function AdminGalleryPage() {
+  if (!galleryEnabled) redirect('/admin');
+
   if (!isSupabaseConfigured()) {
     return (
       <section className="mx-auto max-w-5xl py-8">
@@ -102,7 +105,7 @@ export default async function AdminGalleryPage() {
   return (
     <AdminShell
       activeSection="gallery"
-      title="Update Post Management"
+      title="Event Gallery Moderation"
       description="Edit, approve, reject, and delete student photo and video updates before or after they appear publicly."
       userEmail={user.email}
     >

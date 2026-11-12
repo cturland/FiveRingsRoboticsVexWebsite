@@ -1,3 +1,4 @@
+import { galleryEnabled } from '@/lib/galleryFeature';
 import Link from 'next/link';
 
 type AdminSection = 'overview' | 'gallery' | 'team';
@@ -34,7 +35,7 @@ export default function AdminShell({ title, description, userEmail, activeSectio
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          {links.map((link) => (
+          {links.filter(link => galleryEnabled || link.key !== 'gallery').map((link) => (
             <Link
               key={link.href}
               href={link.href}

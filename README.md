@@ -3,9 +3,9 @@
 A Next.js site for Five Rings Robotics (Team 21052A) with:
 - team information
 - fixtures and results
-- a public Highlights page
-- a protected student upload flow
-- a simple admin approval workflow for new photo submissions
+- Instagram updates
+- member profiles and profile photos
+- an optional event gallery with member submissions and admin approval
 
 ## Run locally
 
@@ -48,7 +48,15 @@ ROBOTEVENTS_DEBUG=false
 
 Set `ROBOTEVENTS_DEBUG=true` in `.env.local` if you want verbose RobotEvents request logging while debugging locally.
 
-## Student upload flow
+## Instagram updates and event gallery
+
+The homepage and `/updates` show recent posts from [@the.vextagram](https://www.instagram.com/the.vextagram/) when an Instagram Login token is configured. Visitors can always follow the account link. Video posts link to Instagram for playback.
+
+To connect the feed, have the owner of the professional Instagram account authorize a Meta app using Instagram Login and `instagram_business_basic`. Store its long-lived user access token as the server-only `INSTAGRAM_ACCESS_TOKEN` in Vercel, then redeploy. Renew the token before it expires and update the Vercel secret after renewal. [Meta Instagram Login documentation](https://www.postman.com/meta/instagram/folder/1z5vxzu/instagram-api-with-instagram-login)
+
+The event gallery is off by default. Set `GALLERY_ENABLED=true` in Vercel and redeploy to restore the archive, member gallery uploads, admin moderation, and the Worlds Live photo rotator. Remove the setting or set it to `false` and redeploy to close the gallery. Existing submissions remain in Supabase. Profile editing and profile photo uploads are available in either mode.
+
+## Event gallery upload flow
 
 Approved school email addresses are stored in the private Supabase table `private.team_site_members`. Only approved team members and gallery admins can use the protected upload and profile features.
 
@@ -59,7 +67,7 @@ Uploads go through this flow:
 3. the image is stored in a private Supabase Storage bucket
 4. a `gallery_submissions` row is created with `status = 'pending'`
 5. admin approves it
-6. approved items appear on the public Highlights page and homepage preview
+6. approved items appear in the event gallery and photos appear on the Worlds Live display
 
 ## Admin approval flow
 
@@ -72,9 +80,7 @@ insert into public.gallery_admins (email)
 values ('your-email@isl.ch');
 ```
 
-Then sign in and open:
-
-`/admin/gallery`
+Then sign in and open `/admin` for roster management and, when enabled, gallery moderation.
 
 ## Supabase migrations
 
@@ -102,19 +108,19 @@ Fixtures and results fallback data live in:
 ## Project structure
 
 - [`src/app/page.tsx`](src/app/page.tsx): homepage
-- [`src/app/gallery/page.tsx`](src/app/gallery/page.tsx): public Highlights page
+- [`src/app/updates/page.tsx`](src/app/updates/page.tsx): Instagram updates
+- [`src/app/gallery/page.tsx`](src/app/gallery/page.tsx): optional event gallery
 - [`src/app/upload/page.tsx`](src/app/upload/page.tsx): protected student upload page
 - [`src/app/profile/page.tsx`](src/app/profile/page.tsx): protected member profile page
 - [`src/app/admin/page.tsx`](src/app/admin/page.tsx): admin hub
 - [`src/app/admin/gallery/page.tsx`](src/app/admin/gallery/page.tsx): admin approval page
 - [`src/app/admin/team/page.tsx`](src/app/admin/team/page.tsx): admin team profile management
-- [`src/lib/gallery.ts`](src/lib/gallery.ts): approved Highlights reader
+- [`src/lib/gallery.ts`](src/lib/gallery.ts): approved gallery reader
 - [`src/lib/gallerySubmissions.ts`](src/lib/gallerySubmissions.ts): pending submission insert helper
 - [`src/lib/galleryAdmin.ts`](src/lib/galleryAdmin.ts): admin moderation data helper
 - [`src/lib/teamProfiles.ts`](src/lib/teamProfiles.ts): team profile readers
 
 ## Notes
 
-- The public Highlights page no longer reads from `data/gallery.json`; it reads approved Supabase submissions.
 - The old blog feature has been removed.
 - If uploads fail, check your Supabase bucket, RLS policies, and table migrations first.

@@ -4,12 +4,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-export default function Navbar() {
+export default function Navbar({ galleryEnabled }: { galleryEnabled: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const links = [
     { href: '/', label: 'Home' },
     { href: '/team', label: 'Team' },
-    { href: '/gallery', label: 'Updates' },
+    { href: '/updates', label: 'Updates' },
+    ...(galleryEnabled ? [{ href: '/gallery', label: 'Gallery' }] : []),
     { href: '/fixtures', label: 'Competition' },
   ];
 

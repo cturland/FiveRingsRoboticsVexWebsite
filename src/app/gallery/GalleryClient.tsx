@@ -1,18 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import Card from '@/components/Card';
 import { useMemo, useState } from 'react';
 import SectionHeading from '../../components/SectionHeading';
-import Card from '../../components/Card';
 import PreviewImage from '@/components/PreviewImage';
 import type { PublicGalleryItem } from '@/lib/gallery.types';
-
-const instagramAccount = {
-  handle: 'the.vextagram',
-  name: 'The Vextagram',
-  url: 'https://www.instagram.com/the.vextagram/',
-  blurb: 'Follow match-day highlights, pit photos, robot reveals, and behind-the-scenes snapshots from the team on The Vextagram.',
-};
 
 type ActiveImage = {
   mediaType: 'image' | 'youtube';
@@ -51,35 +44,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
 
   return (
     <section className="space-y-6">
-      <SectionHeading title="Updates" subtitle="Photos and videos from the team" />
-
-      <Card className="overflow-hidden border-white/10 bg-[linear-gradient(180deg,rgba(16,29,47,0.92),rgba(9,18,31,0.9))] px-5 py-4 sm:px-6 sm:py-5">
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/20 px-3 py-2 text-sm font-semibold text-white/90">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[linear-gradient(135deg,#f9ce34_0%,#ee2a7b_50%,#6228d7_100%)] text-sm font-black text-white">
-                IG
-              </span>
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.24em] text-[var(--color-muted)]">Instagram</p>
-                <p className="text-sm font-bold text-white">@{instagramAccount.handle}</p>
-              </div>
-            </div>
-            <p className="hidden text-sm text-[var(--color-muted)] md:block">{instagramAccount.blurb}</p>
-          </div>
-
-          <div>
-            <a
-              href={instagramAccount.url}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-primary min-w-[200px]"
-            >
-              Visit @{instagramAccount.handle}
-            </a>
-          </div>
-        </div>
-      </Card>
+      <SectionHeading title="Event Gallery" subtitle="Photos and videos from Five Rings Robotics events" />
 
       <div className="flex flex-wrap gap-2">
         {categories.map((category) => (
@@ -95,7 +60,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
 
       {filteredImages.length === 0 ? (
         <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 text-[var(--color-muted)]">
-          No updates found for {activeCategory}. Submit a photo or YouTube link, or choose a different category.
+          No gallery items in this category yet.
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -2,12 +2,15 @@
 
 import { revalidatePath, updateTag } from 'next/cache';
 import { getAdminAccess } from '@/lib/adminAccess';
+import { galleryEnabled } from '@/lib/galleryFeature';
 import { GALLERY_ITEMS_CACHE_TAG } from '@/lib/gallery';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getSupabaseGalleryBucket } from '@/lib/supabase/env';
 import { parseYouTubeUrl } from '@/lib/youtube';
 
 async function requireAdminUser() {
+  if (!galleryEnabled) throw new Error('The event gallery is closed.');
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -25,7 +28,6 @@ function revalidateGalleryPaths() {
   revalidatePath('/admin');
   revalidatePath('/admin/gallery');
   revalidatePath('/gallery');
-  revalidatePath('/');
   revalidatePath('/worlds-live');
   updateTag(GALLERY_ITEMS_CACHE_TAG);
 }

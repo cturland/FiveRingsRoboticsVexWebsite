@@ -1,3 +1,4 @@
+import { galleryEnabled } from '@/lib/galleryFeature';
 import type { Metadata, Viewport } from 'next';
 import { Manrope, Orbitron } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
@@ -37,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={`${manrope.variable} ${orbitron.variable}`}>
-        <Layout>{children}</Layout>
+        <Layout galleryEnabled={galleryEnabled}>{children}</Layout>
         <Analytics />
       </body>
     </html>

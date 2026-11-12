@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { getTeamFixtures, getTeamResults, getTeamSummary } from '@/app/actions';
-import LatestUpdatesPreview from '@/components/LatestUpdatesPreview';
-import { getGalleryItems } from '@/lib/gallery';
+import InstagramPosts from '@/components/InstagramPosts';
+import { getInstagramPosts, instagram } from '@/lib/instagram';
 
 function formatResultDate(value: string) {
   if (!value) {
@@ -69,12 +69,12 @@ function getAllianceStyles(color: string, isOpponent = false) {
 }
 
 export default async function Home() {
-  const [fixturesResult, resultsResult, summaryResult] = await Promise.all([
+  const [fixturesResult, resultsResult, summaryResult, instagramPosts] = await Promise.all([
     getTeamFixtures(),
     getTeamResults(),
     getTeamSummary(),
+    getInstagramPosts(),
   ]);
-  const allGalleryItems = await getGalleryItems();
 
   const fixtures = fixturesResult.success ? fixturesResult.data : [];
   const results = resultsResult.success ? resultsResult.data : [];
@@ -150,11 +150,6 @@ export default async function Home() {
         notes: resultsResult.error || 'API connection failed',
         isError: true,
       };
-
-  const galleryItems = allGalleryItems
-    .slice()
-    .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
-    .slice(0, 3);
 
   const teamStats = [
     {
@@ -385,20 +380,17 @@ export default async function Home() {
       </section>
 
       <section className="rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(10,18,31,0.92),rgba(11,23,38,0.96))] px-6 py-8 md:px-8 md:py-10">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className={'flex flex-col gap-4 md:flex-row md:items-end md:justify-between' + (instagramPosts.length ? ' mb-8' : '')}>
           <div>
-            <span className="eyebrow mb-4">Updates Preview</span>
             <h2 className="heading-display text-3xl font-black text-white">Latest updates</h2>
             <p className="mt-3 max-w-2xl text-[var(--color-muted)]">
-              Recent photos and videos from the live team feed, pulled directly from approved submissions.
+              Follow @{instagram.handle} for match highlights, robot builds, and team news.
             </p>
           </div>
-          <a href="/gallery" className="btn btn-primary">Open Updates</a>
+          <a href="/updates" className="btn btn-primary">Team Updates</a>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-3">
-          <LatestUpdatesPreview items={galleryItems} />
-        </div>
+        <InstagramPosts posts={instagramPosts.slice(0, 3)} />
       </section>
     </div>
   );

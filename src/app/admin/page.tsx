@@ -1,3 +1,4 @@
+import { galleryEnabled } from '@/lib/galleryFeature';
 import { redirect } from 'next/navigation';
 import AdminShell from '@/components/AdminShell';
 import Card from '@/components/Card';
@@ -54,7 +55,7 @@ export default async function AdminOverviewPage() {
   }
 
   const [submissions, profiles] = await Promise.all([
-    getPendingGallerySubmissions(),
+    galleryEnabled ? getPendingGallerySubmissions() : [],
     getAllTeamProfilesForAdmin(),
   ]);
 
@@ -65,15 +66,17 @@ export default async function AdminOverviewPage() {
     <AdminShell
       activeSection="overview"
       title="Admin Overview"
-      description="Manage gallery approvals and team profiles from one place."
+      description={galleryEnabled ? 'Manage team profiles and event gallery submissions.' : 'Manage team profiles and roster photos.'}
       userEmail={user.email}
     >
-      <div className="grid gap-5 md:grid-cols-3">
-        <Card>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Pending Uploads</p>
-          <p className="mt-3 text-4xl font-black text-white">{submissions.length}</p>
-          <p className="mt-2 text-sm text-[var(--color-muted)]">Waiting for gallery approval</p>
-        </Card>
+      <div className={'grid gap-5 ' + (galleryEnabled ? 'md:grid-cols-3' : 'md:grid-cols-2')}>
+        {galleryEnabled ? (
+          <Card>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Pending Uploads</p>
+            <p className="mt-3 text-4xl font-black text-white">{submissions.length}</p>
+            <p className="mt-2 text-sm text-[var(--color-muted)]">Waiting for gallery approval</p>
+          </Card>
+        ) : null}
         <Card>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-red-300">Current Members</p>
           <p className="mt-3 text-4xl font-black text-white">{currentMembers}</p>
@@ -86,16 +89,18 @@ export default async function AdminOverviewPage() {
         </Card>
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
-        <Card>
-          <h2 className="text-2xl font-black text-white">Gallery Moderation</h2>
-          <p className="mt-3 text-[var(--color-muted)]">
-            Review student photo and video submissions and approve the ones that should appear on Updates, the homepage, and the worlds display.
-          </p>
-          <a href="/admin/gallery" className="btn btn-primary mt-5 inline-flex">
-            Open Gallery Admin
-          </a>
-        </Card>
+      <div className={'mt-5 grid gap-5 ' + (galleryEnabled ? 'lg:grid-cols-2' : '')}>
+        {galleryEnabled ? (
+          <Card>
+            <h2 className="text-2xl font-black text-white">Gallery Moderation</h2>
+            <p className="mt-3 text-[var(--color-muted)]">
+              Review student photo and video submissions and approve the ones that should appear in the event gallery and on the Worlds Live display.
+            </p>
+            <a href="/admin/gallery" className="btn btn-primary mt-5 inline-flex">
+              Open Gallery Admin
+            </a>
+          </Card>
+        ) : null}
 
         <Card>
           <h2 className="text-2xl font-black text-white">Team Profiles</h2>

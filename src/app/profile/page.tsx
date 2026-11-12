@@ -1,3 +1,4 @@
+import { galleryEnabled } from '@/lib/galleryFeature';
 import { redirect } from 'next/navigation';
 import Card from '@/components/Card';
 import { getAdminAccess } from '@/lib/adminAccess';
@@ -40,5 +41,5 @@ export default async function ProfilePage() {
     getAdminAccess(user.email),
   ]);
 
-  return <ProfileForm userEmail={user.email} profile={profile} isAdmin={adminAccess.isAdmin} />;
+  return <ProfileForm userEmail={user.email} profile={profile} isAdmin={adminAccess.isAdmin} galleryEnabled={galleryEnabled} />;
 }

@@ -1,3 +1,4 @@
+import { galleryEnabled } from '@/lib/galleryFeature';
 import Image from 'next/image';
 import { getTeamFixtures, getTeamResults, getTeamSummary } from '@/app/actions';
 import WorldsPhotoRotator from '@/components/WorldsPhotoRotator';
@@ -72,12 +73,12 @@ function getAllianceStyles(color: string, isOpponent = false) {
 }
 
 export default async function WorldsLivePage() {
-  const [fixturesResult, resultsResult, summaryResult] = await Promise.all([
+  const [fixturesResult, resultsResult, summaryResult, allGalleryItems] = await Promise.all([
     getTeamFixtures(),
     getTeamResults(),
     getTeamSummary(),
+    galleryEnabled ? getGalleryItems() : [],
   ]);
-  const allGalleryItems = await getGalleryItems();
 
   const fixtures = (fixturesResult.success ? fixturesResult.data : []).slice(0, 1);
   const results = (resultsResult.success ? resultsResult.data : []).slice(0, 1);
@@ -130,7 +131,7 @@ export default async function WorldsLivePage() {
           </div>
         </header>
 
-        <div className="grid min-h-0 flex-1 gap-5 xl:grid-cols-[0.82fr_1.18fr]">
+        <div className={'grid min-h-0 flex-1 gap-5 ' + (galleryEnabled ? 'xl:grid-cols-[0.82fr_1.18fr]' : '')}>
           <section className="min-h-0 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] p-5">
             <div className="grid h-full min-h-0 gap-4 xl:grid-rows-[auto_1fr_auto_1.08fr]">
               <div>
@@ -256,7 +257,7 @@ export default async function WorldsLivePage() {
             </div>
           </section>
 
-          <WorldsPhotoRotator photos={photos} placeholder={placeholder} />
+          {galleryEnabled ? <WorldsPhotoRotator photos={photos} placeholder={placeholder} /> : null}
         </div>
       </div>
     </div>

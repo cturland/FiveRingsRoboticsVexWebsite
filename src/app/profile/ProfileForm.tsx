@@ -19,9 +19,10 @@ type ProfileFormProps = {
   userEmail: string;
   profile: TeamProfileRecord | null;
   isAdmin: boolean;
+  galleryEnabled: boolean;
 };
 
-export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileFormProps) {
+export default function ProfileForm({ userEmail, profile, isAdmin, galleryEnabled }: ProfileFormProps) {
   const [state, formAction] = useActionState(saveTeamProfile, initialState);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState('');
@@ -133,28 +134,11 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
             </div>
           ) : null}
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Link href="/upload" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
-              Upload a Highlight
-            </Link>
-            <Link href="/gallery" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
-              View Updates
-            </Link>
-            <Link href="/admin/gallery" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
-              {isAdmin ? 'Open Admin Review' : 'Admin Review Page'}
-            </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/updates" className="btn btn-secondary">Team Updates</Link>
+            {galleryEnabled ? <Link href="/upload" className="btn btn-secondary">Upload to Event Gallery</Link> : null}
+            {isAdmin ? <Link href="/admin" className="btn btn-secondary">Admin Hub</Link> : null}
           </div>
-
-          {isAdmin ? (
-            <div className="rounded-[1.2rem] border border-white/10 bg-black/20 px-4 py-3 text-sm leading-6 text-[var(--color-muted)]">
-              Admin shortcut:
-              {' '}
-              <Link href="/admin/team" className="font-bold text-white underline decoration-red-400/70 underline-offset-4">
-                manage all team profiles
-              </Link>
-              .
-            </div>
-          ) : null}
 
           <form action={formAction} className="space-y-6">
 

@@ -24,7 +24,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (user?.email) {
+    if (user?.email && !error) {
       redirect(redirectTo);
     }
   }
@@ -33,10 +33,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <section className="mx-auto max-w-3xl py-8">
       <Card className="space-y-6">
         <div>
-          <p className="eyebrow">Student Upload Access</p>
-          <h1 className="heading-display mt-4 text-4xl font-black text-white">Sign In To Upload</h1>
+          <p className="eyebrow">Team Members</p>
+          <h1 className="heading-display mt-4 text-4xl font-black text-white">Sign in to Five Rings</h1>
           <p className="mt-4 max-w-2xl text-lg text-[var(--color-muted)]">
-            Use your school email to request a magic link. Only approved student accounts listed in the upload access file can continue to the mobile upload area.
+            Use your approved school email to request a magic link and manage your team profile.
           </p>
         </div>
 
@@ -52,7 +52,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             {error === 'not_school_email'
               ? 'That account is not a school email address.'
               : error === 'not_allowed'
-                ? 'That school email is not on the approved uploader list yet.'
+                ? 'That school email is not on the approved member list yet.'
                 : 'Sign-in could not be completed.'}
           </div>
         ) : null}

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export default function Footer() {
+export default function Footer({ galleryEnabled }: { galleryEnabled: boolean }) {
   return (
     <footer className="mt-20 border-t border-white/10 bg-[rgba(5,10,20,0.92)]">
       <div className="container py-14">
@@ -24,8 +24,10 @@ export default function Footer() {
             <div className="grid gap-2 text-sm text-[var(--color-muted)]">
               <Link href="/">Home</Link>
               <Link href="/team">Team</Link>
-              <Link href="/gallery">Updates</Link>
+              <Link href="/updates">Updates</Link>
+              {galleryEnabled ? <Link href="/gallery">Event Gallery</Link> : null}
               <Link href="/fixtures">Competition</Link>
+              <Link href="/profile">Member Sign-in</Link>
             </div>
           </div>
 
