@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import { getEmailDomain } from '@/lib/emailDomain';
+import { loginCallbackPath, loginDestinationCookie } from '@/lib/loginRedirect';
 
 type LoginFormProps = {
   redirectTo: string;
@@ -53,7 +54,7 @@ export default function LoginForm({ redirectTo, allowedDomains, configured }: Lo
 
     if (!configured) {
       setStatus('error');
-      setMessage('Supabase is not configured yet. Add the environment variables first.');
+      setMessage('Member sign-in is not available yet.');
       return;
     }
 
@@ -63,8 +64,11 @@ export default function LoginForm({ redirectTo, allowedDomains, configured }: Lo
     const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
     const supabase = createSupabaseBrowserClient();
 
-    const callbackUrl = new URL('/auth/callback', window.location.origin);
-    callbackUrl.searchParams.set('next', redirectTo);
+    const callbackUrl = new URL(loginCallbackPath, window.location.origin);
+    const secure = callbackUrl.protocol === 'https:' ? '; Secure' : '';
+    // Keep the redirect URL identical to the one allowed by Supabase.
+    document.cookie = loginDestinationCookie + '=' + encodeURIComponent(redirectTo) +
+      '; Path=' + loginCallbackPath + '; Max-Age=3600; SameSite=Lax' + secure;
 
     const { error } = await supabase.auth.signInWithOtp({
       email: normalizedEmail,
