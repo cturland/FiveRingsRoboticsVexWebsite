@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { teamTables } from '@/lib/supabase/teamTables';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getEmailDomain } from './emailDomain';
 
@@ -13,7 +14,7 @@ export async function getUploadAccess(supabase: SupabaseClient, email: string | 
     return { isSchoolEmail: false, isAllowedUploader: false };
   }
 
-  const { data, error } = await supabase.rpc('has_team_site_access');
+  const { data, error } = await supabase.rpc(teamTables.accessCheck);
   if (error) console.error('Failed to check team site access:', error);
   return { isSchoolEmail: true, isAllowedUploader: data === true };
 }

@@ -6,7 +6,8 @@ import { galleryEnabled } from '@/lib/galleryFeature';
 import { getUploadAccess } from '@/lib/uploadAccess';
 import { createPendingGallerySubmission } from '@/lib/gallerySubmissions';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getSupabaseGalleryBucket, isSupabaseConfigured } from '@/lib/supabase/env';
+import { getSupabaseGalleryBucket } from '@/lib/supabase/env';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import { parseYouTubeUrl } from '@/lib/youtube';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -25,7 +26,7 @@ export async function submitUpload(
     return { status: 'error', message: 'The event gallery is closed.' };
   }
 
-  if (!isSupabaseConfigured()) {
+  if (!isRosterConfigured()) {
     return {
       status: 'error',
       message: 'Supabase is not configured yet. Add the auth environment variables before uploading.',

@@ -1,3 +1,4 @@
+import { teamTables } from '@/lib/supabase/teamTables';
 import { galleryEnabled } from '@/lib/galleryFeature';
 import { getSupabaseGalleryBucket, getSupabaseTeamProfileBucket, isSupabaseConfigured } from '@/lib/supabase/env';
 import { createSupabaseMediaClient } from '@/lib/supabase/media';
@@ -29,7 +30,7 @@ export async function GET(_request: Request, context: RouteContext<'/api/media/[
 
   const profile = kind === 'profile';
   const lookup = supabase
-    .from(profile ? 'team_profiles' : 'gallery_submissions')
+    .from(profile ? teamTables.profiles : teamTables.submissions)
     .select(profile ? 'photo_path' : 'image_path')
     .eq('id', recordId);
 

@@ -4,12 +4,12 @@ import AdminShell from '@/components/AdminShell';
 import Card from '@/components/Card';
 import { getAdminAccess } from '@/lib/adminAccess';
 import { getPendingGallerySubmissions } from '@/lib/galleryAdmin';
-import { isSupabaseConfigured } from '@/lib/supabase/env';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getAllTeamProfilesForAdmin } from '@/lib/teamProfiles';
 
 export default async function AdminOverviewPage() {
-  if (!isSupabaseConfigured()) {
+  if (!isRosterConfigured()) {
     return (
       <section className="mx-auto max-w-5xl py-8">
         <Card>
@@ -41,7 +41,7 @@ export default async function AdminOverviewPage() {
             <p className="eyebrow">Admin Hub</p>
             <h1 className="heading-display mt-4 text-4xl font-black text-white">Admin Access Required</h1>
             <p className="mt-4 text-lg text-[var(--color-muted)]">
-              This route is reserved for gallery admins. Add your email to the `gallery_admins` table in Supabase to use the admin tools here.
+              This page is reserved for team admins. Contact your team adviser if you need access.
             </p>
           </div>
 
@@ -54,8 +54,9 @@ export default async function AdminOverviewPage() {
     );
   }
 
+  const showGallery = galleryEnabled && access.canModerateGallery;
   const [submissions, profiles] = await Promise.all([
-    galleryEnabled ? getPendingGallerySubmissions() : [],
+    showGallery ? getPendingGallerySubmissions() : [],
     getAllTeamProfilesForAdmin(),
   ]);
 
@@ -66,11 +67,12 @@ export default async function AdminOverviewPage() {
     <AdminShell
       activeSection="overview"
       title="Admin Overview"
-      description={galleryEnabled ? 'Manage team profiles and event gallery submissions.' : 'Manage team profiles and roster photos.'}
+      description={showGallery ? 'Manage team profiles and event gallery submissions.' : 'Manage team profiles and roster photos.'}
       userEmail={user.email}
+      showGallery={showGallery}
     >
-      <div className={'grid gap-5 ' + (galleryEnabled ? 'md:grid-cols-3' : 'md:grid-cols-2')}>
-        {galleryEnabled ? (
+      <div className={'grid gap-5 ' + (showGallery ? 'md:grid-cols-3' : 'md:grid-cols-2')}>
+        {showGallery ? (
           <Card>
             <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-300">Pending Uploads</p>
             <p className="mt-3 text-4xl font-black text-white">{submissions.length}</p>
@@ -89,8 +91,8 @@ export default async function AdminOverviewPage() {
         </Card>
       </div>
 
-      <div className={'mt-5 grid gap-5 ' + (galleryEnabled ? 'lg:grid-cols-2' : '')}>
-        {galleryEnabled ? (
+      <div className={'mt-5 grid gap-5 ' + (showGallery ? 'lg:grid-cols-2' : '')}>
+        {showGallery ? (
           <Card>
             <h2 className="text-2xl font-black text-white">Gallery Moderation</h2>
             <p className="mt-3 text-[var(--color-muted)]">

@@ -6,7 +6,7 @@ import Card from '@/components/Card';
 import { getAdminAccess } from '@/lib/adminAccess';
 import { getAllGallerySubmissionsForAdmin } from '@/lib/galleryAdmin';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { isSupabaseConfigured } from '@/lib/supabase/env';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import { deleteGallerySubmissionAsAdmin, setGallerySubmissionStatus, updateGallerySubmissionAsAdmin } from './actions';
 
 function formatDate(value: string) {
@@ -52,7 +52,7 @@ function getStatusClasses(status: string) {
 export default async function AdminGalleryPage() {
   if (!galleryEnabled) redirect('/admin');
 
-  if (!isSupabaseConfigured()) {
+  if (!isRosterConfigured()) {
     return (
       <section className="mx-auto max-w-5xl py-8">
         <Card>
@@ -76,7 +76,7 @@ export default async function AdminGalleryPage() {
 
   const access = await getAdminAccess(user.email);
 
-  if (!access.isAdmin) {
+  if (!access.canModerateGallery) {
     return (
       <section className="mx-auto max-w-4xl py-8">
         <Card className="space-y-5">
@@ -84,7 +84,7 @@ export default async function AdminGalleryPage() {
             <p className="eyebrow">Gallery Admin</p>
             <h1 className="heading-display mt-4 text-4xl font-black text-white">Admin Access Required</h1>
             <p className="mt-4 text-lg text-[var(--color-muted)]">
-              This route is reserved for gallery admins. Add your email to the `gallery_admins` table in Supabase to review pending submissions here.
+              This page is reserved for gallery moderators. Contact your team adviser if you need access.
             </p>
           </div>
 
@@ -108,6 +108,7 @@ export default async function AdminGalleryPage() {
       title="Event Gallery Moderation"
       description="Edit, approve, reject, and delete student photo and video updates before or after they appear publicly."
       userEmail={user.email}
+      showGallery
     >
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="space-y-2">

@@ -4,14 +4,14 @@ import AdminShell from '@/components/AdminShell';
 import Card from '@/components/Card';
 import OptimizedPhotoInput from '@/components/OptimizedPhotoInput';
 import { getAdminAccess } from '@/lib/adminAccess';
-import { isSupabaseConfigured } from '@/lib/supabase/env';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { TEAM_PROFILE_ROLE_OPTIONS } from '@/lib/teamProfileConstants';
 import { getAllTeamProfilesForAdmin } from '@/lib/teamProfiles';
 import { deleteTeamProfileAsAdmin, updateTeamProfileAsAdmin } from './actions';
 
 export default async function AdminTeamPage() {
-  if (!isSupabaseConfigured()) {
+  if (!isRosterConfigured()) {
     return (
       <section className="mx-auto max-w-5xl py-8">
         <Card>
@@ -43,7 +43,7 @@ export default async function AdminTeamPage() {
             <p className="eyebrow">Team Admin</p>
             <h1 className="heading-display mt-4 text-4xl font-black text-white">Admin Access Required</h1>
             <p className="mt-4 text-lg text-[var(--color-muted)]">
-              This route is reserved for gallery admins. Add your email to the `gallery_admins` table in Supabase to manage team profiles here.
+              This page is reserved for roster admins. Contact your team adviser if you need access.
             </p>
           </div>
 
@@ -64,6 +64,7 @@ export default async function AdminTeamPage() {
       title="Manage Team Profiles"
       description="Edit member bios, replace photos, move alumni into the Hall of Fame, or remove profiles that should no longer appear on the site."
       userEmail={user.email}
+      showGallery={access.canModerateGallery}
     >
       {profiles.length === 0 ? (
         <Card>

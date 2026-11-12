@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { teamTables } from '@/lib/supabase/teamTables';
 import { supabaseCacheScope } from '@/lib/supabase/env';
 
 import { unstable_cache } from 'next/cache';
@@ -21,7 +22,7 @@ async function loadGalleryItems(): Promise<PublicGalleryItem[]> {
 
 
   const { data, error } = await supabase
-    .from('published_gallery_submissions')
+    .from(teamTables.publicSubmissions)
     .select('id, media_type, youtube_url, youtube_video_id, title, category, date')
     .order('date', { ascending: false })
     .order('created_at', { ascending: false });

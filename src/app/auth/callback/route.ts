@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSafeLoginRedirect } from '@/lib/loginRedirect';
 import { getUploadAccess } from '@/lib/uploadAccess';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { isSupabaseConfigured } from '@/lib/supabase/env';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const next = requestUrl.searchParams.get('next');
   const safeNext = getSafeLoginRedirect(next);
 
-  if (!isSupabaseConfigured()) {
+  if (!isRosterConfigured()) {
     return NextResponse.redirect(new URL('/login?error=not_configured', request.url));
   }
 

@@ -1,14 +1,17 @@
 'use server';
 
+import { teamTables } from '@/lib/supabase/teamTables';
 import { revalidatePath, updateTag } from 'next/cache';
 import { getAdminAccess } from '@/lib/adminAccess';
 import { galleryEnabled } from '@/lib/galleryFeature';
 import { GALLERY_ITEMS_CACHE_TAG } from '@/lib/gallery';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import { getSupabaseGalleryBucket } from '@/lib/supabase/env';
 import { parseYouTubeUrl } from '@/lib/youtube';
 
 async function requireAdminUser() {
+  if (!isRosterConfigured()) throw new Error('Member sign-in is not available.');
   if (!galleryEnabled) throw new Error('The event gallery is closed.');
 
   const supabase = await createSupabaseServerClient();
@@ -17,7 +20,7 @@ async function requireAdminUser() {
   } = await supabase.auth.getUser();
   const access = await getAdminAccess(user?.email);
 
-  if (!user?.email || !access.isAdmin) {
+  if (!user?.email || !access.canModerateGallery) {
     throw new Error('Only gallery admins can manage submissions.');
   }
 
@@ -46,7 +49,7 @@ export async function setGallerySubmissionStatus(formData: FormData) {
 
   const { supabase } = await requireAdminUser();
   const { error } = await supabase
-    .from('gallery_submissions')
+    .from(teamTables.submissions)
     .update({ status: requestedStatus })
     .eq('id', submissionId);
 
@@ -102,7 +105,7 @@ export async function updateGallerySubmissionAsAdmin(formData: FormData) {
   }
 
   const { error } = await supabase
-    .from('gallery_submissions')
+    .from(teamTables.submissions)
     .update(payload)
     .eq('id', submissionId);
 
@@ -122,7 +125,7 @@ export async function deleteGallerySubmissionAsAdmin(formData: FormData) {
 
   const { supabase } = await requireAdminUser();
   const { data, error } = await supabase
-    .from('gallery_submissions')
+    .from(teamTables.submissions)
     .delete()
     .eq('id', submissionId)
     .select('image_path')

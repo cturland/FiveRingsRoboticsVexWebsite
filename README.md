@@ -35,7 +35,11 @@ npm run lint
 
 The same app can be deployed to a separate Vercel project for each team. The default is Five Rings Robotics. Set `NEXT_PUBLIC_TEAM_SITE=cool-runnings` in the Cool Runnings project for team 21052B. Each project uses its own server-side `INSTAGRAM_ACCESS_TOKEN`, with the same variable name in both projects.
 
-For Cool Runnings member profiles, use a dedicated Supabase project and set `NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_URL` and `NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_ANON_KEY`. The app ignores the Five Rings Supabase variables in this mode. Set `SUPABASE_SECRET_KEY` to the secret key for the same Cool Runnings project. Apply the fresh-project migrations, add the team's approved members and admins in Supabase, and allow the Cool Runnings `/auth/callback` URL in Supabase Auth. Configure `ROBOTEVENTS_API_TOKEN` in the new Vercel project for live competition data.
+Cool Runnings uses the same Supabase project as Five Rings. Set `NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_URL` and `NEXT_PUBLIC_COOL_RUNNINGS_SUPABASE_ANON_KEY` to that project's public credentials in the Cool Runnings deployment. Both sites use the same `reaction_time_scores` table and score submission function.
+
+Cool Runnings roster access lives in `public.cr_roster_admins` and `private.cr_team_members`. The team has its own profiles, gallery submissions, and private Storage buckets in the shared project. Add roster admins without gallery moderation unless that access is needed. Add approved member addresses privately through the Supabase dashboard.
+
+To enable Cool Runnings sign-in, add its `/auth/callback` URL to the shared project's Auth redirect allowlist, set a server-only `SUPABASE_SECRET_KEY` for that project in the Cool Runnings deployment, and set `COOL_RUNNINGS_ROSTER_ENABLED=true` before redeploying. Configure `ROBOTEVENTS_API_TOKEN` for live competition data.
 
 ## Environment variables
 

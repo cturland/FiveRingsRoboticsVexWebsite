@@ -9,6 +9,7 @@ type AdminShellProps = {
   userEmail: string;
   activeSection: AdminSection;
   children: React.ReactNode;
+  showGallery: boolean;
 };
 
 const links = [
@@ -17,7 +18,7 @@ const links = [
   { href: '/admin/team', label: 'Team', key: 'team' },
 ] as const;
 
-export default function AdminShell({ title, description, userEmail, activeSection, children }: AdminShellProps) {
+export default function AdminShell({ title, description, userEmail, activeSection, children, showGallery }: AdminShellProps) {
   return (
     <section className="mx-auto max-w-6xl py-8">
       <div className="mb-6 rounded-[1.7rem] border border-white/10 bg-[linear-gradient(180deg,rgba(18,34,56,0.96),rgba(11,20,33,0.96))] p-6 md:p-7">
@@ -35,7 +36,7 @@ export default function AdminShell({ title, description, userEmail, activeSectio
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          {links.filter(link => galleryEnabled || link.key !== 'gallery').map((link) => (
+          {links.filter(link => (galleryEnabled && showGallery) || link.key !== 'gallery').map((link) => (
             <Link
               key={link.href}
               href={link.href}

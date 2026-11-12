@@ -2,14 +2,14 @@ import { galleryEnabled } from '@/lib/galleryFeature';
 import { redirect } from 'next/navigation';
 import Card from '@/components/Card';
 import { getAdminAccess } from '@/lib/adminAccess';
-import { isSupabaseConfigured } from '@/lib/supabase/env';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getTeamProfileByEmail } from '@/lib/teamProfiles';
 import { getUploadAccess } from '@/lib/uploadAccess';
 import ProfileForm from './ProfileForm';
 
 export default async function ProfilePage() {
-  if (!isSupabaseConfigured()) {
+  if (!isRosterConfigured()) {
     return (
       <section className="mx-auto max-w-3xl py-8">
         <Card>

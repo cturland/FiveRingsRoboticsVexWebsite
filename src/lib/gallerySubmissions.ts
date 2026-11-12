@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { teamTables } from '@/lib/supabase/teamTables';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type GallerySubmissionInsert = {
@@ -18,7 +19,7 @@ export async function createPendingGallerySubmission(
   submission: GallerySubmissionInsert,
 ) {
   return supabase
-    .from('gallery_submissions')
+    .from(teamTables.submissions)
     .insert({
       ...submission,
       status: 'pending',

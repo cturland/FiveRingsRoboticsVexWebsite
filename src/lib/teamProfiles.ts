@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { teamTables } from '@/lib/supabase/teamTables';
 import { supabaseCacheScope } from '@/lib/supabase/env';
 
 import { unstable_cache } from 'next/cache';
@@ -33,7 +34,7 @@ export async function getTeamProfileByEmail(email: string | null | undefined): P
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
-    .from('team_profiles')
+    .from(teamTables.profiles)
     .select('id, email, name, photo_path, roles, bio, is_current_member, created_at, updated_at')
     .eq('email', normalizedEmail)
     .maybeSingle();
@@ -68,7 +69,7 @@ async function loadPublicTeamProfiles(): Promise<PublicTeamProfile[]> {
   }
 
   const { data, error } = await supabase
-    .from('published_team_profiles')
+    .from(teamTables.publicProfiles)
     .select('id, name, has_photo, roles, bio, is_current_member')
     .order('id');
 
@@ -95,7 +96,7 @@ export const getPublicTeamProfiles = unstable_cache(loadPublicTeamProfiles, ['pu
 export async function getAllTeamProfilesForAdmin(): Promise<TeamProfileRecord[]> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
-    .from('team_profiles')
+    .from(teamTables.profiles)
     .select('id, email, name, photo_path, roles, bio, is_current_member, created_at, updated_at')
     .order('is_current_member', { ascending: false })
     .order('updated_at', { ascending: false });

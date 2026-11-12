@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Card from '@/components/Card';
 import { getAllowedDomains } from '@/lib/uploadAccess';
 import { getSafeLoginRedirect } from '@/lib/loginRedirect';
-import { isSupabaseConfigured } from '@/lib/supabase/env';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import LoginForm from './LoginForm';
 
@@ -15,7 +15,7 @@ type LoginPageProps = {
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const configured = isSupabaseConfigured();
+  const configured = isRosterConfigured();
   const { next, error } = await searchParams;
   const redirectTo = getSafeLoginRedirect(next);
 

@@ -1,9 +1,10 @@
 'use server';
 
+import { teamTables } from '@/lib/supabase/teamTables';
 import { revalidatePath, updateTag } from 'next/cache';
 import { getAdminAccess } from '@/lib/adminAccess';
 import { PUBLIC_TEAM_PROFILES_CACHE_TAG } from '@/lib/teamProfiles';
-import { isSupabaseConfigured } from '@/lib/supabase/env';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { buildTeamProfilePayload, deleteTeamProfilePhoto, parseTeamProfileFormData, uploadTeamProfilePhoto } from '@/lib/teamProfileMutations';
 import { getUploadAccess } from '@/lib/uploadAccess';
@@ -17,7 +18,7 @@ export async function saveTeamProfile(
   _prevState: TeamProfileFormState,
   formData: FormData,
 ): Promise<TeamProfileFormState> {
-  if (!isSupabaseConfigured()) {
+  if (!isRosterConfigured()) {
     return {
       status: 'error',
       message: 'Supabase is not configured yet. Add the auth environment variables before saving a profile.',
@@ -44,7 +45,7 @@ export async function saveTeamProfile(
     };
   }
   const { data: existing, error: lookupError } = await supabase
-    .from('team_profiles')
+    .from(teamTables.profiles)
     .select('id, photo_path')
     .eq('email', user.email.toLowerCase())
     .maybeSingle();
@@ -73,7 +74,7 @@ export async function saveTeamProfile(
 
   const payload = buildTeamProfilePayload(parsed.values, uploaded.photoPath);
 
-  const profiles = supabase.from('team_profiles');
+  const profiles = supabase.from(teamTables.profiles);
   const save = existing ? profiles.update(payload).eq('id', existing.id) : profiles.insert(payload);
   if (existing) {
     if (oldPhoto) save.eq('photo_path', oldPhoto);

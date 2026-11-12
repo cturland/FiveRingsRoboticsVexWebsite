@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { teamTables } from '@/lib/supabase/teamTables';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export type AdminGallerySubmission = {
@@ -57,7 +58,7 @@ export async function getPendingGallerySubmissions(): Promise<AdminGallerySubmis
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
-    .from('gallery_submissions')
+    .from(teamTables.submissions)
     .select('id, email, media_type, image_path, youtube_url, youtube_video_id, title, category, date, status, created_at')
     .eq('status', 'pending')
     .order('created_at', { ascending: false });
@@ -74,7 +75,7 @@ export async function getAllGallerySubmissionsForAdmin(): Promise<AdminGallerySu
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
-    .from('gallery_submissions')
+    .from(teamTables.submissions)
     .select('id, email, media_type, image_path, youtube_url, youtube_video_id, title, category, date, status, created_at')
     .order('date', { ascending: false })
     .order('created_at', { ascending: false });

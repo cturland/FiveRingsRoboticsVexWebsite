@@ -1,12 +1,15 @@
 'use server';
 
+import { teamTables } from '@/lib/supabase/teamTables';
 import { revalidatePath, updateTag } from 'next/cache';
 import { getAdminAccess } from '@/lib/adminAccess';
 import { PUBLIC_TEAM_PROFILES_CACHE_TAG } from '@/lib/teamProfiles';
 import { buildTeamProfilePayload, deleteTeamProfilePhoto, parseTeamProfileFormData, uploadTeamProfilePhoto } from '@/lib/teamProfileMutations';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 
 async function requireAdminUser() {
+  if (!isRosterConfigured()) throw new Error('Member sign-in is not available.');
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -29,7 +32,7 @@ export async function updateTeamProfileAsAdmin(formData: FormData) {
 
   const { supabase, user } = await requireAdminUser();
   const { data: existing, error: lookupError } = await supabase
-    .from('team_profiles')
+    .from(teamTables.profiles)
     .select('id, photo_path')
     .eq('email', targetEmail)
     .single();
@@ -50,7 +53,7 @@ export async function updateTeamProfileAsAdmin(formData: FormData) {
 
   const payload = buildTeamProfilePayload(parsed.values, uploaded.photoPath);
 
-  const save = supabase.from('team_profiles').update(payload).eq('id', existing.id);
+  const save = supabase.from(teamTables.profiles).update(payload).eq('id', existing.id);
   if (oldPhoto) save.eq('photo_path', oldPhoto);
   else save.is('photo_path', null);
   const { error } = await save.select('id').single();
@@ -76,7 +79,7 @@ export async function deleteTeamProfileAsAdmin(formData: FormData) {
   const { supabase } = await requireAdminUser();
 
   const { data, error } = await supabase
-    .from('team_profiles')
+    .from(teamTables.profiles)
     .delete()
     .eq('email', targetEmail)
     .select('photo_path')

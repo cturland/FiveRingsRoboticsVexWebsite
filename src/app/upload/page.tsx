@@ -3,13 +3,13 @@ import { redirect } from 'next/navigation';
 import Card from '@/components/Card';
 import { getUploadAccess } from '@/lib/uploadAccess';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { isSupabaseConfigured } from '@/lib/supabase/env';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import UploadForm from './UploadForm';
 
 export default async function UploadPage() {
   if (!galleryEnabled) redirect('/profile');
 
-  if (!isSupabaseConfigured()) {
+  if (!isRosterConfigured()) {
     return (
       <section className="mx-auto max-w-3xl py-8">
         <Card>
