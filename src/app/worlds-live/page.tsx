@@ -97,7 +97,7 @@ export default async function WorldsLivePage() {
         <header className="rounded-[1.75rem] border border-white/10 bg-[rgba(255,255,255,0.04)] px-6 py-5">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="flex items-center gap-5 xl:gap-6">
-              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[1.35rem] border border-white/10 bg-white/5 p-3 xl:h-28 xl:w-28">
+              <div className={'flex h-24 w-24 shrink-0 items-center justify-center rounded-[1.35rem] border border-white/10 p-3 xl:h-28 xl:w-28 ' + teamSite.logoBackground}>
                 <Image
                   src={teamSite.displayLogo}
                   alt={teamSite.name + ' logo'}
