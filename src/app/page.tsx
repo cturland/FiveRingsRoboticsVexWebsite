@@ -1,7 +1,12 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import { getTeamFixtures, getTeamResults, getTeamSummary } from '@/app/actions';
 import LatestUpdatesPreview from '@/components/LatestUpdatesPreview';
 import { getGalleryItems } from '@/lib/gallery';
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
 
 function formatResultDate(value: string) {
   if (!value) {
@@ -200,8 +205,8 @@ export default async function Home() {
               <span className="mt-2 block text-red-500">Robotics</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-[var(--color-muted)] md:text-lg">
-              Representing the International School of Lausanne with a student-led focus on engineering quality,
-              match discipline, and season-long improvement.
+              Five Rings Robotics (21052A) is a student-led VEX V5 Robotics Competition team at the
+              International School of Lausanne.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">

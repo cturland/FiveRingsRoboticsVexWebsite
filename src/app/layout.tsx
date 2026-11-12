@@ -3,6 +3,7 @@ import { Manrope, Orbitron } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import Layout from '@/components/Layout';
+import { SITE_URL } from '@/lib/site';
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -15,8 +16,9 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'Five Rings Robotics | Team 21052A',
-  description: 'Official Five Rings Robotics website for Team 21052A.',
+  description: 'Five Rings Robotics is VEX V5 Robotics Competition team 21052A at the International School of Lausanne. Explore the team’s competition schedule and results.',
   manifest: '/site.webmanifest',
   icons: {
     icon: [
