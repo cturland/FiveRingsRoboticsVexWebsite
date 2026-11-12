@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSafeLoginRedirect } from '@/lib/loginRedirect';
+import { getSafeLoginRedirect, loginCallbackPath, loginDestinationCookie } from '@/lib/loginRedirect';
 import { getUploadAccess } from '@/lib/uploadAccess';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
@@ -7,7 +7,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/env';
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
-  const next = requestUrl.searchParams.get('next');
+  const next = requestUrl.searchParams.get('next') ?? request.cookies.get(loginDestinationCookie)?.value;
   const safeNext = getSafeLoginRedirect(next);
 
   if (!isSupabaseConfigured()) {
@@ -40,5 +40,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=not_allowed', request.url));
   }
 
-  return NextResponse.redirect(new URL(safeNext, request.url));
+  const response = NextResponse.redirect(new URL(safeNext, request.url));
+  response.cookies.set(loginDestinationCookie, '', { path: loginCallbackPath, maxAge: 0 });
+  return response;
 }

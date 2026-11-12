@@ -1,126 +1,60 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
-import { getEmailDomain } from '@/lib/emailDomain';
+import Image from 'next/image';
+import { useState } from 'react';
+import { loginCallbackPath, loginDestinationCookie } from '@/lib/loginRedirect';
 
 type LoginFormProps = {
   redirectTo: string;
-  allowedDomains: string[];
-  configured: boolean;
 };
 
-const RESEND_COOLDOWN_SECONDS = 60;
-
-export default function LoginForm({ redirectTo, allowedDomains, configured }: LoginFormProps) {
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+export default function LoginForm({ redirectTo }: LoginFormProps) {
+  const [pending, setPending] = useState(false);
   const [message, setMessage] = useState('');
-  const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
-  useEffect(() => {
-    if (cooldownSeconds <= 0) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      setCooldownSeconds((current) => Math.max(current - 1, 0));
-    }, 1000);
-
-    return () => window.clearTimeout(timer);
-  }, [cooldownSeconds]);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (status === 'submitting' || cooldownSeconds > 0) {
-      return;
-    }
-
-    const normalizedEmail = email.trim().toLowerCase();
-    const domain = getEmailDomain(normalizedEmail);
-
-    if (!normalizedEmail) {
-      setStatus('error');
-      setMessage('Enter your school email to continue.');
-      return;
-    }
-
-    if (!allowedDomains.includes(domain)) {
-      setStatus('error');
-      setMessage(`Only ${allowedDomains.map((item) => `@${item}`).join(', ')} addresses can sign in.`);
-      return;
-    }
-
-    if (!configured) {
-      setStatus('error');
-      setMessage('Supabase is not configured yet. Add the environment variables first.');
-      return;
-    }
-
-    setStatus('submitting');
+  async function signIn() {
+    if (pending) return;
+    setPending(true);
     setMessage('');
 
-    const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
-    const supabase = createSupabaseBrowserClient();
+    const callbackUrl = new URL(loginCallbackPath, window.location.origin);
+    const secure = callbackUrl.protocol === 'https:' ? '; Secure' : '';
+    // Supabase's allowed redirect URL is the callback path without a query string.
+    document.cookie = loginDestinationCookie + '=' + encodeURIComponent(redirectTo) +
+      '; Path=' + loginCallbackPath + '; Max-Age=3600; SameSite=Lax' + secure;
 
-    const callbackUrl = new URL('/auth/callback', window.location.origin);
-    callbackUrl.searchParams.set('next', redirectTo);
+    try {
+      const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
+      const { error } = await createSupabaseBrowserClient().auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: callbackUrl.toString(),
+          queryParams: { prompt: 'select_account' },
+        },
+      });
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: normalizedEmail,
-      options: {
-        emailRedirectTo: callbackUrl.toString(),
-      },
-    });
-
-    if (error) {
-      setStatus('error');
-      setMessage(error.message);
-      return;
+      if (!error) return;
+    } catch {
+      // A network error is safe to retry.
     }
 
-    setStatus('success');
-    setCooldownSeconds(RESEND_COOLDOWN_SECONDS);
+    setPending(false);
+    setMessage('Google sign-in could not start. Please try again.');
   }
 
-  const feedback = status === 'success'
-    ? (cooldownSeconds > 0 ? 'Check your email. You can request another link in ' + cooldownSeconds + ' seconds.' : 'Check your email. You can request another link now.')
-    : message;
-
-  const isDisabled = status === 'submitting' || cooldownSeconds > 0 || !configured;
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="email" className="mb-2 block text-sm font-bold uppercase tracking-[0.18em] text-[var(--color-muted)]">
-          School Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="name@isl.ch"
-          className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base text-white outline-none transition focus:border-[var(--color-primary-accent)]"
-          autoComplete="email"
-          inputMode="email"
-          required
-        />
-      </div>
-
-      <button type="submit" className="btn btn-primary w-full sm:w-auto disabled:cursor-not-allowed disabled:opacity-70" disabled={isDisabled}>
-        {status === 'submitting'
-          ? 'Sending Link...'
-          : cooldownSeconds > 0
-            ? `Try Again In ${cooldownSeconds}s`
-            : 'Send Magic Link'}
+    <div className="space-y-3">
+      <button
+        type="button"
+        aria-label="Sign in with Google"
+        aria-busy={pending}
+        disabled={pending}
+        onClick={signIn}
+        className="inline-flex rounded-md outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white disabled:opacity-60"
+      >
+        <Image src="/images/google-sign-in.png" alt="" width={177} height={40} unoptimized />
       </button>
-
-      {feedback ? (
-        <p className={`text-sm ${status === 'error' ? 'text-red-300' : 'text-[var(--color-muted)]'}`}>
-          {feedback}
-        </p>
-      ) : null}
-    </form>
+      {message ? <p className="text-sm text-red-300" role="alert">{message}</p> : null}
+    </div>
   );
 }

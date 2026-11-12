@@ -1,5 +1,8 @@
+export const loginDestinationCookie = 'team_login_next';
+export const loginCallbackPath = '/auth/callback';
+
 export function getSafeLoginRedirect(value: unknown) {
-  if (typeof value !== 'string' || !value.startsWith('/')) return '/upload';
+  if (typeof value !== 'string' || value.length > 1024 || !value.startsWith('/')) return '/upload';
 
   try {
     const base = 'https://team-site.invalid';
