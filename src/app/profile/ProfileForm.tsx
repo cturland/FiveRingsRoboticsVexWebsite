@@ -19,9 +19,10 @@ type ProfileFormProps = {
   userEmail: string;
   profile: TeamProfileRecord | null;
   isAdmin: boolean;
+  canUpload: boolean;
 };
 
-export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileFormProps) {
+export default function ProfileForm({ userEmail, profile, isAdmin, canUpload }: ProfileFormProps) {
   const [state, formAction] = useActionState(saveTeamProfile, initialState);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState('');
@@ -96,7 +97,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
     }
   }
 
-  const displayPhoto = previewUrl || existingPhoto;
+  const displayPhoto = previewUrl || existingPhoto || '/images/FRRLogoBasic.png';
 
   return (
     <div className="mx-auto max-w-4xl py-6 sm:py-8">
@@ -115,7 +116,9 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
             </div>
             <div className="rounded-[1.3rem] border border-white/10 bg-black/20 px-4 py-4">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-red-300">Profile Status</p>
-              <p className="mt-2 text-sm font-bold text-white sm:text-base">{profile ? 'Existing profile found' : 'No profile saved yet'}</p>
+              <p className="mt-2 text-sm font-bold text-white sm:text-base">
+                {profile ? (profile.isApproved ? 'Published' : 'Awaiting approval') : 'No profile saved yet'}
+              </p>
             </div>
           </div>
         </div>
@@ -134,15 +137,19 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
           ) : null}
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <Link href="/upload" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
-              Upload a Highlight
-            </Link>
+            {canUpload ? (
+              <Link href="/upload" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
+                Upload a Highlight
+              </Link>
+            ) : null}
             <Link href="/gallery" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
               View Updates
             </Link>
-            <Link href="/admin/gallery" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
-              {isAdmin ? 'Open Admin Review' : 'Admin Review Page'}
-            </Link>
+            {isAdmin ? (
+              <Link href="/admin/gallery" className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
+                Open Admin Review
+              </Link>
+            ) : null}
           </div>
 
           {isAdmin ? (
@@ -174,7 +181,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
                 </label>
 
                 <label className="block">
-                  <span className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">Profile Photo</span>
+                  <span className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">Profile Photo (optional)</span>
                   <div className="rounded-[1.4rem] border border-dashed border-white/15 bg-white/5 p-3">
                     <input
                       type="file"
@@ -184,7 +191,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
                       className="block w-full text-sm text-[var(--color-muted)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-primary)] file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-[0.16em] file:text-white"
                     />
                     <p className="mt-3 text-xs leading-5 text-[var(--color-muted)]">
-                      Upload a headshot or team photo. Photos are resized before upload.
+                      Optional: upload a photo, or use the team logo. Photos are resized before upload.
                     </p>
                     {selectedFileName ? (
                       <p className="mt-2 text-xs font-semibold text-white/90">{selectedFileName}</p>
@@ -203,7 +210,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
                         alt="Member profile preview"
                         fill
                         sizes="(min-width: 1024px) 30vw, 100vw"
-                        className="object-cover"
+                        className={previewUrl || existingPhoto ? "object-cover" : "object-contain p-6"}
                         unoptimized={displayPhoto.startsWith('data:') || displayPhoto.startsWith('/api/media/')}
                       />
                     </div>
@@ -270,7 +277,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin }: ProfileForm
                 </label>
 
                 <div className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-[var(--color-muted)]">
-                  Your profile saves to Supabase so the public team page can eventually show current members first and alumni in a separate Hall of Fame section.
+                  New profiles and member edits appear on the public team page after an admin approves them.
                 </div>
               </div>
             </div>

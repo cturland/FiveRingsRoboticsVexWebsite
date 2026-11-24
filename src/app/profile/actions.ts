@@ -1,12 +1,11 @@
 'use server';
 
 import { revalidatePath, updateTag } from 'next/cache';
-import { getAdminAccess } from '@/lib/adminAccess';
 import { PUBLIC_TEAM_PROFILES_CACHE_TAG } from '@/lib/teamProfiles';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { buildTeamProfilePayload, deleteTeamProfilePhoto, parseTeamProfileFormData, uploadTeamProfilePhoto } from '@/lib/teamProfileMutations';
-import { getUploadAccess } from '@/lib/uploadAccess';
+import { getUploadAccess, isStudentEmail } from '@/lib/uploadAccess';
 
 export type TeamProfileFormState = {
   status: 'idle' | 'success' | 'error';
@@ -37,7 +36,7 @@ export async function saveTeamProfile(
   }
 
   const access = await getUploadAccess(supabase, user.email);
-  if (!access.isSchoolEmail || !access.isAllowedUploader) {
+  if (!access.isAllowedUploader && !isStudentEmail(user.email)) {
     return {
       status: 'error',
       message: 'This account is not allowed to edit member profiles. Sign in with an approved school email.',
@@ -45,7 +44,7 @@ export async function saveTeamProfile(
   }
   const { data: existing, error: lookupError } = await supabase
     .from('team_profiles')
-    .select('id, photo_path')
+    .select('id, photo_path, updated_at')
     .eq('email', user.email.toLowerCase())
     .maybeSingle();
   if (lookupError) {
@@ -75,13 +74,11 @@ export async function saveTeamProfile(
 
   const profiles = supabase.from('team_profiles');
   const save = existing ? profiles.update(payload).eq('id', existing.id) : profiles.insert(payload);
-  if (existing) {
-    if (oldPhoto) save.eq('photo_path', oldPhoto);
-    else save.is('photo_path', null);
-  }
-  const { error } = await save.select('id').single();
+  if (existing) save.eq('updated_at', existing.updated_at);
+  const { data: saved, error } = await save.select('is_approved').single();
 
   if (error) {
+    if (oldPhoto !== uploaded.photoPath) await deleteTeamProfilePhoto(supabase, uploaded.photoPath);
     console.error('Failed to save team profile:', error);
     return {
       status: 'error',
@@ -96,12 +93,8 @@ export async function saveTeamProfile(
   revalidatePath('/team');
   updateTag(PUBLIC_TEAM_PROFILES_CACHE_TAG);
 
-  const adminAccess = await getAdminAccess(user.email);
-
   return {
     status: 'success',
-    message: adminAccess.isAdmin
-      ? 'Your team profile has been updated. Admin controls for editing other profiles can be added next.'
-      : 'Your team profile has been saved successfully.',
+    message: saved.is_approved ? 'Your team profile has been updated.' : 'Your team profile is awaiting admin approval.',
   };
 }

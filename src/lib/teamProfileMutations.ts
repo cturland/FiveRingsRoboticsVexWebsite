@@ -13,7 +13,7 @@ const MAX_BIO_WORDS = 100;
 export type TeamProfilePayload = {
   email: string;
   name: string;
-  photo_path: string;
+  photo_path: string | null;
   roles: TeamProfileRole[];
   bio: string;
   is_current_member: boolean;
@@ -90,13 +90,6 @@ export function parseTeamProfileFormData(formData: FormData, email: string, curr
     };
   }
 
-  if (!currentPhotoPath && !photo) {
-    return {
-      ok: false,
-      message: 'Please upload a profile photo before saving the profile.',
-    };
-  }
-
   if (photo) {
     if (!photo.type.startsWith('image/')) {
       return {
@@ -131,17 +124,8 @@ export async function uploadTeamProfilePhoto(
   supabase: SupabaseClient,
   values: TeamProfileFormValues,
   userId: string,
-): Promise<{ ok: true; photoPath: string } | { ok: false; message: string }> {
-  if (!values.photo) {
-    if (values.currentPhotoPath) {
-      return { ok: true, photoPath: values.currentPhotoPath };
-    }
-
-    return {
-      ok: false,
-      message: 'Please upload a profile photo before saving the profile.',
-    };
-  }
+): Promise<{ ok: true; photoPath: string | null } | { ok: false; message: string }> {
+  if (!values.photo) return { ok: true, photoPath: values.currentPhotoPath };
 
   const bucket = getSupabaseTeamProfileBucket();
   const extension = getSafeExtension(values.photo);
@@ -167,7 +151,7 @@ export async function uploadTeamProfilePhoto(
   };
 }
 
-export function buildTeamProfilePayload(values: TeamProfileFormValues, photoPath: string): TeamProfilePayload {
+export function buildTeamProfilePayload(values: TeamProfileFormValues, photoPath: string | null): TeamProfilePayload {
   return {
     email: values.email,
     name: values.name,

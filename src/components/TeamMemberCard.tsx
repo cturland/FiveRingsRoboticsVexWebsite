@@ -14,7 +14,7 @@ type TeamMember = {
 };
 
 export default function TeamMemberCard({ member }: { member: TeamMember }) {
-  const fallback = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='240' viewBox='0 0 400 240'%3E%3Crect width='400' height='240' fill='%23f1f5f9'/%3E%3Ctext x='50%' y='50%' fill='%231e293b' font-size='20' font-family='Inter, system-ui, sans-serif' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
+  const fallback = '/images/FRRLogoBasic.png';
   const [imageSrc, setImageSrc] = useState(member.photo || fallback);
   const primaryRole = member.roles[0] || 'Role not set';
 
@@ -26,7 +26,7 @@ export default function TeamMemberCard({ member }: { member: TeamMember }) {
           alt={`${member.name || 'Team member'} photo`}
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw"
-          className="object-cover"
+          className={imageSrc === fallback ? "object-contain p-6" : "object-cover"}
           unoptimized={imageSrc.startsWith('data:') || imageSrc.startsWith('/api/media/')}
           onError={() => {
             if (imageSrc !== fallback) {

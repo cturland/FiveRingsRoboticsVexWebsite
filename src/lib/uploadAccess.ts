@@ -7,6 +7,10 @@ export function getAllowedDomains() {
   return ['isl.ch', 'islstudent.ch'];
 }
 
+export function isStudentEmail(email: string | null | undefined) {
+  return getEmailDomain((email ?? '').trim().toLowerCase()) === 'islstudent.ch';
+}
+
 export async function getUploadAccess(supabase: SupabaseClient, email: string | null | undefined) {
   const domain = getEmailDomain((email ?? '').trim().toLowerCase());
   if (!getAllowedDomains().includes(domain)) {

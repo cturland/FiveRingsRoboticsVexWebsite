@@ -14,6 +14,7 @@ export type TeamProfileRecord = {
   roles: TeamProfileRole[];
   bio: string;
   isCurrentMember: boolean;
+  isApproved: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -32,7 +33,7 @@ export async function getTeamProfileByEmail(email: string | null | undefined): P
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('team_profiles')
-    .select('id, email, name, photo_path, roles, bio, is_current_member, created_at, updated_at')
+    .select('id, email, name, photo_path, roles, bio, is_current_member, is_approved, created_at, updated_at')
     .eq('email', normalizedEmail)
     .maybeSingle();
 
@@ -50,10 +51,11 @@ export async function getTeamProfileByEmail(email: string | null | undefined): P
     email: data.email,
     name: data.name,
     photoPath: data.photo_path,
-    photoUrl: data.photo_path ? '/api/media/profile/' + data.id : null,
+    photoUrl: data.photo_path ? '/api/media/profile-preview/' + data.id : null,
     roles: normalizeRoles(data.roles),
     bio: data.bio,
     isCurrentMember: data.is_current_member,
+    isApproved: data.is_approved,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
   };
@@ -94,7 +96,8 @@ export async function getAllTeamProfilesForAdmin(): Promise<TeamProfileRecord[]>
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from('team_profiles')
-    .select('id, email, name, photo_path, roles, bio, is_current_member, created_at, updated_at')
+    .select('id, email, name, photo_path, roles, bio, is_current_member, is_approved, created_at, updated_at')
+    .order('is_approved')
     .order('is_current_member', { ascending: false })
     .order('updated_at', { ascending: false });
 
@@ -108,10 +111,11 @@ export async function getAllTeamProfilesForAdmin(): Promise<TeamProfileRecord[]>
     email: item.email,
     name: item.name,
     photoPath: item.photo_path,
-    photoUrl: item.photo_path ? '/api/media/profile/' + item.id : null,
+    photoUrl: item.photo_path ? '/api/media/profile-preview/' + item.id : null,
     roles: normalizeRoles(item.roles),
     bio: item.bio,
     isCurrentMember: item.is_current_member,
+    isApproved: item.is_approved,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
   }));

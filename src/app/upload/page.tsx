@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Card from '@/components/Card';
-import { getUploadAccess } from '@/lib/uploadAccess';
+import { getUploadAccess, isStudentEmail } from '@/lib/uploadAccess';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import UploadForm from './UploadForm';
@@ -31,6 +31,7 @@ export default async function UploadPage() {
   const access = await getUploadAccess(supabase, user.email);
 
   if (!access.isSchoolEmail || !access.isAllowedUploader) {
+    if (isStudentEmail(user.email)) redirect('/profile');
     redirect('/login?error=not_allowed');
   }
 

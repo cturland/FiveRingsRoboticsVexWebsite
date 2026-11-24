@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSafeLoginRedirect, loginCallbackPath, loginDestinationCookie } from '@/lib/loginRedirect';
-import { getUploadAccess } from '@/lib/uploadAccess';
+import { getUploadAccess, isStudentEmail } from '@/lib/uploadAccess';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 
@@ -35,12 +35,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=not_school_email', request.url));
   }
 
-  if (!access.isAllowedUploader) {
+  if (!access.isAllowedUploader && !isStudentEmail(user?.email)) {
     await supabase.auth.signOut();
     return NextResponse.redirect(new URL('/login?error=not_allowed', request.url));
   }
 
-  const response = NextResponse.redirect(new URL(safeNext, request.url));
+  const destination = !access.isAllowedUploader && safeNext === '/upload' ? '/profile' : safeNext;
+  const response = NextResponse.redirect(new URL(destination, request.url));
   response.cookies.set(loginDestinationCookie, '', { path: loginCallbackPath, maxAge: 0 });
   return response;
 }
