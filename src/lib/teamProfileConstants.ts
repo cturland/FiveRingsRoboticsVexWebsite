@@ -6,6 +6,7 @@ export const TEAM_PROFILE_ROLE_OPTIONS = [
   'Driver',
   'Backup Driver',
   'Lead Scout/Strategist',
+  'Marketing',
 ] as const;
 
 export type TeamProfileRole = (typeof TEAM_PROFILE_ROLE_OPTIONS)[number];
