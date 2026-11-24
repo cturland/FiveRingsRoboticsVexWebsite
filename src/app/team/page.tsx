@@ -14,6 +14,7 @@ const TEAM_ROLE_PRIORITY: Record<TeamProfileRole, number> = {
   'Support Programmer': 4,
   'Backup Driver': 5,
   'Lead Scout/Strategist': 6,
+  Marketing: 7,
 };
 
 function sortRolesByPriority(roles: TeamProfileRole[]) {
