@@ -1,5 +1,7 @@
 'use client';
 
+import { teamSite } from '@/lib/teamSite';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useActionState, useEffect, useMemo, useState } from 'react';
@@ -97,7 +99,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin, galleryEnable
     }
   }
 
-  const displayPhoto = previewUrl || existingPhoto;
+  const displayPhoto = previewUrl || existingPhoto || teamSite.logo;
 
   return (
     <div className="mx-auto max-w-4xl py-6 sm:py-8">
@@ -158,7 +160,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin, galleryEnable
                 </label>
 
                 <label className="block">
-                  <span className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">Profile Photo</span>
+                  <span className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-[var(--color-muted)]">Profile Photo (optional)</span>
                   <div className="rounded-[1.4rem] border border-dashed border-white/15 bg-white/5 p-3">
                     <input
                       type="file"
@@ -168,7 +170,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin, galleryEnable
                       className="block w-full text-sm text-[var(--color-muted)] file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-primary)] file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-[0.16em] file:text-white"
                     />
                     <p className="mt-3 text-xs leading-5 text-[var(--color-muted)]">
-                      Upload a headshot or team photo. Photos are resized before upload.
+                      Optional: upload a photo, or use the team logo. Photos are resized before upload.
                     </p>
                     {selectedFileName ? (
                       <p className="mt-2 text-xs font-semibold text-white/90">{selectedFileName}</p>
@@ -187,7 +189,7 @@ export default function ProfileForm({ userEmail, profile, isAdmin, galleryEnable
                         alt="Member profile preview"
                         fill
                         sizes="(min-width: 1024px) 30vw, 100vw"
-                        className="object-cover"
+                        className={previewUrl || existingPhoto ? "object-cover" : "object-contain p-6"}
                         unoptimized={displayPhoto.startsWith('data:') || displayPhoto.startsWith('/api/media/')}
                       />
                     </div>
