@@ -1,12 +1,13 @@
 'use server';
 
 import { teamTables } from '@/lib/supabase/teamTables';
+import { isRosterConfigured } from '@/lib/supabase/rosterReady';
+
 import { revalidatePath, updateTag } from 'next/cache';
 import { getAdminAccess } from '@/lib/adminAccess';
 import { PUBLIC_TEAM_PROFILES_CACHE_TAG } from '@/lib/teamProfiles';
 import { buildTeamProfilePayload, deleteTeamProfilePhoto, parseTeamProfileFormData, uploadTeamProfilePhoto } from '@/lib/teamProfileMutations';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 
 async function requireAdminUser() {
   if (!isRosterConfigured()) throw new Error('Member sign-in is not available.');
@@ -33,7 +34,7 @@ export async function updateTeamProfileAsAdmin(formData: FormData) {
   const { supabase, user } = await requireAdminUser();
   const { data: existing, error: lookupError } = await supabase
     .from(teamTables.profiles)
-    .select('id, photo_path')
+    .select('id, photo_path, updated_at')
     .eq('email', targetEmail)
     .single();
   if (lookupError) throw new Error('Could not read the current team profile.');
@@ -53,12 +54,11 @@ export async function updateTeamProfileAsAdmin(formData: FormData) {
 
   const payload = buildTeamProfilePayload(parsed.values, uploaded.photoPath);
 
-  const save = supabase.from(teamTables.profiles).update(payload).eq('id', existing.id);
-  if (oldPhoto) save.eq('photo_path', oldPhoto);
-  else save.is('photo_path', null);
-  const { error } = await save.select('id').single();
+  const { error } = await supabase.from(teamTables.profiles).update(payload)
+    .eq('id', existing.id).eq('updated_at', existing.updated_at).select('id').single();
 
   if (error) {
+    if (oldPhoto !== uploaded.photoPath) await deleteTeamProfilePhoto(supabase, uploaded.photoPath);
     throw new Error(error.message);
   }
 
@@ -66,6 +66,23 @@ export async function updateTeamProfileAsAdmin(formData: FormData) {
 
   revalidatePath('/admin/team');
   revalidatePath('/team');
+  updateTag(PUBLIC_TEAM_PROFILES_CACHE_TAG);
+}
+
+export async function approveTeamProfile(formData: FormData) {
+  const id = Number(formData.get('id'));
+  const updatedAt = String(formData.get('updatedAt') ?? '');
+  if (!Number.isSafeInteger(id) || id < 1 || !updatedAt) throw new Error('Missing profile revision.');
+
+  const { supabase } = await requireAdminUser();
+  const { data, error } = await supabase.from(teamTables.profiles).update({ is_approved: true })
+    .eq('id', id).eq('updated_at', updatedAt).eq('is_approved', false).select('id').maybeSingle();
+  if (error) throw new Error('Could not approve this profile.');
+  if (!data) throw new Error('This profile changed. Refresh the page and review the latest version.');
+
+  revalidatePath('/admin/team');
+  revalidatePath('/team');
+  revalidatePath('/profile');
   updateTag(PUBLIC_TEAM_PROFILES_CACHE_TAG);
 }
 

@@ -5,7 +5,7 @@ import { getAdminAccess } from '@/lib/adminAccess';
 import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getTeamProfileByEmail } from '@/lib/teamProfiles';
-import { getUploadAccess } from '@/lib/uploadAccess';
+import { getUploadAccess, isStudentEmail } from '@/lib/uploadAccess';
 import ProfileForm from './ProfileForm';
 
 export default async function ProfilePage() {
@@ -32,7 +32,7 @@ export default async function ProfilePage() {
   }
 
   const access = await getUploadAccess(supabase, user.email);
-  if (!access.isSchoolEmail || !access.isAllowedUploader) {
+  if (!access.isAllowedUploader && !isStudentEmail(user.email)) {
     redirect('/login?error=not_allowed');
   }
 
@@ -41,5 +41,5 @@ export default async function ProfilePage() {
     getAdminAccess(user.email),
   ]);
 
-  return <ProfileForm userEmail={user.email} profile={profile} isAdmin={adminAccess.isAdmin} galleryEnabled={galleryEnabled} />;
+  return <ProfileForm userEmail={user.email} profile={profile} isAdmin={adminAccess.isAdmin} galleryEnabled={galleryEnabled && access.isAllowedUploader} />;
 }

@@ -36,7 +36,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <div>
           <h1 className="heading-display mt-4 text-4xl font-black text-white">Sign in to {teamSite.shortName}</h1>
           <p className="mt-4 max-w-2xl text-lg text-[var(--color-muted)]">
-            Use your approved ISL Google account to sign in.
+            Use your ISL Google account. Students can submit a team profile for admin approval.
           </p>
         </div>
 

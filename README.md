@@ -43,6 +43,10 @@ To enable Cool Runnings sign-in, add its `/auth/callback` URL to the shared proj
 
 ## School Google sign-in
 
+Cool Runnings students with an `@islstudent.ch` Google account can sign in and submit their own profile. New profiles and member edits remain private until a Cool Runnings roster admin selects **Approve and publish saved profile** at `/admin/team`. Existing profiles remain published. Gallery upload access still requires the team's private access list. Apply `20261124163848_cool_runnings_student_profile_approval.sql` with this release; it changes only Cool Runnings tables and photo permissions.
+
+The name shown by Google comes from Google Auth Platform's Branding settings for the configured OAuth client, independently of the website title. This shared Supabase project currently uses Google client `353861928356-5ot427qnohjo99ruu0un1l78jn88hr8n.apps.googleusercontent.com`. Use a shared robotics brand or a separate Google Cloud project for robotics; changing a shared Google brand also affects other applications using that project.
+
 The team sites use the Google provider in the shared Supabase Auth project. In Google Auth Platform, create a Web application OAuth client. Use an Internal audience if both school email domains belong to the same ISL Google Workspace organization.
 
 - Authorized JavaScript origins: `https://five-rings-robotics-vex-website.vercel.app` and `https://cool-runnings-vex.vercel.app`.

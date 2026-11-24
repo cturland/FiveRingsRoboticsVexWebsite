@@ -8,7 +8,7 @@ import { isRosterConfigured } from '@/lib/supabase/rosterReady';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { TEAM_PROFILE_ROLE_OPTIONS } from '@/lib/teamProfileConstants';
 import { getAllTeamProfilesForAdmin } from '@/lib/teamProfiles';
-import { deleteTeamProfileAsAdmin, updateTeamProfileAsAdmin } from './actions';
+import { approveTeamProfile, deleteTeamProfileAsAdmin, updateTeamProfileAsAdmin } from './actions';
 
 export default async function AdminTeamPage() {
   if (!isRosterConfigured()) {
@@ -62,7 +62,7 @@ export default async function AdminTeamPage() {
     <AdminShell
       activeSection="team"
       title="Manage Team Profiles"
-      description="Edit member bios, replace photos, move alumni into the Hall of Fame, or remove profiles that should no longer appear on the site."
+      description="Review and approve pending profiles, edit member details, or remove profiles from the team site."
       userEmail={user.email}
       showGallery={access.canModerateGallery}
     >
@@ -100,6 +100,7 @@ export default async function AdminTeamPage() {
                   <div className="rounded-[1.2rem] border border-white/10 bg-white/5 p-4">
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--color-muted)]">Member Email</p>
                     <p className="mt-2 break-all text-sm font-semibold text-white">{profile.email}</p>
+                    <p className="mt-2 text-sm text-[var(--color-muted)]">{profile.isApproved ? 'Published' : 'Awaiting approval'}</p>
                   </div>
                 </div>
 
@@ -181,6 +182,14 @@ export default async function AdminTeamPage() {
                       </button>
                     </div>
                   </form>
+
+                  {!profile.isApproved ? (
+                    <form action={approveTeamProfile}>
+                      <input type="hidden" name="id" value={profile.id} />
+                      <input type="hidden" name="updatedAt" value={profile.updatedAt} />
+                      <button type="submit" className="btn btn-primary">Approve and publish saved profile</button>
+                    </form>
+                  ) : null}
 
                   <form action={deleteTeamProfileAsAdmin}>
                     <input type="hidden" name="email" value={profile.email} />
