@@ -7,6 +7,7 @@ const tableNames = {
     admins: 'gallery_admins',
     profiles: 'team_profiles',
     publicProfiles: 'published_team_profiles',
+    publicProfilePhotos: 'published_team_profile_photos',
     submissions: 'gallery_submissions',
     publicSubmissions: 'published_gallery_submissions',
     accessCheck: 'has_team_site_access',
@@ -15,6 +16,7 @@ const tableNames = {
     admins: 'cr_roster_admins',
     profiles: 'cr_team_profiles',
     publicProfiles: 'cr_published_team_profiles',
+    publicProfilePhotos: 'cr_published_team_profile_photos',
     submissions: 'cr_gallery_submissions',
     publicSubmissions: 'cr_published_gallery_submissions',
     accessCheck: 'has_cr_team_site_access',
@@ -23,6 +25,7 @@ const tableNames = {
     admins: 'bm_roster_admins',
     profiles: 'bm_team_profiles',
     publicProfiles: 'bm_published_team_profiles',
+    publicProfilePhotos: 'bm_published_team_profile_photos',
     submissions: 'bm_gallery_submissions',
     publicSubmissions: 'bm_published_gallery_submissions',
     accessCheck: 'has_bm_team_site_access',
@@ -30,3 +33,4 @@ const tableNames = {
 };
 
 export const teamTables = tableNames[teamSite.slug];
+
